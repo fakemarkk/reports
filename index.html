@@ -1,17 +1,94 @@
 <!DOCTYPE html>
 <html lang="th"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<script>/* theme: saved choice (localStorage "theme") or system setting — set before paint */(function(){var d=document.documentElement,m=window.matchMedia&&matchMedia("(prefers-color-scheme: dark)");function s(){try{var t=localStorage.getItem("theme");return t==="light"||t==="dark"?t:""}catch(e){return ""}}function a(){d.dataset.theme=s()||(m&&m.matches?"dark":"light")}a();if(m){if(m.addEventListener)m.addEventListener("change",a);else if(m.addListener)m.addListener(a)}addEventListener("storage",a);addEventListener("pageshow",a)})();</script>
 <title>รายงาน ฝปข.ทสภ.</title>
 <style>
-body{font-family:system-ui,"Sarabun","Noto Sans Thai",sans-serif;background:#eef2f7;margin:0;padding:16px;color:#1c2733}
-.wrap{max-width:720px;margin:auto}h1{font-size:22px;margin:8px 0 4px}p{color:#666;margin:0 0 16px}
-a.item{display:flex;align-items:center;gap:14px;background:#fff;border-radius:14px;padding:18px;margin-bottom:12px;text-decoration:none;color:inherit;box-shadow:0 1px 3px rgba(0,0,0,.08)}
-.ic{font-size:28px}.t{font-size:18px;font-weight:600}.d{font-size:14px;color:#777}.ar{margin-left:auto;color:#aaa;font-size:24px}
-.cl{float:right;margin-top:6px;font-size:13px;color:#0b5394;background:#fff;border-radius:16px;padding:6px 12px;text-decoration:none;box-shadow:0 1px 3px rgba(0,0,0,.08);white-space:nowrap}
+:root{
+  /* 🎨 Pastel calm theme — ปรับสีทั้งหมดได้ที่นี่ */
+  --bg:#f6f4fa;          /* พื้นหลังหน้า: ลาเวนเดอร์อ่อนมาก */
+  --card:#ffffff;        /* การ์ด/ช่องกรอก */
+  --soft:#f9f8fc;        /* พื้นอ่อนในกล่อง */
+  --ink:#2b2f45;         /* ตัวอักษรหลัก */
+  --muted:#575c6e;       /* ป้ายช่องกรอก */
+  --muted2:#5e6376;      /* คำอธิบาย/hint */
+  --faint:#a9acbd;       /* ไอคอนลูกศร/disabled */
+  --accent:#3e5f94;      /* หัวข้อ/ลิงก์: น้ำเงินหม่น */
+  --accent-soft:#e7edf8; /* พื้นปุ่มรอง */
+  --accent-line:#b4c6e6;
+  --btn:#cddcf3;         /* ปุ่มหลัก: ฟ้าพาสเทล */
+  --btn-ink:#1f3a66;
+  --seg-bg:#ece9f4;      /* พื้นปุ่มเลือก */
+  --chip:#eeecf4;
+  --line:#e4e2ee;        /* เส้นขอบอ่อน */
+  --field-line:#d4d2e3;  /* ขอบช่องกรอก */
+  --disabled-ink:#a1a5b4;
+  --line-green:#15834a;  /* ปุ่มคัดลอกไปไลน์ (เขียวไลน์โทนนุ่ม) */
+  --warn:#ec9a3c; --warn-bg:#fff3e6; --warn-line:#f1c08a; --warn-ink:#b4470f; --warn-text:#7a4210;
+  --ok-bg:#eaf7ef; --ok-line:#8fd3a8; --ok-ink:#1d5e33;
+  --err-bg:#fdeef0; --err-line:#f2c4c8; --err-ink:#b3261e;
+  --shadow-c:rgba(72,62,120,.10);
+  --radius:16px;
+}
+
+body{font-family:system-ui,"Sarabun","Noto Sans Thai",sans-serif;background:var(--bg);margin:0;padding:16px;color:var(--ink)}
+.wrap{max-width:720px;margin:auto}h1{font-size:22px;margin:8px 0 4px}p{color:var(--muted);margin:0 0 16px}
+a.item{display:flex;align-items:center;gap:14px;background:var(--card);border-radius:14px;padding:18px;margin-bottom:12px;text-decoration:none;color:inherit;box-shadow:0 1px 3px var(--shadow-c)}
+.ic{font-size:28px}.t{font-size:18px;font-weight:600}.d{font-size:14px;color:var(--muted2)}.ar{margin-left:auto;color:var(--faint);font-size:24px}
+.cl{float:right;margin-top:6px;font-size:13px;color:var(--accent);background:var(--card);border-radius:16px;padding:6px 12px;text-decoration:none;box-shadow:0 1px 3px var(--shadow-c);white-space:nowrap}
+
+/* ---- pastel theme: menu cards, a different gentle tint each ---- */
+a.item{border:1px solid var(--line);border-left:6px solid var(--tint-line);background:var(--tint);border-radius:18px;box-shadow:0 2px 10px var(--shadow-c)}
+a.item[href="delay/"]{--tint:#fff3ea;--tint-line:#f5bf9a}
+a.item[href="return-taxi/"]{--tint:#eaf6ef;--tint-line:#9fd6b5}
+a.item[href="return-flight/"]{--tint:#eaf1fb;--tint-line:#a9c3ea}
+a.item[href="aog/"]{--tint:#f2edfb;--tint-line:#c5b4ea}
+.ic{display:flex;align-items:center;justify-content:center;width:52px;height:52px;flex:0 0 52px;border-radius:50%;background:rgba(255,255,255,.75)}
+.cl{border:1px solid var(--line);background:var(--card);color:var(--accent)}
+h1{color:var(--ink)}
+
+/* ---- ปุ่มสลับโหมดมืด/ปกติ (เล็ก ข้างปุ่มเวอร์ชัน) ---- */
+.tt{float:right;margin:6px 8px 0 0;width:31px;height:31px;padding:0;border:1px solid var(--line);border-radius:50%;background:var(--card);box-shadow:0 1px 3px var(--shadow-c);font-size:15px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent}
+.tt::before{content:"🌙"}
+html[data-theme="dark"] .tt::before{content:"☀️"}
+.tt:focus-visible{outline:2px solid var(--accent-line);outline-offset:2px}
+
+/* ===== 🌙 Dark mode (soft): เปลี่ยนเฉพาะตัวแปรสี เมื่อ html[data-theme="dark"] (ตามเครื่อง หรือเลือกจากปุ่มในหน้าแรก) ===== */
+  html[data-theme="dark"]{
+    color-scheme:dark;
+    --bg:#1c2030; --card:#262b3d; --soft:#2c3246;
+    --ink:#e6e8f0; --muted:#c5c9d8; --muted2:#aab0c4; --faint:#80869c;
+    --accent:#a9c4f2; --accent-soft:#33405e; --accent-line:#6580b3;
+    --btn:#a9c4f2; --btn-ink:#14233f;
+    --seg-bg:#1f2435; --seg-on:#3f5888; --seg-on-ink:#eef3ff; --seg-on-line:#7f9bd0;
+    --chip:#363c53;
+    --line:#3e4560; --field-line:#5a6180;
+    --placeholder:#7f859c; --disabled-ink:#727890;
+    --line-green:#15834a;
+    --warn:#f0a75a; --warn-bg:#3a2c1e; --warn-line:#a87238; --warn-ink:#ffc08a; --warn-text:#f7d6ae;
+    --ok-bg:#1f3529; --ok-line:#4f8f69; --ok-ink:#a8e4bf;
+    --err-bg:#3d2228; --err-line:#8d4a52; --err-ink:#ffadb5;
+    --shadow-c:rgba(0,0,0,.35);
+  }
+  html[data-theme="dark"] .toast{background:#e6e8f0;color:#1c2030}
+  html[data-theme="dark"] h1 small{color:var(--muted2)!important}
+  html[data-theme="dark"] .copy,html[data-theme="dark"] .share{box-shadow:0 2px 10px rgba(0,0,0,.4)}
+  html[data-theme="dark"] select{background-color:var(--card)}
+  /* เอกสาร A4 และรูปที่ export ต้องขาว-ดำเสมอ */
+  html[data-theme="dark"] .pvbox,html[data-theme="dark"] .a4{color-scheme:light;background:#fff;color:#000}
+  html[data-theme="dark"] a.item[href="delay/"]{--tint:#3a302c;--tint-line:#c99a7a}
+  html[data-theme="dark"] a.item[href="return-taxi/"]{--tint:#243a31;--tint-line:#7fbf9b}
+  html[data-theme="dark"] a.item[href="return-flight/"]{--tint:#253348;--tint-line:#86a8d8}
+  html[data-theme="dark"] a.item[href="aog/"]{--tint:#302b45;--tint-line:#a996d8}
+  html[data-theme="dark"] .ic{background:rgba(255,255,255,.08)}
+  html[data-theme="dark"] p,html[data-theme="dark"] .d{color:var(--muted2)}
 </style></head><body><div class="wrap">
-<a class="cl" href="changelog/" aria-label="Change log">📋 v1.6.1</a>
+<a class="cl" href="changelog/" aria-label="Change log">📋 v1.7.0</a>
+<button class="tt" id="themeToggle" type="button" aria-label="สลับโหมดมืด / ปกติ" title="สลับโหมดมืด / ปกติ"></button>
 <h1>📋 รายงาน ฝปข.ทสภ.</h1><p>เลือกรายงานที่ต้องการ กรอกข้อมูล แล้วกดคัดลอกไปวางในไลน์</p>
 <a class="item" href="delay/"><span class="ic">⏱️</span><span><div class="t">รายงานเที่ยวบินล่าช้า</div><div class="d">ล่าช้าเกิน 3 ชั่วโมง</div></span><span class="ar">›</span></a>
 <a class="item" href="return-taxi/"><span class="ic">✈️</span><span><div class="t">รายงาน Return Taxi</div><div class="d">เบื้องต้น / เพิ่มเติม</div></span><span class="ar">›</span></a>
 <a class="item" href="return-flight/"><span class="ic">🛬</span><span><div class="t">รายงาน Return Flight</div><div class="d">เบื้องต้น / เพิ่มเติม</div></span><span class="ar">›</span></a>
 <a class="item" href="aog/"><span class="ic">🛠️</span><span><div class="t">รายงาน Aircraft on Ground (AOG)</div><div class="d">เบื้องต้น / เพิ่มเติม</div></span><span class="ar">›</span></a>
-</div></body></html>
+</div>
+<script>/* ปุ่มสลับโหมด: บันทึก light/dark ใน localStorage "theme" */document.getElementById("themeToggle").addEventListener("click",function(){var d=document.documentElement,t=d.dataset.theme==="dark"?"light":"dark";d.dataset.theme=t;try{localStorage.setItem("theme",t)}catch(e){}});</script>
+</body></html>
