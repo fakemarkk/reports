@@ -62,8 +62,14 @@
 <div class="topbar"><a class="back" href="../">‹ หน้าแรก</a></div>
 <h1>🛠️ รายงาน Aircraft on Ground (AOG)</h1>
 
-<!-- ประเภทรายงาน: ตอนนี้มีแค่ "เบื้องต้น" (ยังไม่แสดงปุ่มสลับ) เพิ่ม "เพิ่มเติม" ได้ที่ MODES ด้านล่าง -->
+<div class="card"><h2>ประเภทรายงาน</h2>
 <input type="hidden" id="kind" value="initial">
+<div class="seg" id="kindSeg">
+  <button type="button" data-v="initial">📝 เบื้องต้น<span>ส่งทันทีตอนเกิดเหตุ</span></button>
+  <button type="button" data-v="more">📋 เพิ่มเติม<span>เมื่อได้ข้อมูลครบ</span></button>
+</div>
+<div class="hint">สลับประเภทได้ตลอด ข้อมูลที่กรอกไว้ไม่หาย</div>
+</div>
 
 <div class="card"><h2>ช่วงเวลารายงาน</h2>
 <div class="stack">
@@ -79,11 +85,11 @@
 <div class="hint" id="dateShow"></div>
 </div>
 
-<div class="card"><h2>1. เหตุการณ์</h2>
+<div class="card"><h2 id="h1">1. เหตุการณ์</h2>
 <div class="grid">
   <label>สาเหตุ<input id="reason" class="up" value="TECHNICAL PROBLEM" list="reasons"></label>
   <datalist id="reasons"><option>TECHNICAL PROBLEM</option><option>BIRD STRIKE</option><option>WEATHER</option><option>MEDICAL CASE</option></datalist>
-  <label>จำนวนเที่ยวบิน<input id="count" inputmode="numeric" value="1" placeholder="1"></label>
+  <label id="countWrap">จำนวนเที่ยวบิน<input id="count" inputmode="numeric" value="1" placeholder="1"></label>
 </div></div>
 
 <div class="card"><h2>2. ข้อมูลเที่ยวบิน</h2>
@@ -99,32 +105,50 @@
 <div class="hint">พิมพ์เวลาเป็น 02.30 หรือพิมพ์แค่ 0230 ก็ได้ ระบบจะจัดรูปแบบให้ตอนออกจากช่อง · รหัสสนามบินใส่ในวงเล็บเมื่อกรอกรหัสปลายทาง</div>
 </div>
 
-<div class="card"><h2>3. ลูกเรือ / ผู้โดยสาร</h2>
+<div class="card"><h2 id="paxH">3. ลูกเรือ / ผู้โดยสาร</h2>
 <label class="chk"><input type="checkbox" id="paxUnk" checked> ยังไม่ทราบข้อมูลลูกเรือ/ผู้โดยสาร</label>
 <div class="grid" id="paxGrid">
   <label>ลูกเรือ (คน)<input id="crew" inputmode="numeric" placeholder="27"></label>
   <label>ผู้โดยสาร (คน)<input id="pax" inputmode="numeric" placeholder="504"></label>
 </div>
 <div class="hint" id="paxHint">ถ้าทราบจำนวนแล้ว เอาติ๊กออกแล้วพิมพ์ตัวเลข</div>
-<div class="sub">สายการบินดูแลผู้โดยสารอย่างไร <small>(ไม่บังคับ)</small></div>
+<div class="sub"><b id="careNo" class="hidden"></b>สายการบินดูแลผู้โดยสารอย่างไร <small>(ไม่บังคับ)</small></div>
 <textarea id="care" aria-label="สายการบินดูแลผู้โดยสารอย่างไร" placeholder="เช่น สายการบินนำผู้โดยสารเข้าพักที่โรงแรม"></textarea>
-<div class="hint">ถ้าเว้นว่าง บรรทัดนี้จะไม่แสดงในรายงาน ถ้าไม่ทราบจำนวนและไม่ได้กรอกข้อนี้ ข้อ 3 จะถูกตัดออกและเลื่อนเลขข้อให้อัตโนมัติ</div>
+<div class="hint" id="careHint">ถ้าเว้นว่าง บรรทัดนี้จะไม่แสดงในรายงาน ถ้าไม่ทราบจำนวนและไม่ได้กรอกข้อนี้ ข้อ 3 จะถูกตัดออกและเลื่อนเลขข้อให้อัตโนมัติ</div>
 </div>
 
 <div class="card"><h2 id="offH">4. OFFLOAD สัมภาระ</h2>
+<div id="towWrap" class="hidden">
+<label class="chk"><input type="checkbox" id="towOn"> มีลากเข้าหลุมจอด</label>
+<div class="grid" id="towGrid" style="margin-bottom:10px">
+  <label>ลากเข้าหลุมจอด<input id="towBay" class="up" inputmode="numeric" placeholder="502"></label>
+  <label>เวลาที่ลากเข้า<input id="towTime" class="t" inputmode="numeric" placeholder="23.28"></label>
+</div>
+<div class="hint" id="towHint" style="margin-bottom:10px">ถ้าไม่ได้ลากเข้าหลุมจอด ไม่ต้องติ๊ก บรรทัดนี้จะไม่แสดง</div>
+</div>
 <div class="grid">
   <label>สายพานหมายเลข<input id="belt" inputmode="numeric" placeholder="17"></label>
 </div>
 <div class="hint">ถ้ายังไม่ทราบ เว้นว่างได้ ในรายงานจะแสดงเป็น “-”</div>
 </div>
 
-<div class="card"><h2 id="nextH">5. เวลาออกใหม่</h2>
+<div class="card" id="cardNext"><h2 id="nextH">5. เวลาออกใหม่</h2>
 <label class="chk"><input type="checkbox" id="unk" checked> ยังไม่ทราบเวลาออกใหม่</label>
 <div class="grid" id="neobtGrid">
   <label>EOBT (เวลาออกใหม่)<input id="neobt" class="t" inputmode="numeric" placeholder="10.30"></label>
   <label><span>วันที่ <small>(ถ้ามี)</small></span><input type="date" id="neobtDate"></label>
 </div>
 <div class="hint" id="neobtHint">ถ้าทราบเวลาแล้ว เอาติ๊กออกแล้วพิมพ์เวลา เช่น 10.30 หรือ 1030 ใส่วันที่ด้วยถ้าออกคนละวัน</div>
+</div>
+
+<div class="card hidden" id="cardNew"><h2 id="newH">6. ทำการบินออกใหม่</h2>
+<label class="chk"><input type="checkbox" id="newUnk"> ยังไม่มีกำหนดทำการบินออกใหม่</label>
+<div class="grid" id="newGrid">
+  <label>เที่ยวบินใหม่<input id="newFlight" class="up" placeholder="CI 2840"></label>
+  <label>ATOT (เวลาบินขึ้น)<input id="atot" class="t" inputmode="numeric" placeholder="13.40"></label>
+  <label class="full"><span>วันที่บินออก <small>(ถ้าไม่เลือก ใช้วันที่เริ่มผลัด)</small></span><input type="date" id="newDate"></label>
+</div>
+<div class="hint">พิมพ์เวลาเป็น 13.40 หรือ 1340 ก็ได้</div>
 </div>
 
 <div class="card"><h2>ผู้รายงาน</h2>
@@ -161,6 +185,8 @@ const V=id=>v(id).toUpperCase();
 const yy=d=>String(d.getFullYear()+543).slice(-2);
 // รูปแบบวันที่ของรายงานนี้: "16 ส.ค.69" (ไม่เว้นวรรคก่อนปี)
 function th(d){return d.getDate()+" "+M[d.getMonth()]+yy(d)}
+// แบบเว้นวรรคก่อนปี "29 ต.ค. 69" (ใช้ในข้อทำการบินออกใหม่ของรายงานเพิ่มเติม)
+function thS(d){return isNaN(d)?"-":d.getDate()+" "+M[d.getMonth()]+" "+yy(d)}
 function dates(){
   const s=v("d1"); if(!s) return {range:"",day1:"",day2:""};
   const a=new Date(s+"T00:00:00"), b=new Date(a); b.setDate(a.getDate()+1);
@@ -190,6 +216,8 @@ function collect(){
     paxKnown:!$("paxUnk").checked, crew:v("crew"), pax:v("pax"),
     care:$("care").value.replace(/\r\n?/g,"\n").split("\n").map(s=>s.trim()).filter(Boolean),
     belt:v("belt"),
+    towOn:$("towOn").checked, towBay:V("towBay").replace(/^BAY\s*/,""), towTime:v("towTime"),
+    newKnown:!$("newUnk").checked, newFlight:V("newFlight"), atot:v("atot"), newDay:thS(new Date((v("newDate")||v("d1"))+"T00:00:00")),
     eobtKnown:!$("unk").checked, neobt:v("neobt"), neobtDay:nd?th(new Date(nd+"T00:00:00")):"",
     name:v("name"), shift:$("shift").value, unit:unit()};
 }
@@ -202,8 +230,16 @@ const MODES={
     (x.paxKnown||x.care.length)?[...(x.paxKnown?["เที่ยวบินนี้มีจำนวนลูกเรือ "+x.crew+" คน","จำนวนผู้โดยสาร "+x.pax+" คน"]:[]),...x.care]:null,
     ["สายการบินทำการ OFFLOAD สัมภาระลูกเรือและผู้โดยสารที่สายพานหมายเลข "+(x.belt||"-")],
     [x.eobtKnown?"กำหนดทำการบินออกใหม่ (EOBT) "+x.neobt+" น."+(x.neobtDay?" ("+x.neobtDay+")":""):"ยังไม่มีกำหนดทำการบินออกใหม่"]
-  ]}
-  // more:{title:"รายงานข้อมูลเพิ่มเติม", items:x=>[...]}  ← เพิ่มทีหลัง
+  ], tail:["","ทั้งนี้รายละเอียดเพิ่มเติมจะแจ้งให้ทราบต่อไป"]},
+  more:{title:"รายงานข้อมูลเพิ่มเติม", items:x=>[
+    ["เที่ยวบิน AIRCRAFT ON GROUND (AOG) เนื่องจาก "+x.reason],
+    ["สายการบิน "+x.airline,"เที่ยวบิน "+x.flight,"เวลาตามตารางการบิน (SOBT) "+x.sobt+" น.","เส้นทางบิน "+x.route,"ทะเบียนอากาศยาน "+x.reg,...(x.bay?["หลุมจอดอากาศยาน "+x.bay]:[])],
+    // ข้อ 3/4 ถ้าไม่ทราบจำนวน หรือไม่ได้กรอกวิธีดูแล → ตัดข้อนั้นออกแล้วเลื่อนเลข
+    x.paxKnown?["จำนวนผู้โดยสาร "+x.pax+" คน","จำนวนลูกเรือ "+x.crew+" คน"]:null,
+    x.care.length?x.care:null,
+    [...(x.towOn?["อากาศยานลากเข้าจอดหลุมจอดฯ "+(x.towBay||"-")+" เวลา "+(x.towTime||"-")+" น."]:[]),"สายการบินทำการ OFFLOAD สัมภาระลูกเรือและผู้โดยสารที่สายพานหมายเลข "+(x.belt||"-")],
+    [x.newKnown?"สายการบินทำการบินออกใหม่เป็นเที่ยวบิน "+(x.newFlight||"-")+" ของวันที่ "+x.newDay+" เมื่อเวลา (ATOT) "+(x.atot||"-")+" น. เรียบร้อยแล้ว":"ยังไม่มีกำหนดทำการบินออกใหม่"]
+  ], tail:[]}
 };
 function render(x,kind){
   const m=MODES[kind]||MODES.initial;
@@ -217,8 +253,7 @@ function render(x,kind){
 "",
 m.title,
 ...body,
-"",
-"ทั้งนี้รายละเอียดเพิ่มเติมจะแจ้งให้ทราบต่อไป",
+...m.tail,
 "",
 "จึงเรียนมาเพื่อทราบ",
 x.name||"XXXXXX",
@@ -234,17 +269,39 @@ function build(){
   document.querySelectorAll("#periodSeg button").forEach(b=>b.classList.toggle("on",b.dataset.v===$("period").value));
   $("paxGrid").querySelectorAll("input").forEach(e=>e.disabled=!x.paxKnown);
   ["neobt","neobtDate"].forEach(i=>$(i).disabled=!x.eobtKnown);
-  // เลขข้อบนการ์ดให้ตรงกับรายงาน (ข้อ 3 อาจถูกตัด)
-  const has3=x.paxKnown||x.care.length>0;
-  $("offH").textContent=(has3?"4":"3")+". OFFLOAD สัมภาระ";
-  $("nextH").textContent=(has3?"5":"4")+". เวลาออกใหม่";
-  $("out").textContent=render(x,$("kind").value);
+  const kind=MODES[$("kind").value]?$("kind").value:"initial", more=kind==="more";
+  document.querySelectorAll("#kindSeg button").forEach(b=>b.classList.toggle("on",b.dataset.v===kind));
+  // แสดงเฉพาะช่องที่ใช้ในประเภทรายงานนี้
+  $("countWrap").classList.toggle("hidden",more);
+  $("cardNext").classList.toggle("hidden",more);
+  $("cardNew").classList.toggle("hidden",!more);
+  $("towWrap").classList.toggle("hidden",!more);
+  $("careNo").classList.toggle("hidden",!more);
+  $("careHint").textContent=more?"ถ้าเว้นว่าง ข้อนี้จะไม่แสดงในรายงานและเลื่อนเลขข้อให้อัตโนมัติ":"ถ้าเว้นว่าง บรรทัดนี้จะไม่แสดงในรายงาน ถ้าไม่ทราบจำนวนและไม่ได้กรอกข้อนี้ ข้อ 3 จะถูกตัดออกและเลื่อนเลขข้อให้อัตโนมัติ";
+  ["towBay","towTime"].forEach(i=>$(i).disabled=!x.towOn);
+  ["newFlight","atot","newDate"].forEach(i=>$(i).disabled=!x.newKnown);
+  // เลขข้อบนการ์ดให้ตรงกับรายงาน (ข้อ 3/4 อาจถูกตัด)
+  if(more){
+    let n=2;const p=x.paxKnown?++n:0, c=x.care.length?++n:0;
+    $("h1").textContent="1. สาเหตุ";
+    $("paxH").textContent=(p?p+". ":"")+"ลูกเรือ / ผู้โดยสาร";
+    $("careNo").textContent=c?c+". ":"";
+    $("offH").textContent=(n+1)+". "+(x.towOn?"ลากเข้าหลุมจอด / ":"")+"OFFLOAD สัมภาระ";
+    $("newH").textContent=(n+2)+". ทำการบินออกใหม่";
+  }else{
+    const has3=x.paxKnown||x.care.length>0;
+    $("h1").textContent="1. เหตุการณ์";
+    $("paxH").textContent="3. ลูกเรือ / ผู้โดยสาร";
+    $("offH").textContent=(has3?"4":"3")+". OFFLOAD สัมภาระ";
+    $("nextH").textContent=(has3?"5":"4")+". เวลาออกใหม่";
+  }
+  $("out").textContent=render(x,kind);
   saveDraft();
 }
 // ไม่บันทึกชื่อผู้รายงานและผลัด
-const DRAFT=["d1","period","kind","reason","count","airline","flight","sobt","org","dst","orgName","dstName","reg","bay","crew","pax","care","belt","neobt","neobtDate"];
-function saveDraft(){const o={};DRAFT.forEach(i=>o[i]=$(i).value);o.paxUnk=$("paxUnk").checked;o.unk=$("unk").checked;store.set("aog_draft",JSON.stringify(o))}
-function loadDraft(){try{const o=JSON.parse(store.get("aog_draft")||"null");if(!o)return;DRAFT.forEach(i=>{if(o[i]!=null&&$(i))$(i).value=o[i]});if(!MODES[$("kind").value])$("kind").value="initial";$("paxUnk").checked=o.paxUnk!==false;$("unk").checked=o.unk!==false}catch(e){}}
+const DRAFT=["d1","period","kind","reason","count","airline","flight","sobt","org","dst","orgName","dstName","reg","bay","crew","pax","care","belt","neobt","neobtDate","towBay","towTime","newFlight","atot","newDate"];
+function saveDraft(){const o={};DRAFT.forEach(i=>o[i]=$(i).value);o.paxUnk=$("paxUnk").checked;o.unk=$("unk").checked;o.towOn=$("towOn").checked;o.newUnk=$("newUnk").checked;store.set("aog_draft",JSON.stringify(o))}
+function loadDraft(){try{const o=JSON.parse(store.get("aog_draft")||"null");if(!o)return;DRAFT.forEach(i=>{if(o[i]!=null&&$(i))$(i).value=o[i]});if(!MODES[$("kind").value])$("kind").value="initial";$("paxUnk").checked=o.paxUnk!==false;$("unk").checked=o.unk!==false;$("towOn").checked=o.towOn===true;$("newUnk").checked=o.newUnk===true}catch(e){}}
 function copyText(){
   const txt=$("out").textContent;
   const done=()=>{const t=$("toast");t.classList.add("show");setTimeout(()=>t.classList.remove("show"),1500)};
@@ -255,7 +312,7 @@ function fallback(txt,done){const ta=document.createElement("textarea");ta.value
 function clearFlight(){
   if(!confirm("ล้างข้อมูลเที่ยวบินทั้งหมด?"))return;
   $("orgName").value="BANGKOK";$("org").value="BKK";$("dstName").value="";$("dst").value="";
-  ["airline","flight","sobt","reg","bay","crew","pax","care","belt","neobt","neobtDate"].forEach(i=>$(i).value="");
+  ["airline","flight","sobt","reg","bay","crew","pax","care","belt","neobt","neobtDate","towBay","towTime","newFlight","atot","newDate"].forEach(i=>$(i).value="");$("towOn").checked=false;$("newUnk").checked=false;
   $("reason").value="TECHNICAL PROBLEM";$("count").value="1";$("paxUnk").checked=true;$("unk").checked=true;$("kind").value="initial";
   build();
 }
@@ -270,6 +327,9 @@ function clearFlight(){
   document.querySelectorAll("#periodSeg button").forEach(b=>b.addEventListener("click",()=>{$("period").value=b.dataset.v;build()}));
   document.querySelectorAll("input,select,textarea").forEach(el=>{el.addEventListener("input",build);el.addEventListener("change",build)});
   $("unk").addEventListener("change",()=>{if(!$("unk").checked)$("neobt").focus()});
+  document.querySelectorAll("#kindSeg button").forEach(b=>b.addEventListener("click",()=>{$("kind").value=b.dataset.v;build()}));
+  $("towOn").addEventListener("change",()=>{if($("towOn").checked)$("towBay").focus()});
+  $("newUnk").addEventListener("change",()=>{if(!$("newUnk").checked)$("newFlight").focus()});
   $("paxUnk").addEventListener("change",()=>{if(!$("paxUnk").checked)$("crew").focus()});
   build();
 })();
