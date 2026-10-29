@@ -16,6 +16,11 @@
   input,select,textarea{font-size:16px;padding:9px;border:1px solid #c9d2dc;border-radius:8px;font-family:inherit;width:100%}
   input:focus,select:focus{outline:2px solid #0b5394;border-color:#0b5394}
   .up{text-transform:uppercase}
+  .rrow{grid-column:1/-1;display:flex;flex-direction:column;gap:4px;font-size:13px;color:#555}
+  .rrow small{color:#8a96a3;font-size:12px}
+  .rflex{display:flex;gap:8px}
+  .rflex input{flex:1 1 auto;min-width:0}
+  .rflex input.code{flex:0 0 84px;width:84px;text-align:center}
   input,select{-webkit-appearance:none;appearance:none;background:#fff;height:46px;color:#1c2733}
   select{background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23555' stroke-width='2' fill='none'/%3E%3C/svg%3E") no-repeat right 12px center;padding-right:32px}
   .datebox{position:relative;height:52px;border:1px solid #c9d2dc;border-radius:10px;display:flex;align-items:center;gap:10px;padding:0 14px;background:#fff;font-size:18px;font-weight:600}
@@ -33,6 +38,7 @@
   .chk input{-webkit-appearance:auto;appearance:auto;width:24px;height:24px;margin:0;flex:0 0 24px;accent-color:#0b5394}
   .hidden{display:none!important}
   input:disabled{background:#eef1f4;color:#9aa4ae;border-color:#dde3ea;-webkit-text-fill-color:#9aa4ae;opacity:1;cursor:not-allowed}
+  input:disabled::placeholder{color:transparent;-webkit-text-fill-color:transparent}
   pre{white-space:pre-wrap;background:#f7f9fb;border:1px solid #dde3ea;border-radius:8px;padding:12px;font-family:inherit;font-size:15px;margin:0}
   .bar{position:sticky;bottom:0;display:flex;gap:8px;padding:10px 0;background:#eef2f7}
   button{flex:1;font-size:17px;padding:13px;border:0;border-radius:10px;cursor:pointer;font-family:inherit}
@@ -84,7 +90,8 @@
   <label>เที่ยวบิน<input id="flight" class="up" placeholder="EK377"></label>
   <label>SOBT<input id="sobt" class="t" inputmode="numeric" placeholder="02.50"></label>
   <label id="sobtDayWrap">วันที่ของ SOBT<input type="hidden" id="sobtDay" value="2"><div class="seg" id="sobtSeg"><button type="button" data-v="1" id="sd1">วันแรก</button><button type="button" data-v="2" id="sd2">หลังเที่ยงคืน</button></div></label>
-  <label>เส้นทางบิน<input id="route" class="up" placeholder="BANGKOK - DUBAI"></label>
+  <div class="rrow"><span>ต้นทาง <small>(ชื่อเมือง / รหัสสนามบิน)</small></span><div class="rflex"><input id="orgName" class="up" value="BANGKOK" placeholder="BANGKOK" autocapitalize="characters" aria-label="ชื่อเมืองต้นทาง"><input id="org" class="up code" value="BKK" maxlength="4" placeholder="BKK" autocapitalize="characters" aria-label="รหัสสนามบินต้นทาง"></div></div>
+  <div class="rrow"><span>ปลายทาง <small>(ชื่อเมือง / รหัสสนามบิน)</small></span><div class="rflex"><input id="dstName" class="up" placeholder="DUBAI" autocapitalize="characters" aria-label="ชื่อเมืองปลายทาง"><input id="dst" class="up code" maxlength="4" placeholder="DXB" autocapitalize="characters" aria-label="รหัสสนามบินปลายทาง"></div></div>
   <label>ทะเบียนอากาศยาน<input id="reg" class="up" placeholder="A6EVB"></label>
   <label>หลุมจอด<input id="bay" class="up" placeholder="S112"></label>
   <label>AOBT<input id="aobt" class="t" inputmode="numeric" placeholder="02.47"></label>
@@ -93,11 +100,12 @@
 </div></div>
 
 <div class="card"><h2>3. ผู้โดยสาร / ลูกเรือ</h2>
-<label class="chk" id="hasPaxWrap"><input type="checkbox" id="hasPax"> มีข้อมูลผู้โดยสาร/ลูกเรือแล้ว</label>
+<label class="chk" id="hasPaxWrap"><input type="checkbox" id="paxUnk" checked> ยังไม่ทราบข้อมูลลูกเรือ/ผู้โดยสาร</label>
 <div class="grid" id="paxGrid">
   <label>ผู้โดยสาร (คน)<input id="pax" inputmode="numeric" placeholder="180"></label>
   <label>ลูกเรือ (คน)<input id="crew" inputmode="numeric" placeholder="24"></label>
-</div></div>
+</div>
+<div class="hint" id="paxHint">ถ้าทราบจำนวนแล้ว เอาติ๊กออกแล้วพิมพ์ตัวเลข</div></div>
 
 <div class="card" id="cardNext"><h2 id="nextH">4. เวลาออกใหม่</h2>
 <label class="chk"><input type="checkbox" id="unk" checked> ยังไม่ทราบเวลาออกใหม่</label>
@@ -170,13 +178,13 @@ function build(){
   if(D.day1){$("sd1").textContent=D.day1.replace(/ \d+$/,"");$("sd2").textContent=D.day2.replace(/ \d+$/,"");}
   const sobtDate = (night && $("sobtDay").value==="2")?D.day2:D.day1;
   const bay2 = V("bay2")||V("bay");
-  const more=$("kind").value==="more", showPax=more||$("hasPax").checked;
+  const more=$("kind").value==="more", showPax=more||!$("paxUnk").checked;
   document.querySelectorAll("#kindSeg button").forEach(b=>b.classList.toggle("on",b.dataset.v===$("kind").value));
   $("hasPaxWrap").classList.toggle("hidden",more);
-  $("paxGrid").classList.toggle("hidden",!showPax);
+  $("paxHint").classList.toggle("hidden",more);
+  $("paxGrid").querySelectorAll("input").forEach(e=>e.disabled=!showPax);
   $("card45").classList.toggle("hidden",!more);
   $("cardNext").classList.toggle("hidden",more);
-  $("nextH").textContent=(showPax?"4":"3")+". เวลาออกใหม่";
   $("neobt").disabled=$("unk").checked;
   const nextItem=(showPax?"4":"3")+". "+($("unk").checked?"ยังไม่ทราบเวลาออกใหม่ที่แน่นอน":"เวลาที่คาดว่าจะออกใหม่ (EOBT) "+v("neobt")+" น.");
   const t=[
@@ -191,7 +199,7 @@ more?"รายงานข้อมูลเพิ่มเติม":"รา�
 "2. สายการบิน "+V("airline"),
 "เที่ยวบิน "+V("flight"),
 "เวลาตามตารางการบิน (SOBT) "+v("sobt")+" น."+(sobtDate?" ("+sobtDate+")":""),
-"เส้นทางบิน "+V("route"),
+"เส้นทางบิน "+[V("orgName"),V("dstName")].filter(Boolean).join(" - ")+(V("dst")?" ("+[V("org"),V("dst")].filter(Boolean).join(" - ")+")":""),
 "ทะเบียนอากาศยาน "+V("reg"),
 "หลุมจอดอากาศยาน "+V("bay"),
 "เวลาอากาศยานออกจากหลุมจอด (AOBT) "+v("aobt")+" น.",
@@ -208,9 +216,10 @@ v("name")||"XXXXXX",
   $("out").textContent=t.join("\n");
   saveDraft();
 }
-const DRAFT=["d1","period","sobtDay","kind","type","reason","airline","flight","sobt","route","reg","bay","aobt","bay2","aibt","pax","crew","neobt","eobt","atot"];
-function saveDraft(){const o={};DRAFT.forEach(i=>o[i]=$(i).value);o.hasPax=$("hasPax").checked;o.unk=$("unk").checked;store.set("rt_draft",JSON.stringify(o))}
-function loadDraft(){try{const o=JSON.parse(store.get("rt_draft")||"null");if(!o)return;DRAFT.forEach(i=>{if(o[i]!=null)$(i).value=o[i]});$("hasPax").checked=!!o.hasPax;$("unk").checked=o.unk!==false}catch(e){}}
+const DRAFT=["d1","period","sobtDay","kind","type","reason","airline","flight","org","dst","sobt","orgName","dstName","reg","bay","aobt","bay2","aibt","pax","crew","neobt","eobt","atot"];
+function saveDraft(){const o={};DRAFT.forEach(i=>o[i]=$(i).value);o.paxUnk=$("paxUnk").checked;o.unk=$("unk").checked;store.set("rt_draft",JSON.stringify(o))}
+function migrateRoute(o){let r=String(o.route).trim();if(!r)return;const m=r.match(/^(.*?)\s*\(\s*([A-Za-z0-9]*)\s*-\s*([A-Za-z0-9]*)\s*\)\s*$/);if(m){r=m[1];if(o.org==null){$("org").value=m[2];$("dst").value=m[3]}}const p=r.split(/\s+-\s+/);$("orgName").value=p[0]||"";$("dstName").value=p.slice(1).join(" - ")}
+function loadDraft(){try{const o=JSON.parse(store.get("rt_draft")||"null");if(!o)return;DRAFT.forEach(i=>{if(o[i]!=null)$(i).value=o[i]});if(o.orgName==null&&o.route!=null)migrateRoute(o);$("paxUnk").checked=(o.paxUnk!=null)?!!o.paxUnk:o.hasPax!==true;$("unk").checked=o.unk!==false}catch(e){}}
 function copyText(){
   const txt=$("out").textContent;
   const done=()=>{const t=$("toast");t.classList.add("show");setTimeout(()=>t.classList.remove("show"),1500)};
@@ -221,8 +230,9 @@ function fallback(txt,done){{const ta=document.createElement("textarea");ta.valu
 }
 function clearFlight(){
   if(!confirm("ล้างข้อมูลเที่ยวบินทั้งหมด?"))return;
-  ["airline","flight","sobt","route","reg","bay","aobt","bay2","aibt","pax","crew","neobt","eobt","atot"].forEach(i=>$(i).value="");
-  $("hasPax").checked=false;$("unk").checked=true;$("kind").value="initial";$("type").value="Return Taxi";$("reason").value="TECHNICAL PROBLEM";
+  $("orgName").value="BANGKOK";$("org").value="BKK";$("dstName").value="";$("dst").value="";
+  ["airline","flight","sobt","reg","bay","aobt","bay2","aibt","pax","crew","neobt","eobt","atot"].forEach(i=>$(i).value="");
+  $("paxUnk").checked=true;$("unk").checked=true;$("kind").value="initial";$("type").value="Return Taxi";$("reason").value="TECHNICAL PROBLEM";
   build();
 }
 // defaults
@@ -237,6 +247,7 @@ function clearFlight(){
   document.querySelectorAll("#sobtSeg button").forEach(b=>b.addEventListener("click",()=>{$("sobtDay").value=b.dataset.v;build()}));
   document.querySelectorAll("input,select").forEach(el=>{el.addEventListener("input",build);el.addEventListener("change",build)});
   $("unk").addEventListener("change",()=>{if(!$("unk").checked)$("neobt").focus()});
+  $("paxUnk").addEventListener("change",()=>{if(!$("paxUnk").checked)$("paxGrid").querySelector("input").focus()});
   build();
 })();
 </script>
