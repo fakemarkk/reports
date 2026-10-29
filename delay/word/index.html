@@ -49,6 +49,9 @@
   .barmsg.ok{background:#ebfbee;color:#1b5e20;border:1px solid #8ce99a;font-weight:600}
   .warn{background:#fff6e5;border:1px solid #f3d9a4;color:#7a5200;border-radius:10px;padding:12px;font-size:14px}
   .hidden{display:none!important}
+  .ulab{font-size:13px;color:#555;margin:12px 0 4px}
+  .useg button{font-size:17px;font-weight:600;padding:10px 4px;min-height:52px}
+  .useg button span{font-size:12px}
   .hint{font-size:12px;color:#888;margin-top:6px}
   .lbl{font-size:13px;color:#555;margin:12px 0 4px}
   button{flex:1;font-size:17px;padding:13px;border:0;border-radius:10px;cursor:pointer;font-family:inherit}
@@ -122,7 +125,10 @@
   <label class="full">ตำแหน่ง<input id="recPos" autocomplete="off"></label>
   <label>วันที่ใต้ลายเซ็น<input type="date" id="sigDate"></label>
 </div>
-<div class="hint">ชื่อ ตำแหน่ง และวันที่/เวลาส่ง ไม่ถูกบันทึกเก็บไว้ในเครื่อง · วันที่ใต้ลายเซ็นจะตามวันที่ส่งจนกว่าจะแก้เอง</div>
+<div class="ulab">หน่วยงาน (หน.พนง.งานกะ)</div>
+<input type="hidden" id="unit" value="งพบ.สบบ.ฝปข.ทสภ.">
+<div class="seg useg" id="unitSeg"><button type="button" data-v="งพบ.สบบ.ฝปข.ทสภ." class="on">งพบ.<span>สบบ.ฝปข.ทสภ.</span></button><button type="button" data-v="งกบ.สบบ.ฝปข.ทสภ.">งกบ.<span>สบบ.ฝปข.ทสภ.</span></button><button type="button" data-v="งบจ.สบข.ฝปข.ทสภ.">งบจ.<span>สบข.ฝปข.ทสภ.</span></button></div>
+<div class="hint">ชื่อ ตำแหน่ง หน่วยงาน และวันที่/เวลาส่ง ไม่ถูกบันทึกเก็บไว้ในเครื่อง · วันที่ใต้ลายเซ็นจะตามวันที่ส่งจนกว่าจะแก้เอง</div>
 </div>
 
 <div class="card"><h2>ตัวอย่างเอกสาร</h2>
@@ -154,6 +160,11 @@
 <script>
 const DL=window.DelayLib;
 const $=id=>document.getElementById(id);
+// หน่วยงานของหัวหน้า AOCC (หมุนเวียน 3 หน่วย) — ไม่บันทึกในเครื่อง ค่าเริ่มต้น งพบ.
+const UNITS=["งพบ.สบบ.ฝปข.ทสภ.", "งกบ.สบบ.ฝปข.ทสภ.", "งบจ.สบข.ฝปข.ทสภ."];
+function unit(){const u=$("unit").value;return UNITS.includes(u)?u:UNITS[0]}
+function paintUnit(){document.querySelectorAll("#unitSeg button").forEach(b=>b.classList.toggle("on",b.dataset.v===unit()))}
+function initUnit(after,start){$("unit").value=UNITS.includes(start)?start:UNITS[0];paintUnit();document.querySelectorAll("#unitSeg button").forEach(b=>b.addEventListener("click",()=>{const old=unit();$("unit").value=b.dataset.v;paintUnit();after(old,unit())}))}
 const store={get(k){try{return localStorage.getItem(k)}catch(e){return null}}};
 let D=null, sigTouched=false;
 // ช่องในหน้านี้ที่ต้องมี (ไม่มีช่องไหนถูกบันทึกในเครื่อง)
@@ -198,11 +209,11 @@ function okToMake(){const n=missing().length;return !n||confirm("ยังขา
 function fmtTime(el){const t=DL.normTime(el.value);if(t)el.value=t}
 function summary(){
   const d=data(),S=DL.shift(d),m=model();
-  const rows=[["ช่วงเวลา",S.a?m.range+" ("+S.p[0]+" - "+S.p[1]+" น.)":""],["เรื่อง วันที่",m.subj],["จำนวนเที่ยวบิน",m.count?m.count+" เที่ยวบิน":""]];
+  const rows=[["ช่วงเวลา",S.a?m.range+" ("+S.p[0]+" - "+S.p[1]+" น.)":""],["เรื่อง วันที่",m.range],["จำนวนเที่ยวบิน",m.count?m.count+" เที่ยวบิน":""]];
   m.flights.forEach(f=>rows.push([f.no+". "+(f.dir==="dep"?"🛫":"🛬"),[f.flight,f.delay].filter(Boolean).join(" · ")+(f.res&&!f.res.bad&&f.res.under?" ⚠️ ไม่ถึง 3 ชม.":""),f.res&&f.res.under]));
   $("sum").innerHTML="";
   rows.forEach(([k,v,u])=>{const dt=document.createElement("dt"),dd=document.createElement("dd");dt.textContent=k;dd.textContent=v||"(ว่าง)";if(!v)dd.className="na";else if(u)dd.className="under";$("sum").append(dt,dd)});
-  $("smsHint").textContent=m.smsDate||m.smsTime?"จะแสดงในเอกสารเป็น: วันที่ "+(m.range||"-")+"  เวลา "+(m.smsTime||"-")+" น. · ใต้ลายเซ็น "+(m.sigDate||"-"):"";
+  $("smsHint").textContent=m.smsDate||m.smsTime?"จะแสดงในเอกสารเป็น: วันที่ "+(m.smsDate||"-")+"  เวลา "+(m.smsTime||"-")+" น. · ใต้ลายเซ็น "+(m.sigDate||"-"):"";
 }
 function fitPreview(){const w=$("pvbox").clientWidth||794,s=w/794;$("pvscale").style.transform="scale("+s+")";$("pvbox").style.height=Math.ceil($("page").offsetHeight*s)+"px"}
 function render(){summary();$("page").innerHTML=DL.pageHTML(model());checkFields();fitPreview()}
@@ -260,6 +271,9 @@ async function makeImage(){
   $("smsTime").value=DL.nowTime(now);
   $("recPos").value=DL.DEF_POS;
   try{const n=sessionStorage.getItem("delay_word_name");if(n!=null){$("recName").value=n;sessionStorage.removeItem("delay_word_name")}}catch(e){}
+  let u0=null;try{u0=sessionStorage.getItem("delay_word_unit");sessionStorage.removeItem("delay_word_unit")}catch(e){}
+  // ตำแหน่งเริ่มต้นของรายงานนี้ไม่มีชื่อหน่วยงาน จึงเปลี่ยนเฉพาะเมื่อผู้ใช้พิมพ์ชื่อหน่วยไว้ในช่องตำแหน่ง
+  initUnit((o,u)=>{$("recPos").value=DL.swapUnit($("recPos").value,u);render()},u0);
   const t=$("smsTime");
   t.addEventListener("input",()=>{t.value=t.value.replace(/[:,]/g,".").replace(/[^0-9.]/g,"").slice(0,5)});
   t.addEventListener("blur",()=>{fmtTime(t);render()});
