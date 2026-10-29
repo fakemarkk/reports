@@ -47,6 +47,9 @@
   .toast{position:fixed;left:50%;top:20px;transform:translateX(-50%);background:#1c2733;color:#fff;padding:10px 18px;border-radius:20px;opacity:0;transition:.3s;pointer-events:none}
   .toast.show{opacity:1}
   .hint{font-size:12px;color:#888;margin-top:6px}
+  .wordbtn{display:block;width:100%;background:#fff;color:#0b5394;border:2px solid #0b5394;font-weight:600}
+  .wordbtn:active{background:#dde8f5}
+  .wordhint{text-align:center;margin:6px 0 4px}
 </style>
 </head>
 <body>
@@ -134,6 +137,9 @@
 
 <div class="card"><h2>ตัวอย่างข้อความ</h2><pre id="out">⚠️ ถ้าเห็นข้อความนี้ แปลว่าหน้าที่เปิดอยู่ไม่ได้รันสคริปต์ กรุณาดาวน์โหลดไฟล์แล้วเปิดด้วย Chrome, Edge หรือ Safari โดยตรง</pre></div>
 
+<button type="button" class="wordbtn" onclick="goWord()">📄 สร้างไฟล์ Word</button>
+<div class="hint wordhint">ขั้นตอนสุดท้าย: ทำแบบฟอร์มบันทึกข้อมูล Return Flight เป็นไฟล์ Word หรือรูปภาพ</div>
+
 <div class="bar">
   <button class="clear" onclick="clearFlight()">ล้างข้อมูล</button>
   <button class="copy" onclick="copyText()">📋 คัดลอกไปวางในไลน์</button>
@@ -220,6 +226,7 @@ const DRAFT=["d1","period","kind","type","reason","airline","flight","org","dst"
 function saveDraft(){const o={};DRAFT.forEach(i=>o[i]=$(i).value);o.paxUnk=$("paxUnk").checked;o.unk=$("unk").checked;store.set("rf_draft",JSON.stringify(o))}
 function migrateRoute(o){let r=String(o.route).trim();if(!r)return;const m=r.match(/^(.*?)\s*\(\s*([A-Za-z0-9]*)\s*-\s*([A-Za-z0-9]*)\s*\)\s*$/);if(m){r=m[1];if(o.org==null){$("org").value=m[2];$("dst").value=m[3]}}const p=r.split(/\s+-\s+/);$("orgName").value=p[0]||"";$("dstName").value=p.slice(1).join(" - ")}
 function loadDraft(){try{const o=JSON.parse(store.get("rf_draft")||"null");if(!o)return;DRAFT.forEach(i=>{if(o[i]!=null)$(i).value=o[i]});if(o.orgName==null&&o.route!=null)migrateRoute(o);$("paxUnk").checked=(o.paxUnk!=null)?!!o.paxUnk:o.hasPax!==true;$("unk").checked=o.unk!==false}catch(e){}}
+function goWord(){saveDraft();try{sessionStorage.setItem("rf_word_name",v("name"))}catch(e){}location.href="word/"}
 function copyText(){
   const txt=$("out").textContent;
   const done=()=>{const t=$("toast");t.classList.add("show");setTimeout(()=>t.classList.remove("show"),1500)};
