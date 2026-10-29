@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>แบบฟอร์ม Word – เที่ยวบินล่าช้า</title>
+<style>
+  @font-face{font-family:"TH SarabunPSK";font-weight:400;font-style:normal;font-display:block;src:url("fonts/THSarabunPSK.ttf") format("truetype")}
+  @font-face{font-family:"TH SarabunPSK";font-weight:700;font-style:normal;font-display:block;src:url("../../return-flight/word/fonts/THSarabunPSK-Bold.ttf") format("truetype")}
+  *{box-sizing:border-box}
+  body{font-family:system-ui,"Sarabun","Noto Sans Thai",sans-serif;background:#eef2f7;margin:0;padding:12px;color:#1c2733}
+  .wrap{max-width:720px;margin:auto}
+  h1{font-size:20px;margin:6px 0 12px}
+  .card{background:#fff;border-radius:12px;padding:14px;margin-bottom:12px;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+  .card h2{font-size:15px;margin:0 0 10px;color:#0b5394;display:flex;align-items:center;justify-content:space-between;gap:8px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+  .full{grid-column:1/-1}
+  label{display:flex;flex-direction:column;font-size:13px;color:#555;gap:4px}
+  input,select,textarea{font-size:16px;padding:9px;border:1px solid #c9d2dc;border-radius:8px;font-family:inherit;width:100%;color:#1c2733;background:#fff}
+  input{-webkit-appearance:none;appearance:none;height:46px}
+  textarea{min-height:84px;resize:vertical;line-height:1.4}
+  input:focus,textarea:focus{outline:2px solid #0b5394;border-color:#0b5394}
+  .up{text-transform:uppercase}
+  .seg{display:flex;background:#e6ebf1;border-radius:10px;padding:4px;gap:4px}
+  .seg button{flex:1;white-space:nowrap;font-size:15px;padding:10px 6px;border-radius:8px;background:transparent;color:#555;line-height:1.3}
+  .seg button.on{background:#fff;color:#0b5394;font-weight:600;box-shadow:0 1px 3px rgba(0,0,0,.15)}
+  .seg button span{display:block;font-size:13px;font-weight:400;color:#888}
+  .topbar{position:sticky;top:0;z-index:5;background:#eef2f7;margin:-12px -12px 4px;padding:10px 12px}
+  .back{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 18px;border-radius:22px;background:#fff;color:#0b5394;font-size:17px;font-weight:600;text-decoration:none;box-shadow:0 1px 3px rgba(0,0,0,.12)}
+  .back:active{background:#dde8f5}
+  .edit{font-size:14px;font-weight:600;color:#0b5394;text-decoration:none;background:#eef4fb;border-radius:16px;padding:6px 12px;white-space:nowrap}
+  .sum{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;margin:0;font-size:14px}
+  .sum dt{color:#7a8794}
+  .sum dd{margin:0;font-weight:600;word-break:break-word}
+  .sum dd.na{color:#c2410c;font-weight:400}
+  /* เตือนช่องที่ยังไม่ได้กรอก (เฉพาะหน้าจอ ไม่อยู่ในเอกสาร) */
+  input.miss,textarea.miss{border:2px solid #f08c00;background:#fff4e6}
+  .mh{font-size:12px;color:#c2410c;font-weight:600}
+  input,textarea,.chk{scroll-margin-top:76px;scroll-margin-bottom:120px}
+  .chk{border-radius:12px;padding:12px 14px;margin-bottom:12px;font-size:15px}
+  .chk.bad{background:#fff4e6;border:2px solid #f08c00;color:#7a3500}
+  .chk.ok{background:#ebfbee;border:2px solid #40c057;color:#1b5e20;font-weight:600}
+  .chk b{display:block;font-size:16px;margin-bottom:6px}
+  .chk ul{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:6px}
+  .chk li button{flex:none;font-size:14px;padding:7px 11px;border-radius:16px;background:#fff;color:#c2410c;border:1px solid #f3b770;line-height:1.2}
+  .chk .tip{font-size:12px;color:#8a5a2b;margin-top:8px}
+  .barmsg{flex-basis:100%;font-size:14px;text-align:center;border-radius:8px;padding:7px 8px;cursor:pointer}
+  .barmsg.bad{background:#fff4e6;color:#c2410c;border:1px solid #f3b770;font-weight:600}
+  .barmsg.ok{background:#ebfbee;color:#1b5e20;border:1px solid #8ce99a;font-weight:600}
+  .warn{background:#fff6e5;border:1px solid #f3d9a4;color:#7a5200;border-radius:10px;padding:12px;font-size:14px}
+  .hidden{display:none!important}
+  .hint{font-size:12px;color:#888;margin-top:6px}
+  .lbl{font-size:13px;color:#555;margin:12px 0 4px}
+  button{flex:1;font-size:17px;padding:13px;border:0;border-radius:10px;cursor:pointer;font-family:inherit}
+  .mini{flex:none;font-size:14px;padding:8px 14px;background:#eef1f4;color:#555;margin-top:10px}
+  .bar{position:sticky;bottom:0;display:flex;flex-wrap:wrap;gap:8px;padding:10px 0;background:#eef2f7;z-index:4}
+  .bar button{font-size:15px;padding:12px 6px;line-height:1.3}
+  .doc{background:#0b5394;color:#fff;font-weight:600}
+  .img{background:#fff;color:#0b5394;font-weight:600;border:2px solid #0b5394}
+  button:disabled{opacity:.6}
+  .toast{position:fixed;left:50%;top:20px;transform:translateX(-50%);background:#1c2733;color:#fff;padding:10px 18px;border-radius:20px;opacity:0;transition:.3s;pointer-events:none;z-index:30;max-width:90vw;text-align:center}
+  .toast.show{opacity:1}
+  /* พรีวิวหน้าเอกสาร */
+  .pvbox{position:relative;overflow:hidden;border:1px solid #dde3ea;border-radius:6px;background:#fff}
+  .pvscale{transform-origin:0 0;width:794px}
+  /* หน้าจำลอง A4 @96dpi: 794×1123px ขอบเท่าแบบฟอร์มต้นฉบับ บน 630tw / ซ้าย 1440tw / ขวา 864tw / ล่าง 548tw (1px = 15tw) */
+  .a4{position:relative;width:794px;min-height:1123px;background:#fff;color:#000;font-family:"TH SarabunPSK",sans-serif;font-weight:400;font-size:21.333px;line-height:24.13px;padding:42px 57.6px 36.5px 96px;-webkit-text-size-adjust:none;text-size-adjust:none}
+  .a4 p{margin:0;white-space:pre-wrap;word-break:break-word;position:relative}
+  .a4 .top,.a4 .ttl{font-weight:700}
+  .a4 .ttl{text-align:center}
+  /* ระยะหลังย่อหน้า: 160tw = 10.67px, 20tw = 1.33px */
+  .a4 .top,.a4 .ttl,.a4 .to,.a4 .pos,.a4 .date{margin-bottom:10.67px}
+  .a4 .hd,.a4 .dash,.a4 .fl,.a4 .fl1,.a4 .sub,.a4 .subl,.a4 .sig{margin-bottom:1.33px}
+  /* บรรทัดว่างก่อน/หลัง "- มีเที่ยวบิน..." = 1 บรรทัด 16pt (360tw = 24px) ระหว่างเที่ยวบิน/ก่อนลงชื่อ 382tw = 25.47px */
+  .a4 .dash{margin-top:24px;padding-left:60px}
+  .a4 .fl1{margin-top:24px}
+  .a4 .fl{margin-top:25.47px}
+  .a4 .fl,.a4 .fl1{padding-left:110px}
+  .a4 .no{position:absolute;left:94px;top:0}
+  .a4 .sub,.a4 .subl{padding-left:126.67px}
+  /* บล็อกลงชื่อ (แบบ C): เยื้องซ้ายตาม sigLeft (≤3810tw = 254px) จัดกึ่งกลางทุกบรรทัด */
+  .a4 .sig{margin-top:25.47px}
+  .a4 .sig,.a4 .pos,.a4 .date{text-align:center}
+  .sheet{position:fixed;inset:0;background:rgba(15,25,35,.55);display:flex;align-items:flex-end;justify-content:center;z-index:20}
+  .sheet .box{background:#fff;width:100%;max-width:720px;max-height:92vh;overflow:auto;border-radius:16px 16px 0 0;padding:16px 14px calc(16px + env(safe-area-inset-bottom))}
+  .sheet h3{margin:0 0 6px;font-size:17px}
+  .sheet img{display:block;width:100%;border:1px solid #dde3ea;border-radius:6px;margin:8px 0;-webkit-touch-callout:default}
+  .sheet .row{display:flex;gap:8px;margin-top:10px}
+  .sheet .fname{font-size:14px;color:#555;word-break:break-all}
+  .share{background:#06c755;color:#fff;font-weight:600}
+  .dl{background:#0b5394;color:#fff;font-weight:600}
+  .close{background:#dde3ea;color:#333}
+  .sum dd.under{color:#e65100}
+  .chk li a{display:inline-block;font-size:14px;padding:7px 11px;border-radius:16px;background:#fff;color:#c2410c;border:1px solid #f3b770;line-height:1.2;text-decoration:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="topbar"><a class="back" href="../">‹ กลับไปรายงาน</a></div>
+<h1>📄 แบบฟอร์มส่งข้อมูลเที่ยวบินล่าช้า (SMS)</h1>
+
+<div class="card warn hidden" id="noDraft">ยังไม่มีข้อมูลจากหน้ารายงาน กรุณากด “‹ กลับไปรายงาน” แล้วกรอกข้อมูลเที่ยวบินก่อน</div>
+
+<div class="chk" id="chkBox" role="status" aria-live="polite"></div>
+
+<div class="card"><h2>ข้อมูลจากรายงาน <a class="edit" href="../">✏️ แก้ไข</a></h2>
+<dl class="sum" id="sum"></dl>
+<div class="hint">ข้อมูลส่วนนี้ดึงมาจากหน้ารายงานอัตโนมัติ ถ้าต้องแก้ ให้กด “แก้ไข”</div>
+</div>
+
+<div class="card"><h2>การส่ง SMS</h2>
+<div class="grid">
+  <label>วันที่ส่ง<input type="date" id="smsDate"></label>
+  <label>เวลาที่ส่ง<input id="smsTime" class="t" inputmode="decimal" placeholder="14.30"></label>
+</div>
+<div class="hint" id="smsHint"></div>
+</div>
+
+<div class="card"><h2>ผู้ลงชื่อ</h2>
+<div class="grid">
+  <label class="full">ชื่อ<input id="recName" placeholder="ชื่อ-นามสกุล" autocomplete="off"></label>
+  <label class="full">ตำแหน่ง<input id="recPos" autocomplete="off"></label>
+  <label>วันที่ใต้ลายเซ็น<input type="date" id="sigDate"></label>
+</div>
+<div class="hint">ชื่อ ตำแหน่ง และวันที่/เวลาส่ง ไม่ถูกบันทึกเก็บไว้ในเครื่อง · วันที่ใต้ลายเซ็นจะตามวันที่ส่งจนกว่าจะแก้เอง</div>
+</div>
+
+<div class="card"><h2>ตัวอย่างเอกสาร</h2>
+<div class="pvbox" id="pvbox"><div class="pvscale" id="pvscale"><div class="a4" id="page"></div></div></div>
+<div class="hint">ไฟล์ Word: ถ้ามีเกิน 4 เที่ยวบิน จะขึ้นหน้า 2 โดยไม่ตัดกลางเที่ยวบิน (รูปภาพจะเป็นแผ่นยาวแผ่นเดียว)</div>
+</div>
+
+<div class="bar">
+  <div class="barmsg" id="barMsg"></div>
+  <button class="img" id="btnImg" type="button">🖼️ บันทึกเป็นรูป</button>
+  <button class="doc" id="btnDoc" type="button">📄 ดาวน์โหลดไฟล์ Word</button>
+</div>
+</div>
+
+<div class="sheet hidden" id="sheet"><div class="box">
+  <h3 id="shTitle"></h3>
+  <div class="fname" id="shName"></div>
+  <img id="shImg" class="hidden" alt="รูปแบบฟอร์ม">
+  <div class="hint" id="shHint"></div>
+  <div class="row"><button class="share" id="shShare" type="button">📤 แชร์ / บันทึก</button><button class="dl" id="shDl" type="button">⬇️ ดาวน์โหลด</button></div>
+  <div class="row"><button class="close" type="button" onclick="closeSheet()">ปิด</button></div>
+</div></div>
+<div class="toast" id="toast"></div>
+
+<script src="../delay.js"></script>
+<script src="template.js"></script>
+<script src="../../return-flight/word/lib/jszip.min.js"></script>
+<script src="../../return-flight/word/lib/html2canvas.min.js"></script>
+<script>
+const DL=window.DelayLib;
+const $=id=>document.getElementById(id);
+const store={get(k){try{return localStorage.getItem(k)}catch(e){return null}}};
+let D=null, sigTouched=false;
+// ช่องในหน้านี้ที่ต้องมี (ไม่มีช่องไหนถูกบันทึกในเครื่อง)
+const REQ=[["smsDate","วันที่ส่ง"],["smsTime","เวลาที่ส่ง"],["recName","ชื่อผู้ลงชื่อ"],["recPos","ตำแหน่ง"],["sigDate","วันที่ใต้ลายเซ็น"]];
+// ช่องของแต่ละเที่ยวบิน (แก้ที่หน้ารายงาน)
+const FREQ=[["flight","เที่ยวบิน"],["sched",null],["est",null],["orgName","ต้นทาง"],["dstName","ปลายทาง"],["cause","สาเหตุ"]];
+function readDraft(){try{const o=JSON.parse(store.get("delay_draft")||"null");return o&&Array.isArray(o.flights)?o:null}catch(e){return null}}
+function data(){return D||{d1:"",period:"17.00-08.00",flights:[]}}
+function w(){return {smsDate:$("smsDate").value,smsTime:$("smsTime").value,name:$("recName").value,pos:$("recPos").value,sigDate:$("sigDate").value}}
+function model(){return DL.model(data(),w())}
+// ---------- ตรวจช่องที่ยังว่าง (แสดงบนหน้าจอเท่านั้น) ----------
+// คืนค่า [{k, l, href?}] — href = ลิงก์กลับไปช่องในหน้ารายงาน
+function missing(){
+  const d=data(),out=[];
+  if(!d.d1) out.push({k:"d1",l:"วันที่เริ่มผลัด",href:"../#d1"});
+  (d.flights||[]).forEach((f,i)=>{const L=DL.labels(f.dir),n="เที่ยวบิน "+(i+1)+": ";
+    FREQ.forEach(([k,l])=>{if(!String(f[k]||"").trim())out.push({k,l:n+(l||(k==="sched"?L[0]:L[1])),href:"../#f"+i+"-"+k})});
+    const r=DL.calcDelay(f);if(r&&r.bad)out.push({k:"est",l:n+"เวลาล่าช้าไม่ถูกต้อง",href:"../#f"+i+"-est"});
+  });
+  REQ.forEach(([k,l])=>{if(!$(k).value.trim())out.push({k,l})});
+  return out;
+}
+function goField(k){const el=$(k);if(!el)return;try{el.scrollIntoView({block:"center",behavior:"smooth"})}catch(e){el.scrollIntoView()}
+  setTimeout(()=>{try{el.focus({preventScroll:true})}catch(e){el.focus()}},350)}
+function checkFields(){
+  const miss=missing(),mk=miss.filter(m=>!m.href).map(m=>m.k);
+  REQ.forEach(([k])=>{const el=$(k),m=mk.includes(k);
+    el.classList.toggle("miss",m);el.setAttribute("aria-invalid",m?"true":"false");
+    let hn=el.parentNode.querySelector(".mh");if(!hn){hn=document.createElement("span");hn.className="mh";hn.textContent="⚠️ ยังไม่ได้กรอก";el.after(hn)}
+    hn.classList.toggle("hidden",!m)});
+  const box=$("chkBox"),bm=$("barMsg");box.innerHTML="";
+  if(!miss.length){box.className="chk ok";box.textContent="✅ ข้อมูลครบแล้ว";bm.className="barmsg ok";bm.textContent="✅ ข้อมูลครบแล้ว"}
+  else{box.className="chk bad";const b=document.createElement("b");b.textContent="⚠️ ยังขาดข้อมูล "+miss.length+" ช่อง";const ul=document.createElement("ul");
+    miss.forEach(m=>{const li=document.createElement("li");let bt;
+      if(m.href){bt=document.createElement("a");bt.href=m.href;bt.textContent="✏️ "+m.l}
+      else{bt=document.createElement("button");bt.type="button";bt.textContent=m.l;bt.onclick=()=>goField(m.k)}
+      li.append(bt);ul.append(li)});
+    const tip=document.createElement("div");tip.className="tip";tip.textContent="แตะชื่อช่องเพื่อไปกรอก (ช่องที่มี ✏️ จะพากลับไปแก้ที่หน้ารายงาน)";
+    box.append(b,ul,tip);bm.className="barmsg bad";bm.textContent="⚠️ ยังขาดข้อมูล "+miss.length+" ช่อง (แตะเพื่อดู)"}
+}
+function okToMake(){const n=missing().length;return !n||confirm("ยังขาดข้อมูล "+n+" ช่อง ต้องการสร้างไฟล์ต่อหรือไม่?")}
+function fmtTime(el){const t=DL.normTime(el.value);if(t)el.value=t}
+function summary(){
+  const d=data(),S=DL.shift(d),m=model();
+  const rows=[["ช่วงเวลา",S.a?m.range+" ("+S.p[0]+" - "+S.p[1]+" น.)":""],["เรื่อง วันที่",m.subj],["จำนวนเที่ยวบิน",m.count?m.count+" เที่ยวบิน":""]];
+  m.flights.forEach(f=>rows.push([f.no+". "+(f.dir==="dep"?"🛫":"🛬"),[f.flight,f.delay].filter(Boolean).join(" · ")+(f.res&&!f.res.bad&&f.res.under?" ⚠️ ไม่ถึง 3 ชม.":""),f.res&&f.res.under]));
+  $("sum").innerHTML="";
+  rows.forEach(([k,v,u])=>{const dt=document.createElement("dt"),dd=document.createElement("dd");dt.textContent=k;dd.textContent=v||"(ว่าง)";if(!v)dd.className="na";else if(u)dd.className="under";$("sum").append(dt,dd)});
+  $("smsHint").textContent=m.smsDate||m.smsTime?"จะแสดงในเอกสารเป็น: วันที่ "+(m.range||"-")+"  เวลา "+(m.smsTime||"-")+" น. · ใต้ลายเซ็น "+(m.sigDate||"-"):"";
+}
+function fitPreview(){const w=$("pvbox").clientWidth||794,s=w/794;$("pvscale").style.transform="scale("+s+")";$("pvbox").style.height=Math.ceil($("page").offsetHeight*s)+"px"}
+function render(){summary();$("page").innerHTML=DL.pageHTML(model());checkFields();fitPreview()}
+function toast(t){const e=$("toast");e.textContent=t;e.classList.add("show");setTimeout(()=>e.classList.remove("show"),2200)}
+const isIOS=/iP(hone|ad|od)/.test(navigator.userAgent)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);
+function canShareFile(f){try{return !!(navigator.canShare&&navigator.share&&navigator.canShare({files:[f]}))}catch(e){return false}}
+function download(blob,name){const u=URL.createObjectURL(blob),a=document.createElement("a");a.href=u;a.download=name;a.rel="noopener";document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),60000)}
+let sheetUrl=null;
+function openSheet(blob,name,isImg){
+  const file=new File([blob],name,{type:blob.type});const share=canShareFile(file);
+  $("shTitle").textContent=isImg?"🖼️ รูปแบบฟอร์มพร้อมแล้ว":"📄 ไฟล์ Word พร้อมแล้ว";
+  $("shName").textContent=name;
+  if(sheetUrl)URL.revokeObjectURL(sheetUrl);sheetUrl=URL.createObjectURL(blob);
+  $("shImg").classList.toggle("hidden",!isImg);if(isImg)$("shImg").src=sheetUrl;
+  $("shHint").textContent=isImg?"กด “แชร์ / บันทึก” แล้วเลือกบันทึกรูปหรือส่งเข้าไลน์ หรือกดค้างที่รูปเพื่อบันทึก":"กด “แชร์ / บันทึก” แล้วเลือก “บันทึกไปยังไฟล์” หรือแอปที่ต้องการ";
+  $("shShare").classList.toggle("hidden",!share);
+  $("shShare").onclick=()=>navigator.share({files:[file],title:name}).catch(e=>{if(e&&e.name!=="AbortError")download(blob,name)});
+  $("shDl").onclick=()=>{if(isIOS&&!share&&!isImg){window.open(sheetUrl,"_blank")}else download(blob,name)};
+  $("sheet").classList.remove("hidden");
+}
+function closeSheet(){$("sheet").classList.add("hidden")}
+async function makeDocx(){
+  const btn=$("btnDoc");if(btn.disabled)return;
+  fmtTime($("smsTime"));render();
+  if(!okToMake())return;
+  btn.disabled=true;
+  try{
+    const blob=await DL.buildDocx(JSZip,window.DELAY_TEMPLATE_B64,model(),"blob");
+    const name=DL.fileBase(data())+".docx";
+    if(isIOS) openSheet(blob,name,false);
+    else {download(blob,name);toast("ดาวน์โหลด "+name+" แล้ว ✓")}
+  }catch(e){alert("สร้างไฟล์ Word ไม่สำเร็จ: "+e)}
+  finally{btn.disabled=false}
+}
+async function makeImage(){
+  const btn=$("btnImg");if(btn.disabled)return;
+  fmtTime($("smsTime"));render();
+  if(!okToMake())return;
+  btn.disabled=true;const old=btn.textContent;btn.textContent="⏳ กำลังสร้างรูป…";
+  try{
+    try{await document.fonts.load('400 21px "TH SarabunPSK"');await document.fonts.load('700 21px "TH SarabunPSK"');await document.fonts.ready}catch(e){}
+    const canvas=await html2canvas($("page"),{scale:2,backgroundColor:"#ffffff",useCORS:true,logging:false,
+      onclone:doc=>{doc.getElementById("pvscale").style.transform="none";doc.getElementById("pvbox").style.height="auto"}});
+    const blob=await new Promise(r=>canvas.toBlob(r,"image/png"));
+    openSheet(blob,DL.fileBase(data())+".png",true);
+  }catch(e){alert("สร้างรูปไม่สำเร็จ: "+e)}
+  finally{btn.disabled=false;btn.textContent=old}
+}
+(function init(){
+  D=readDraft();
+  $("noDraft").classList.toggle("hidden",!!D);
+  const now=new Date();
+  $("smsDate").value=DL.defaultSmsDate(data(),now);
+  $("sigDate").value=$("smsDate").value;
+  $("smsTime").value=DL.nowTime(now);
+  $("recPos").value=DL.DEF_POS;
+  try{const n=sessionStorage.getItem("delay_word_name");if(n!=null){$("recName").value=n;sessionStorage.removeItem("delay_word_name")}}catch(e){}
+  const t=$("smsTime");
+  t.addEventListener("input",()=>{t.value=t.value.replace(/[:,]/g,".").replace(/[^0-9.]/g,"").slice(0,5)});
+  t.addEventListener("blur",()=>{fmtTime(t);render()});
+  $("smsDate").addEventListener("change",()=>{if(!sigTouched)$("sigDate").value=$("smsDate").value});
+  $("sigDate").addEventListener("change",()=>{sigTouched=!!$("sigDate").value&&$("sigDate").value!==$("smsDate").value});
+  document.querySelectorAll("input").forEach(el=>{el.addEventListener("input",render);el.addEventListener("change",render)});
+  $("barMsg").addEventListener("click",()=>{try{$("chkBox").scrollIntoView({block:"start",behavior:"smooth"})}catch(e){$("chkBox").scrollIntoView()}});
+  $("btnDoc").addEventListener("click",makeDocx);
+  $("btnImg").addEventListener("click",makeImage);
+  $("sheet").addEventListener("click",e=>{if(e.target===$("sheet"))closeSheet()});
+  window.addEventListener("resize",fitPreview);
+  render();
+  if(document.fonts&&document.fonts.ready)document.fonts.ready.then(fitPreview);
+})();
+</script>
+</body>
+</html>
