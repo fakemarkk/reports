@@ -78,7 +78,6 @@
   <label>ชื่อ<input id="name" placeholder="ชื่อผู้รายงาน"></label>
   <label>ผลัด<select id="shift"><option>1</option><option>2</option><option selected>3</option><option>4</option></select></label>
 </div>
-<div class="hint">ชื่อและผลัดจะถูกจำไว้ในเครื่องนี้สำหรับครั้งถัดไป</div>
 </div>
 
 <div class="card"><h2>ตัวอย่างข้อความ</h2><pre id="out">⚠️ ถ้าเห็นข้อความนี้ แปลว่าหน้าที่เปิดอยู่ไม่ได้รันสคริปต์ กรุณาดาวน์โหลดไฟล์แล้วเปิดด้วย Chrome, Edge หรือ Safari โดยตรง</pre></div>
@@ -155,8 +154,6 @@ v("name")||"XXXXXX",
 "หน.พนง.งานกะ งพบ.สบบ.ฝปข.ทสภ.(ผลัด "+$("shift").value+")"
   ];
   $("out").textContent=t.join("\n");
-  store.set("rt_name",v("name"));
-  store.set("rt_shift",$("shift").value);
 }
 function copyText(){
   const txt=$("out").textContent;
@@ -176,8 +173,6 @@ function clearFlight(){
   const now=new Date(), hr=now.getHours();
   if(hr>=8&&hr<17){$("period").value="08.00 - 17.00"} else if(hr<8){now.setDate(now.getDate()-1)}
   $("d1").value=now.getFullYear()+"-"+String(now.getMonth()+1).padStart(2,"0")+"-"+String(now.getDate()).padStart(2,"0");
-  $("name").value=store.get("rt_name")||"";
-  const s=store.get("rt_shift"); if(s) $("shift").value=s;
   document.querySelectorAll(".t").forEach(el=>{el.setAttribute("inputmode","decimal");el.addEventListener("input",()=>cleanTime(el));el.addEventListener("blur",()=>{fmtTime(el);build()})});
   document.querySelectorAll("input,select").forEach(el=>{el.addEventListener("input",build);el.addEventListener("change",build)});
   build();
