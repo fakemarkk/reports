@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>รายงานเที่ยวบินล่าช้า</title>
+<style>
+  *{box-sizing:border-box}
+  body{font-family:system-ui,"Sarabun","Noto Sans Thai",sans-serif;background:#eef2f7;margin:0;padding:12px;color:#1c2733}
+  .wrap{max-width:720px;margin:auto}
+  h1{font-size:20px;margin:6px 0 12px}
+  .card{background:#fff;border-radius:12px;padding:14px;margin-bottom:12px;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+  .card h2{font-size:15px;margin:0 0 10px;color:#0b5394}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+  label{display:flex;flex-direction:column;font-size:13px;color:#555;gap:4px}
+  input,select,textarea{font-size:16px;padding:9px;border:1px solid #c9d2dc;border-radius:8px;font-family:inherit;width:100%}
+  input:focus,select:focus{outline:2px solid #0b5394;border-color:#0b5394}
+  .up{text-transform:uppercase}
+  .rrow{grid-column:1/-1;display:flex;flex-direction:column;gap:4px;font-size:13px;color:#555}
+  .rrow small{color:#8a96a3;font-size:12px}
+  .rflex{display:flex;gap:8px}
+  .rflex input{flex:1 1 auto;min-width:0}
+  .rflex input.code{flex:0 0 84px;width:84px;text-align:center}
+  input,select{-webkit-appearance:none;appearance:none;background:#fff;height:46px;color:#1c2733}
+  select{background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23555' stroke-width='2' fill='none'/%3E%3C/svg%3E") no-repeat right 12px center;padding-right:32px}
+  .datebox{position:relative;height:52px;border:1px solid #c9d2dc;border-radius:10px;display:flex;align-items:center;gap:10px;padding:0 14px;background:#fff;font-size:18px;font-weight:600}
+  .datebox small{font-weight:400;color:#777;font-size:14px}
+  .datebox input{position:absolute;inset:0;opacity:0;width:100%;height:100%;border:0}
+  .seg{display:flex;background:#e6ebf1;border-radius:10px;padding:4px;gap:4px}
+  .seg button{flex:1;white-space:nowrap;font-size:15px;padding:10px 6px;border-radius:8px;background:transparent;color:#555;line-height:1.3}
+  .seg button.on{background:#fff;color:#0b5394;font-weight:600;box-shadow:0 1px 3px rgba(0,0,0,.15)}
+  .seg button span{display:block;font-size:13px;font-weight:400;color:#888}
+  .stack{display:flex;flex-direction:column;gap:10px}
+  .topbar{position:sticky;top:0;z-index:5;background:#eef2f7;margin:-12px -12px 4px;padding:10px 12px}
+  .back{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 18px;border-radius:22px;background:#fff;color:#0b5394;font-size:17px;font-weight:600;text-decoration:none;box-shadow:0 1px 3px rgba(0,0,0,.12)}
+  .back:active{background:#dde8f5}
+  .chk{flex-direction:row;align-items:center;gap:12px;font-size:16px;color:#1c2733;background:#f4f7fa;border:1px solid #dde3ea;border-radius:10px;padding:12px 14px;margin-bottom:10px;min-height:50px}
+  .chk input{-webkit-appearance:auto;appearance:auto;width:24px;height:24px;margin:0;flex:0 0 24px;accent-color:#0b5394}
+  .hidden{display:none!important}
+  input:disabled{background:#eef1f4;color:#9aa4ae;border-color:#dde3ea;-webkit-text-fill-color:#9aa4ae;opacity:1;cursor:not-allowed}
+  input:disabled::placeholder{color:transparent;-webkit-text-fill-color:transparent}
+  pre{white-space:pre-wrap;background:#f7f9fb;border:1px solid #dde3ea;border-radius:8px;padding:12px;font-family:inherit;font-size:15px;margin:0}
+  .bar{position:sticky;bottom:0;display:flex;gap:8px;padding:10px 0;background:#eef2f7}
+  button{flex:1;font-size:17px;padding:13px;border:0;border-radius:10px;cursor:pointer;font-family:inherit}
+  .copy{background:#06c755;color:#fff;font-weight:600}
+  .clear{background:#dde3ea;color:#333;flex:0 0 120px}
+  .toast{position:fixed;left:50%;top:20px;transform:translateX(-50%);background:#1c2733;color:#fff;padding:10px 18px;border-radius:20px;opacity:0;transition:.3s;pointer-events:none}
+  .toast.show{opacity:1}
+  .hint{font-size:12px;color:#888;margin-top:6px}
+  textarea{min-height:76px;resize:vertical;line-height:1.4}
+  textarea:focus{outline:2px solid #0b5394;border-color:#0b5394}
+  .full{grid-column:1/-1}
+  .sub{font-size:13px;color:#555;margin:12px 0 6px}
+  .fcard h2{display:flex;align-items:center;justify-content:space-between;gap:8px}
+  .del{flex:0 0 auto;font-size:14px;padding:8px 12px;background:#fdecec;color:#c62828;font-weight:600}
+  .del:disabled{background:#f1f3f5;color:#b0b8c0;cursor:not-allowed}
+  .fcard .seg{margin-bottom:10px}
+  .offseg button{font-size:13px;padding:8px 4px}
+  .dres{grid-column:1/-1;border-radius:10px;padding:10px 12px;font-size:16px;background:#eef6ee;color:#1b5e20;border:1px solid #cfe6cf}
+  .dres b{font-size:18px}
+  .dres.warn{background:#fff3e0;color:#e65100;border-color:#ffd59e}
+  .dres.err{background:#fdecec;color:#c62828;border-color:#f5c2c2}
+  .dres.wait{background:#f4f7fa;color:#888;border-color:#dde3ea}
+  .dres small{display:block;font-size:13px;margin-top:2px}
+  .add{width:100%;font-size:18px;padding:16px;background:#fff;color:#0b5394;font-weight:700;border:2px dashed #8fb3d9;margin-bottom:12px}
+  .add:active{background:#dde8f5}
+  .word{width:100%;background:#0b5394;color:#fff;font-weight:600;margin:0 0 12px}
+  .offl{font-size:13px;color:#555;margin:2px 0 4px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="topbar"><a class="back" href="../">‹ หน้าแรก</a></div>
+<h1>⏱️ รายงานเที่ยวบินล่าช้า <small style="font-size:14px;color:#777;font-weight:400">(เกิน 3 ชั่วโมง)</small></h1>
+
+<div class="card"><h2>ช่วงเวลารายงาน</h2>
+<div class="stack">
+  <label>วันที่เริ่มผลัด
+    <div class="datebox">📅 <span id="dateLabel"></span><small id="dateSub"></small><input type="date" id="d1"></div>
+  </label>
+  <input type="hidden" id="period" value="17.00-08.00">
+  <div class="seg" id="periodSeg">
+    <button type="button" data-v="08.00-17.00">☀️ กะกลางวัน<span>08.00 - 17.00</span></button>
+    <button type="button" data-v="17.00-08.00">🌙 กะกลางคืน<span>17.00 - 08.00</span></button>
+  </div>
+</div>
+<div class="hint" id="dateShow"></div>
+</div>
+
+<div id="flights"></div>
+<button type="button" class="add" id="addBtn" onclick="addFlight()">＋ เพิ่มเที่ยวบิน</button>
+<datalist id="causes"></datalist>
+
+<div class="card"><h2>ผู้รายงาน</h2>
+<div class="grid">
+  <label>ชื่อ<input id="name" placeholder="ชื่อผู้รายงาน"></label>
+  <label>ผลัด<select id="shift"><option>1</option><option>2</option><option selected>3</option><option>4</option></select></label>
+</div>
+<div class="hint">ชื่อและผลัดไม่ถูกบันทึกในเครื่อง</div>
+</div>
+
+<div class="card"><h2>ตัวอย่างข้อความ</h2><pre id="out">⚠️ ถ้าเห็นข้อความนี้ แปลว่าหน้าที่เปิดอยู่ไม่ได้รันสคริปต์ กรุณาดาวน์โหลดไฟล์แล้วเปิดด้วย Chrome, Edge หรือ Safari โดยตรง</pre></div>
+
+<button type="button" class="word" onclick="goWord()">📄 สร้างไฟล์ Word</button>
+
+<div class="bar">
+  <button class="clear" onclick="clearFlights()">ล้างข้อมูล</button>
+  <button class="copy" onclick="copyText()">📋 คัดลอกไปวางในไลน์</button>
+</div>
+</div>
+<div class="toast" id="toast">คัดลอกแล้ว ✓</div>
+
+<script src="delay.js"></script>
+<script>
+const D=window.DelayLib;
+const $=id=>document.getElementById(id);
+const store={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,x){try{localStorage.setItem(k,x)}catch(e){}}};
+const v=id=>$(id).value.trim();
+const W=["อาทิตย์","จันทร์","อังคาร","พุธ","พฤหัสบดี","ศุกร์","เสาร์"];
+let F=[D.newFlight("arr")];
+const KEYS=["dir","flight","sched","est","off","orgName","org","dstName","dst","cause"];
+function esc(t){return String(t==null?"":t).replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/</g,"&lt;")}
+function cleanTime(el){el.value=el.value.replace(/[:,]/g,".").replace(/[^0-9.]/g,"").slice(0,5)}
+function data(){return {d1:v("d1"),period:$("period").value,flights:F}}
+// ---------- การ์ดเที่ยวบิน ----------
+function cardHTML(f,i){
+  const L=D.labels(f.dir),id=k=>'f'+i+'-'+k;
+  const inp=(k,cls,ph,extra)=>'<input id="'+id(k)+'" data-k="'+k+'" class="'+cls+'" value="'+esc(f[k])+'" placeholder="'+ph+'"'+(extra||'')+'>';
+  const offs=[["a","อัตโนมัติ"],["0","วันเดียวกัน"],["1","+1 วัน"],["2","+2 วัน"]];
+  return '<div class="card fcard" data-i="'+i+'">'
+   +'<h2><span>เที่ยวบินที่ '+(i+1)+'</span><button type="button" class="del" data-act="del"'+(F.length<2?' disabled':'')+'>🗑 ลบ</button></h2>'
+   +'<div class="seg dirseg"><button type="button" data-dir="arr" class="'+(f.dir==="arr"?"on":"")+'">🛬 ขาเข้า</button><button type="button" data-dir="dep" class="'+(f.dir==="dep"?"on":"")+'">🛫 ขาออก</button></div>'
+   +'<div class="grid">'
+   +'<label class="full">เที่ยวบิน'+inp("flight","up","EK 385",' autocapitalize="characters"')+'</label>'
+   +'<label><span class="lb1">'+L[0]+' (ตามตาราง)</span>'+inp("sched","t","23.45",' inputmode="decimal"')+'</label>'
+   +'<label><span class="lb2">'+L[1]+' (คาดการณ์)</span>'+inp("est","t","03.40",' inputmode="decimal"')+'</label>'
+   +'<div class="full"><div class="offl">วันของเวลา <span class="lb2">'+L[1]+'</span></div><div class="seg offseg">'+offs.map(o=>'<button type="button" data-off="'+o[0]+'" class="'+((f.off||"a")===o[0]?"on":"")+'">'+o[1]+'</button>').join("")+'</div></div>'
+   +'<div class="dres" id="'+id("res")+'"></div>'
+   +'<div class="rrow"><span>ต้นทาง <small>(ชื่อเมือง / รหัสสนามบิน)</small></span><div class="rflex">'+inp("orgName","up","HONG KONG",' autocapitalize="characters" aria-label="ชื่อเมืองต้นทาง"')+inp("org","up code","HKG",' maxlength="4" autocapitalize="characters" aria-label="รหัสสนามบินต้นทาง"')+'</div></div>'
+   +'<div class="rrow"><span>ปลายทาง <small>(ชื่อเมือง / รหัสสนามบิน)</small></span><div class="rflex">'+inp("dstName","up","BANGKOK",' autocapitalize="characters" aria-label="ชื่อเมืองปลายทาง"')+inp("dst","up code","BKK",' maxlength="4" autocapitalize="characters" aria-label="รหัสสนามบินปลายทาง"')+'</div></div>'
+   +'<label class="full">สาเหตุที่ล่าช้า'+inp("cause","up","AIRCRAFT ROTATION",' list="causes" autocapitalize="characters"')+'</label>'
+   +'</div></div>';
+}
+function renderCards(){
+  $("flights").innerHTML=F.map(cardHTML).join("");
+  document.querySelectorAll(".fcard").forEach(c=>{
+    const i=+c.dataset.i;
+    c.querySelectorAll("input[data-k]").forEach(el=>{
+      el.addEventListener("input",()=>{if(el.classList.contains("t"))cleanTime(el);F[i][el.dataset.k]=el.value;build()});
+      if(el.classList.contains("t")) el.addEventListener("blur",()=>{if(el.value.trim()){el.value=D.normTime(el.value);F[i][el.dataset.k]=el.value}build()});
+    });
+    c.querySelectorAll("[data-dir]").forEach(b=>b.addEventListener("click",()=>{D.setDir(F[i],b.dataset.dir);renderCards();build()}));
+    c.querySelectorAll("[data-off]").forEach(b=>b.addEventListener("click",()=>{F[i].off=b.dataset.off;c.querySelectorAll("[data-off]").forEach(x=>x.classList.toggle("on",x===b));build()}));
+    c.querySelector("[data-act=del]").addEventListener("click",()=>delFlight(i));
+  });
+}
+function addFlight(){F.push(D.newFlight("arr"));renderCards();build();const c=document.querySelectorAll(".fcard");const last=c[c.length-1];if(last.scrollIntoView)last.scrollIntoView({behavior:"smooth",block:"start"});const el=$("f"+(F.length-1)+"-flight");if(el)el.focus({preventScroll:true})}
+function delFlight(i){
+  if(F.length<2) return;
+  if(D.hasData(F[i])&&!confirm("ลบเที่ยวบินที่ "+(i+1)+(F[i].flight?" ("+F[i].flight.toUpperCase()+")":"")+"?")) return;
+  F.splice(i,1);renderCards();build();
+}
+function showRes(i){
+  const f=F[i],r=D.calcDelay(f),el=$("f"+i+"-res");if(!el)return;
+  if(!r){el.className="dres wait";el.innerHTML="รวมเวลาล่าช้า: กรอกเวลา "+D.labels(f.dir).join(" และ ");return}
+  if(r.bad){el.className="dres err";el.innerHTML="⚠️ เวลาคาดการณ์อยู่ก่อนเวลาตามตาราง ตรวจเวลา หรือเลือกวัน +1";return}
+  el.className="dres"+(r.under?" warn":"");
+  el.innerHTML="รวมเวลาล่าช้า <b>"+r.text+"</b>"+(r.auto&&r.cross?" (ข้ามวัน)":"")+(!r.auto&&r.days?" (+"+r.days+" วัน)":"")+(r.under?"<small>⚠️ ล่าช้าไม่ถึง 3 ชั่วโมง (ยังนับรวมในรายงาน)</small>":"");
+}
+// ---------- สร้างข้อความ ----------
+function build(){
+  const d=data(),S=D.shift(d);
+  $("dateShow").textContent=S.a?("จะแสดงในรายงานเป็น: "+(S.night?S.start+" - "+S.end:S.start)):"";
+  if(S.a){$("dateLabel").textContent=D.th(S.a);$("dateSub").textContent="วัน"+W[S.a.getDay()]}
+  else{$("dateLabel").textContent="แตะเพื่อเลือกวันที่";$("dateSub").textContent=""}
+  document.querySelectorAll("#periodSeg button").forEach(b=>b.classList.toggle("on",b.dataset.v===$("period").value));
+  F.forEach((f,i)=>showRes(i));
+  $("out").textContent=D.lineText(d,v("name"),$("shift").value);
+  saveDraft();
+}
+// ไม่บันทึกชื่อผู้รายงานและผลัด
+function saveDraft(){store.set("delay_draft",JSON.stringify({d1:v("d1"),period:$("period").value,flights:F.map(f=>{const o={};KEYS.forEach(k=>o[k]=f[k]==null?"":String(f[k]));return o})}))}
+function loadDraft(){try{const o=JSON.parse(store.get("delay_draft")||"null");if(!o)return;
+  if(o.d1)$("d1").value=o.d1; if(o.period==="08.00-17.00"||o.period==="17.00-08.00")$("period").value=o.period;
+  if(Array.isArray(o.flights)&&o.flights.length)F=o.flights.map(x=>{const f=D.newFlight(x&&x.dir);KEYS.forEach(k=>{if(x&&x[k]!=null)f[k]=String(x[k])});f.dir=f.dir==="dep"?"dep":"arr";return f})}catch(e){}}
+function toast(t){const e=$("toast");e.textContent=t;e.classList.add("show");setTimeout(()=>e.classList.remove("show"),1500)}
+function copyText(){
+  const txt=$("out").textContent,done=()=>toast("คัดลอกแล้ว ✓");
+  if(navigator.clipboard&&window.isSecureContext){navigator.clipboard.writeText(txt).then(done).catch(()=>fallback(txt,done))}
+  else fallback(txt,done);
+}
+function fallback(txt,done){const ta=document.createElement("textarea");ta.value=txt;document.body.appendChild(ta);ta.select();try{document.execCommand("copy")}catch(e){}ta.remove();done()}
+function clearFlights(){
+  if(!confirm("ล้างข้อมูลเที่ยวบินทั้งหมด?"))return;
+  F=[D.newFlight("arr")];renderCards();build();
+}
+// ชื่อผู้รายงานส่งต่อให้หน้า Word ผ่าน sessionStorage (ไม่บันทึกถาวร)
+function goWord(){saveDraft();try{sessionStorage.setItem("delay_word_name",v("name"))}catch(e){}location.href="word/"}
+// กลับมาจากหน้า Word ด้วยลิงก์ #f0-est ฯลฯ → โฟกัสช่องนั้น
+function focusHash(){const m=/^#(f\d+-\w+|d1)$/.exec(location.hash||"");if(!m)return;const el=$(m[1]);if(el){if(el.scrollIntoView)el.scrollIntoView({block:"center"});el.focus()}}
+(function(){
+  const now=new Date(),hr=now.getHours();
+  if(hr>=8&&hr<17){$("period").value="08.00-17.00"} else if(hr<8){now.setDate(now.getDate()-1)}
+  $("d1").value=D.iso(now);
+  $("causes").innerHTML=D.CAUSES.map(c=>"<option>"+c+"</option>").join("");
+  loadDraft();
+  document.querySelectorAll("#periodSeg button").forEach(b=>b.addEventListener("click",()=>{$("period").value=b.dataset.v;build()}));
+  ["d1","name","shift"].forEach(i=>{$(i).addEventListener("input",build);$(i).addEventListener("change",build)});
+  renderCards();build();focusHash();
+  window.addEventListener("hashchange",focusHash);
+})();
+</script>
+</body>
+</html>
