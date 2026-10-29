@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>รายงานข้อมูลเพิ่มเติม (Return Taxi)</title>
+<title>รายงาน Return Taxi</title>
 <style>
   *{box-sizing:border-box}
   body{font-family:system-ui,"Sarabun","Noto Sans Thai",sans-serif;background:#eef2f7;margin:0;padding:12px;color:#1c2733}
@@ -29,6 +29,9 @@
   .topbar{position:sticky;top:0;z-index:5;background:#eef2f7;margin:-12px -12px 4px;padding:10px 12px}
   .back{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 18px;border-radius:22px;background:#fff;color:#0b5394;font-size:17px;font-weight:600;text-decoration:none;box-shadow:0 1px 3px rgba(0,0,0,.12)}
   .back:active{background:#dde8f5}
+  .chk{flex-direction:row;align-items:center;gap:12px;font-size:16px;color:#1c2733;background:#f4f7fa;border:1px solid #dde3ea;border-radius:10px;padding:12px 14px;margin-bottom:10px;min-height:50px}
+  .chk input{-webkit-appearance:auto;appearance:auto;width:24px;height:24px;margin:0;flex:0 0 24px;accent-color:#0b5394}
+  .hidden{display:none!important}
   pre{white-space:pre-wrap;background:#f7f9fb;border:1px solid #dde3ea;border-radius:8px;padding:12px;font-family:inherit;font-size:15px;margin:0}
   .bar{position:sticky;bottom:0;display:flex;gap:8px;padding:10px 0;background:#eef2f7}
   button{flex:1;font-size:17px;padding:13px;border:0;border-radius:10px;cursor:pointer;font-family:inherit}
@@ -42,7 +45,16 @@
 <body>
 <div class="wrap">
 <div class="topbar"><a class="back" href="../">‹ หน้าแรก</a></div>
-<h1>✈️ รายงานข้อมูลเพิ่มเติม (Return Taxi)</h1>
+<h1>✈️ รายงาน Return Taxi</h1>
+
+<div class="card"><h2>ประเภทรายงาน</h2>
+<input type="hidden" id="kind" value="initial">
+<div class="seg" id="kindSeg">
+  <button type="button" data-v="initial">📝 เบื้องต้น<span>ส่งทันทีตอนเกิดเหตุ</span></button>
+  <button type="button" data-v="more">📋 เพิ่มเติม<span>เมื่อได้ข้อมูลครบ</span></button>
+</div>
+<div class="hint">สลับประเภทได้ตลอด ข้อมูลที่กรอกไว้ไม่หาย</div>
+</div>
 
 <div class="card"><h2>ช่วงเวลารายงาน</h2>
 <div class="stack">
@@ -80,12 +92,13 @@
 </div></div>
 
 <div class="card"><h2>3. ผู้โดยสาร / ลูกเรือ</h2>
-<div class="grid">
+<label class="chk" id="hasPaxWrap"><input type="checkbox" id="hasPax"> มีข้อมูลผู้โดยสาร/ลูกเรือแล้ว</label>
+<div class="grid" id="paxGrid">
   <label>ผู้โดยสาร (คน)<input id="pax" inputmode="numeric" placeholder="180"></label>
   <label>ลูกเรือ (คน)<input id="crew" inputmode="numeric" placeholder="24"></label>
 </div></div>
 
-<div class="card"><h2>4–5. เที่ยวที่ 2</h2>
+<div class="card" id="card45"><h2>4–5. เที่ยวที่ 2</h2>
 <div class="grid">
   <label>EOBT<input id="eobt" class="t" inputmode="numeric" placeholder="04.45"></label>
   <label>ATOT<input id="atot" class="t" inputmode="numeric" placeholder="05.12"></label>
@@ -148,12 +161,17 @@ function build(){
   if(D.day1){$("sd1").textContent=D.day1.replace(/ \d+$/,"");$("sd2").textContent=D.day2.replace(/ \d+$/,"");}
   const sobtDate = (night && $("sobtDay").value==="2")?D.day2:D.day1;
   const bay2 = V("bay2")||V("bay");
+  const more=$("kind").value==="more", showPax=more||$("hasPax").checked;
+  document.querySelectorAll("#kindSeg button").forEach(b=>b.classList.toggle("on",b.dataset.v===$("kind").value));
+  $("hasPaxWrap").classList.toggle("hidden",more);
+  $("paxGrid").classList.toggle("hidden",!showPax);
+  $("card45").classList.toggle("hidden",!more);
   const t=[
 "เรียน ผอก.ฝปข.ทสภ. และผู้บริหาร ฝปข.ทสภ. ",
 "วันที่ "+D.range,
 "ระหว่างเวลา "+v("period")+" น.",
 "",
-"รายงานข้อมูลเพิ่มเติม",
+more?"รายงานข้อมูลเพิ่มเติม":"รายงานข้อมูลเบื้องต้น",
 "1. เที่ยวบิน "+v("type"),
 "เนื่องจาก "+V("reason"),
 "",
@@ -166,21 +184,20 @@ function build(){
 "เวลาอากาศยานออกจากหลุมจอด (AOBT) "+v("aobt")+" น.",
 "หลุมจอดอากาศยาน (ที่กลับเข้ามา) BAY "+bay2,
 "เวลาเข้าหลุมจอดฯ (AIBT) "+v("aibt")+" น.",
-"",
-"3. ผู้โดยสาร "+v("pax")+" คน",
-"    ลูกเรือ "+v("crew")+" คน",
-"",
-"4. เวลาที่คาดว่าจะออกในเที่ยวที่ 2",
-"EOBT "+v("eobt")+" น.",
-"5. เวลาที่ทำการบินขึ้นจริง",
-"ATOT "+v("atot")+" น.",
+...(showPax?["","3. ผู้โดยสาร "+v("pax")+" คน","    ลูกเรือ "+v("crew")+" คน"]:[]),
+...(more?["","4. เวลาที่คาดว่าจะออกในเที่ยวที่ 2","EOBT "+v("eobt")+" น.","5. เวลาที่ทำการบินขึ้นจริง","ATOT "+v("atot")+" น."]
+       :(showPax?["",""]:[""]).concat(["รายละเอียดเพิ่มเติมจะแจ้งให้ทราบภายหลัง"])),
 "",
 "จึงเรียนมาเพื่อทราบ",
 v("name")||"XXXXXX",
 "หน.พนง.งานกะ งพบ.สบบ.ฝปข.ทสภ.(ผลัด "+$("shift").value+")"
   ];
   $("out").textContent=t.join("\n");
+  saveDraft();
 }
+const DRAFT=["d1","period","sobtDay","kind","type","reason","airline","flight","sobt","route","reg","bay","aobt","bay2","aibt","pax","crew","eobt","atot"];
+function saveDraft(){const o={};DRAFT.forEach(i=>o[i]=$(i).value);o.hasPax=$("hasPax").checked;store.set("rt_draft",JSON.stringify(o))}
+function loadDraft(){try{const o=JSON.parse(store.get("rt_draft")||"null");if(!o)return;DRAFT.forEach(i=>{if(o[i]!=null)$(i).value=o[i]});$("hasPax").checked=!!o.hasPax}catch(e){}}
 function copyText(){
   const txt=$("out").textContent;
   const done=()=>{const t=$("toast");t.classList.add("show");setTimeout(()=>t.classList.remove("show"),1500)};
@@ -192,6 +209,7 @@ function fallback(txt,done){{const ta=document.createElement("textarea");ta.valu
 function clearFlight(){
   if(!confirm("ล้างข้อมูลเที่ยวบินทั้งหมด?"))return;
   ["airline","flight","sobt","route","reg","bay","aobt","bay2","aibt","pax","crew","eobt","atot"].forEach(i=>$(i).value="");
+  $("hasPax").checked=false;$("kind").value="initial";$("type").value="Return Taxi";$("reason").value="TECHNICAL PROBLEM";
   build();
 }
 // defaults
@@ -200,6 +218,8 @@ function clearFlight(){
   if(hr>=8&&hr<17){$("period").value="08.00 - 17.00"} else if(hr<8){now.setDate(now.getDate()-1)}
   $("d1").value=now.getFullYear()+"-"+String(now.getMonth()+1).padStart(2,"0")+"-"+String(now.getDate()).padStart(2,"0");
   document.querySelectorAll(".t").forEach(el=>{el.setAttribute("inputmode","decimal");el.addEventListener("input",()=>cleanTime(el));el.addEventListener("blur",()=>{fmtTime(el);build()})});
+  loadDraft();
+  document.querySelectorAll("#kindSeg button").forEach(b=>b.addEventListener("click",()=>{$("kind").value=b.dataset.v;build()}));
   document.querySelectorAll("#periodSeg button").forEach(b=>b.addEventListener("click",()=>{$("period").value=b.dataset.v;build()}));
   document.querySelectorAll("#sobtSeg button").forEach(b=>b.addEventListener("click",()=>{$("sobtDay").value=b.dataset.v;build()}));
   document.querySelectorAll("input,select").forEach(el=>{el.addEventListener("input",build);el.addEventListener("change",build)});
