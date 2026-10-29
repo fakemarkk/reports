@@ -48,6 +48,9 @@
   .barmsg.ok{background:#ebfbee;color:#1b5e20;border:1px solid #8ce99a;font-weight:600}
   .warn{background:#fff6e5;border:1px solid #f3d9a4;color:#7a5200;border-radius:10px;padding:12px;font-size:14px}
   .hidden{display:none!important}
+  .ulab{font-size:13px;color:#555;margin:12px 0 4px}
+  .useg button{font-size:17px;font-weight:600;padding:10px 4px;min-height:52px}
+  .useg button span{font-size:12px}
   .hint{font-size:12px;color:#888;margin-top:6px}
   .lbl{font-size:13px;color:#555;margin:12px 0 4px}
   button{flex:1;font-size:17px;padding:13px;border:0;border-radius:10px;cursor:pointer;font-family:inherit}
@@ -141,7 +144,10 @@
   <label>ชื่อ<input id="recName" placeholder="ชื่อ-นามสกุล" autocomplete="off"></label>
   <label>ตำแหน่ง<input id="recPos" placeholder="เช่น จทส. งพบ.สบบ.ฝปข.ทสภ." autocomplete="off"></label>
 </div>
-<div class="hint">ชื่อและตำแหน่งจะไม่ถูกบันทึกเก็บไว้ในเครื่อง</div>
+<div class="ulab">หน่วยงาน (หน.พนง.งานกะ)</div>
+<input type="hidden" id="unit" value="งพบ.สบบ.ฝปข.ทสภ.">
+<div class="seg useg" id="unitSeg"><button type="button" data-v="งพบ.สบบ.ฝปข.ทสภ." class="on">งพบ.<span>สบบ.ฝปข.ทสภ.</span></button><button type="button" data-v="งกบ.สบบ.ฝปข.ทสภ.">งกบ.<span>สบบ.ฝปข.ทสภ.</span></button><button type="button" data-v="งบจ.สบข.ฝปข.ทสภ.">งบจ.<span>สบข.ฝปข.ทสภ.</span></button></div>
+<div class="hint">ชื่อ ตำแหน่ง และหน่วยงานจะไม่ถูกบันทึกเก็บไว้ในเครื่อง · เปลี่ยนหน่วยงานแล้วชื่อหน่วยในช่องตำแหน่งจะเปลี่ยนตาม</div>
 </div>
 
 <div class="card"><h2>ตัวอย่างเอกสาร</h2>
@@ -172,6 +178,14 @@
 <script src="lib/html2canvas.min.js"></script>
 <script>
 const $=id=>document.getElementById(id);
+// หน่วยงานของหัวหน้า AOCC (หมุนเวียน 3 หน่วย) — ไม่บันทึกในเครื่อง ค่าเริ่มต้น งพบ.
+const UNITS=["งพบ.สบบ.ฝปข.ทสภ.", "งกบ.สบบ.ฝปข.ทสภ.", "งบจ.สบข.ฝปข.ทสภ."];
+function unit(){const u=$("unit").value;return UNITS.includes(u)?u:UNITS[0]}
+function paintUnit(){document.querySelectorAll("#unitSeg button").forEach(b=>b.classList.toggle("on",b.dataset.v===unit()))}
+function initUnit(after,start){$("unit").value=UNITS.includes(start)?start:UNITS[0];paintUnit();document.querySelectorAll("#unitSeg button").forEach(b=>b.addEventListener("click",()=>{const old=unit();$("unit").value=b.dataset.v;paintUnit();after(old,unit())}))}
+// เปลี่ยนชื่อหน่วยงานที่อยู่ในข้อความตำแหน่ง (ถ้ามี)
+function swapUnit(t,u){return String(t==null?"":t).split(/(งพบ\.สบบ\.ฝปข\.ทสภ\.|งกบ\.สบบ\.ฝปข\.ทสภ\.|งบจ\.สบข\.ฝปข\.ทสภ\.)/).map((x,i)=>i%2?u:x).join("")}
+function onUnit(old,u){const p=$("recPos");p.value=swapUnit(p.value,u);p.placeholder="เช่น จทส. "+u}
 const store={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,x){try{localStorage.setItem(k,x)}catch(e){}}};
 const WF=["informer","infTime","sobt","actype","rwy1","rwy2","ref","other"];
 const WDEF={informer:"หอบังคับการบิน",ref:"หอบังคับการบิน"};
@@ -300,6 +314,8 @@ async function makeImage(){
   loadWord();
   buildFx();
   try{const n=sessionStorage.getItem("rf_word_name");if(n!=null){$("recName").value=n;sessionStorage.removeItem("rf_word_name")}}catch(e){}
+  let u0=null;try{u0=sessionStorage.getItem("rf_word_unit");sessionStorage.removeItem("rf_word_unit")}catch(e){}
+  initUnit((o,u)=>{onUnit(o,u);update()},u0);onUnit(null,unit());
   document.querySelectorAll(".t").forEach(el=>{el.addEventListener("input",()=>{el.value=el.value.replace(/[:,]/g,".").replace(/[^0-9.]/g,"").slice(0,5)});el.addEventListener("blur",()=>{fmtTime(el);update()})});
   document.querySelectorAll("input,textarea").forEach(el=>{el.addEventListener("input",update);el.addEventListener("change",update)});
   $("barMsg").addEventListener("click",()=>{try{$("chkBox").scrollIntoView({block:"start",behavior:"smooth"})}catch(e){$("chkBox").scrollIntoView()}});
