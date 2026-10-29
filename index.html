@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>รายงาน Return Taxi</title>
+<style>
+  *{box-sizing:border-box}
+  body{font-family:system-ui,"Sarabun","Noto Sans Thai",sans-serif;background:#eef2f7;margin:0;padding:12px;color:#1c2733}
+  .wrap{max-width:720px;margin:auto}
+  h1{font-size:20px;margin:6px 0 12px}
+  .card{background:#fff;border-radius:12px;padding:14px;margin-bottom:12px;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+  .card h2{font-size:15px;margin:0 0 10px;color:#0b5394}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+  label{display:flex;flex-direction:column;font-size:13px;color:#555;gap:4px}
+  input,select,textarea{font-size:16px;padding:9px;border:1px solid #c9d2dc;border-radius:8px;font-family:inherit;width:100%}
+  input:focus,select:focus{outline:2px solid #0b5394;border-color:#0b5394}
+  .up{text-transform:uppercase}
+  pre{white-space:pre-wrap;background:#f7f9fb;border:1px solid #dde3ea;border-radius:8px;padding:12px;font-family:inherit;font-size:15px;margin:0}
+  .bar{position:sticky;bottom:0;display:flex;gap:8px;padding:10px 0;background:#eef2f7}
+  button{flex:1;font-size:17px;padding:13px;border:0;border-radius:10px;cursor:pointer;font-family:inherit}
+  .copy{background:#06c755;color:#fff;font-weight:600}
+  .clear{background:#dde3ea;color:#333;flex:0 0 120px}
+  .toast{position:fixed;left:50%;top:20px;transform:translateX(-50%);background:#1c2733;color:#fff;padding:10px 18px;border-radius:20px;opacity:0;transition:.3s;pointer-events:none}
+  .toast.show{opacity:1}
+  .hint{font-size:12px;color:#888;margin-top:6px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>✈️ รายงานเที่ยวบิน Return Taxi</h1>
+
+<div class="card"><h2>ช่วงเวลารายงาน</h2>
+<div class="grid">
+  <label>วันที่เริ่มผลัด<input type="date" id="d1"></label>
+  <label>ช่วงเวลา<select id="period"><option value="17.00 - 08.00">17.00 - 08.00 (กะกลางคืน)</option><option value="08.00 - 17.00">08.00 - 17.00 (กะกลางวัน)</option></select></label>
+</div>
+<div class="hint" id="dateShow"></div>
+</div>
+
+<div class="card"><h2>1. เหตุการณ์</h2>
+<div class="grid">
+  <label>ประเภท<input id="type" value="Return Taxi"></label>
+  <label>สาเหตุ<input id="reason" class="up" value="TECHNICAL PROBLEM" list="reasons"></label>
+  <datalist id="reasons"><option>TECHNICAL PROBLEM</option><option>MEDICAL CASE</option><option>PASSENGER OFFLOAD</option><option>BIRD STRIKE</option><option>WEATHER</option></datalist>
+</div></div>
+
+<div class="card"><h2>2. ข้อมูลเที่ยวบิน</h2>
+<div class="grid">
+  <label>สายการบิน<input id="airline" class="up" placeholder="EMIRATES"></label>
+  <label>เที่ยวบิน<input id="flight" class="up" placeholder="EK377"></label>
+  <label>SOBT<input id="sobt" class="t" inputmode="numeric" placeholder="02.50"></label>
+  <label id="sobtDayWrap">วันที่ของ SOBT<select id="sobtDay"><option value="2">วันที่สอง (หลังเที่ยงคืน)</option><option value="1">วันที่แรก</option></select></label>
+  <label>เส้นทางบิน<input id="route" class="up" placeholder="BANGKOK - DUBAI"></label>
+  <label>ทะเบียนอากาศยาน<input id="reg" class="up" placeholder="A6EVB"></label>
+  <label>หลุมจอด<input id="bay" class="up" placeholder="S112"></label>
+  <label>AOBT<input id="aobt" class="t" inputmode="numeric" placeholder="02.47"></label>
+  <label>หลุมจอด (ที่กลับเข้ามา)<input id="bay2" class="up" placeholder="เว้นว่าง = หลุมเดิม"></label>
+  <label>AIBT<input id="aibt" class="t" inputmode="numeric" placeholder="03.35"></label>
+</div></div>
+
+<div class="card"><h2>3. ผู้โดยสาร / ลูกเรือ</h2>
+<div class="grid">
+  <label>ผู้โดยสาร (คน)<input id="pax" inputmode="numeric" placeholder="180"></label>
+  <label>ลูกเรือ (คน)<input id="crew" inputmode="numeric" placeholder="24"></label>
+</div></div>
+
+<div class="card"><h2>4–5. เที่ยวที่ 2</h2>
+<div class="grid">
+  <label>EOBT<input id="eobt" class="t" inputmode="numeric" placeholder="04.45"></label>
+  <label>ATOT<input id="atot" class="t" inputmode="numeric" placeholder="05.12"></label>
+</div>
+<div class="hint">พิมพ์เป็น 02.50 หรือพิมพ์แค่ 0250 ก็ได้ ระบบจะจัดรูปแบบให้ตอนออกจากช่อง • ช่องที่ยังไม่รู้เว้นว่างได้</div>
+</div>
+
+<div class="card"><h2>ผู้รายงาน</h2>
+<div class="grid">
+  <label>ชื่อ<input id="name" placeholder="ชื่อผู้รายงาน"></label>
+  <label>ผลัด<select id="shift"><option>1</option><option>2</option><option selected>3</option><option>4</option></select></label>
+</div>
+<div class="hint">ชื่อและผลัดจะถูกจำไว้ในเครื่องนี้สำหรับครั้งถัดไป</div>
+</div>
+
+<div class="card"><h2>ตัวอย่างข้อความ</h2><pre id="out">⚠️ ถ้าเห็นข้อความนี้ แปลว่าหน้าที่เปิดอยู่ไม่ได้รันสคริปต์ กรุณาดาวน์โหลดไฟล์แล้วเปิดด้วย Chrome, Edge หรือ Safari โดยตรง</pre></div>
+
+<div class="bar">
+  <button class="clear" onclick="clearFlight()">ล้างข้อมูล</button>
+  <button class="copy" onclick="copyText()">📋 คัดลอกไปวางในไลน์</button>
+</div>
+</div>
+<div class="toast" id="toast">คัดลอกแล้ว ✓</div>
+
+<script>
+const M=["ม.ค.","ก.พ.","มี.ค.","เม.ย.","พ.ค.","มิ.ย.","ก.ค.","ส.ค.","ก.ย.","ต.ค.","พ.ย.","ธ.ค."];
+const $=id=>document.getElementById(id);
+const store={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,x){try{localStorage.setItem(k,x)}catch(e){}}};
+const v=id=>$(id).value.trim();
+const V=id=>v(id).toUpperCase();
+function th(d){return d.getDate()+" "+M[d.getMonth()]+" "+String(d.getFullYear()+543).slice(-2)}
+function dates(){
+  const s=v("d1"); if(!s) return {range:"",day1:"",day2:""};
+  const a=new Date(s+"T00:00:00"), b=new Date(a); b.setDate(a.getDate()+1);
+  let range = a.getMonth()===b.getMonth()
+    ? a.getDate()+"-"+b.getDate()+" "+M[b.getMonth()]+" "+String(b.getFullYear()+543).slice(-2)
+    : th(a)+" - "+th(b);
+  return {range,day1:th(a),day2:th(b)};
+}
+function cleanTime(el){el.value=el.value.replace(/[:,]/g,".").replace(/[^0-9.]/g,"").slice(0,5)}
+function fmtTime(el){
+  let x=el.value.trim(); if(!x) return;
+  let h,m;
+  if(x.includes(".")){[h,m]=x.split(".");}
+  else{const d=x.replace(/\D/g,""); if(d.length<=2){h=d;m="00"} else {h=d.slice(0,d.length-2);m=d.slice(-2)}}
+  h=(h||"0").padStart(2,"0").slice(-2); m=(m||"0").padEnd(2,"0").slice(0,2);
+  el.value=h+"."+m;
+}
+function line(label,val,suffix=""){return val? label+" "+val+suffix : label+" -"}
+function build(){
+  const D=dates();
+  const night=$("period").value.startsWith("17");
+  $("sobtDayWrap").style.display=night?"":"none";
+  if(!night){D.range=D.day1;}
+  $("dateShow").textContent=D.range?("จะแสดงเป็น: "+D.range):"";
+  const sobtDate = (night && $("sobtDay").value==="2")?D.day2:D.day1;
+  const bay2 = V("bay2")||V("bay");
+  const t=[
+"เรียน ผอก.ฝปข.ทสภ. และผู้บริหาร ฝปข.ทสภ. ",
+"วันที่ "+D.range,
+"ระหว่างเวลา "+v("period")+" น.",
+"",
+"รายงานข้อมูลเพิ่มเติม",
+"1. เที่ยวบิน "+v("type"),
+"เนื่องจาก "+V("reason"),
+"",
+"2. สายการบิน "+V("airline"),
+"เที่ยวบิน "+V("flight"),
+"เวลาตามตารางการบิน (SOBT) "+v("sobt")+" น."+(sobtDate?" ("+sobtDate+")":""),
+"เส้นทางบิน "+V("route"),
+"ทะเบียนอากาศยาน "+V("reg"),
+"หลุมจอดอากาศยาน "+V("bay"),
+"เวลาอากาศยานออกจากหลุมจอด (AOBT) "+v("aobt")+" น.",
+"หลุมจอดอากาศยาน (ที่กลับเข้ามา) BAY "+bay2,
+"เวลาเข้าหลุมจอดฯ (AIBT) "+v("aibt")+" น.",
+"",
+"3. ผู้โดยสาร "+v("pax")+" คน",
+"    ลูกเรือ "+v("crew")+" คน",
+"",
+"4. เวลาที่คาดว่าจะออกในเที่ยวที่ 2",
+"EOBT "+v("eobt")+" น.",
+"5. เวลาที่ทำการบินขึ้นจริง",
+"ATOT "+v("atot")+" น.",
+"",
+"จึงเรียนมาเพื่อทราบ",
+v("name")||"XXXXXX",
+"หน.พนง.งานกะ งพบ.สบบ.ฝปข.ทสภ.(ผลัด "+$("shift").value+")"
+  ];
+  $("out").textContent=t.join("\n");
+  store.set("rt_name",v("name"));
+  store.set("rt_shift",$("shift").value);
+}
+function copyText(){
+  const txt=$("out").textContent;
+  const done=()=>{const t=$("toast");t.classList.add("show");setTimeout(()=>t.classList.remove("show"),1500)};
+  if(navigator.clipboard&&window.isSecureContext){navigator.clipboard.writeText(txt).then(done).catch(()=>fallback(txt,done))}
+  else fallback(txt,done);
+}
+function fallback(txt,done){{const ta=document.createElement("textarea");ta.value=txt;document.body.appendChild(ta);ta.select();document.execCommand("copy");ta.remove();done()}
+}
+function clearFlight(){
+  if(!confirm("ล้างข้อมูลเที่ยวบินทั้งหมด?"))return;
+  ["airline","flight","sobt","route","reg","bay","aobt","bay2","aibt","pax","crew","eobt","atot"].forEach(i=>$(i).value="");
+  build();
+}
+// defaults
+(function(){
+  const now=new Date(), hr=now.getHours();
+  if(hr>=8&&hr<17){$("period").value="08.00 - 17.00"} else if(hr<8){now.setDate(now.getDate()-1)}
+  $("d1").value=now.getFullYear()+"-"+String(now.getMonth()+1).padStart(2,"0")+"-"+String(now.getDate()).padStart(2,"0");
+  $("name").value=store.get("rt_name")||"";
+  const s=store.get("rt_shift"); if(s) $("shift").value=s;
+  document.querySelectorAll(".t").forEach(el=>{el.setAttribute("inputmode","decimal");el.addEventListener("input",()=>cleanTime(el));el.addEventListener("blur",()=>{fmtTime(el);build()})});
+  document.querySelectorAll("input,select").forEach(el=>{el.addEventListener("input",build);el.addEventListener("change",build)});
+  build();
+})();
+</script>
+</body>
+</html>
