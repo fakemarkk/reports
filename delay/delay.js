@@ -141,21 +141,28 @@ function spec(k,sigL){return ({
   dash:{before:360,after:20,ind:900},
   fl1:{before:360,after:20,ind:1650,hang:240,keep:true}, fl:{before:382,after:20,ind:1650,hang:240,keep:true},
   sub:{after:20,ind:1900,keep:true}, subl:{after:20,ind:1900},
-  sig:{before:382,after:20,ind:sigL,jc:"center",keep:true}, pos:{after:160,ind:sigL,jc:"center",keep:true}, date:{after:160,ind:sigL,jc:"center"}
+  // บล็อกลงชื่อ: อยู่ในกรอบ (frame) เดียวกัน ยึดขวาล่างของขอบกระดาษ กว้าง = SIG_TW - sigL
+  sig:{after:20,jc:"center",keep:true,frame:true}, pos:{after:160,jc:"center",keep:true,frame:true}, date:{after:0,jc:"center",keep:true,frame:true}
 })[k]}
+// กรอบลงชื่อ: ขวาล่างสุดของพื้นที่พิมพ์ (ชิดขอบล่าง) ข้อความไม่ไหลข้างกรอบ (notBeside) เว้นห่างเนื้อหาด้านบน 382tw
+// ทุกย่อหน้าใช้ framePr เหมือนกันทุกตัว จึงรวมเป็นกรอบเดียวทั้งใน Word และ LibreOffice
+function framePr(sigL){return '<w:framePr w:w="'+(SIG_TW-sigL)+'" w:hSpace="0" w:vSpace="382" w:wrap="notBeside" w:vAnchor="margin" w:hAnchor="margin" w:xAlign="right" w:yAlign="bottom"/>'}
 function xmlEsc(t){return String(t).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f]/g,"")}
 const FONT='<w:rFonts w:ascii="TH SarabunPSK" w:hAnsi="TH SarabunPSK" w:eastAsia="TH SarabunPSK" w:cs="TH SarabunPSK"/>';
 function rPr(b){return '<w:rPr>'+FONT+(b?'<w:b/><w:bCs/>':'')+'<w:color w:val="000000"/><w:sz w:val="32"/><w:szCs w:val="32"/></w:rPr>'}
 function run(t,b){return '<w:r>'+rPr(b)+'<w:t xml:space="preserve">'+xmlEsc(t)+'</w:t></w:r>'}
 function para(x,sigL){
   const o=spec(x.k,sigL);
-  let p='<w:pPr>'+(o.keep||x.keep?'<w:keepNext/>':'')+'<w:keepLines/><w:spacing w:before="'+(o.before||0)+'" w:after="'+(o.after||0)+'" w:line="240" w:lineRule="auto"/>'
+  let p='<w:pPr>'+(o.keep||x.keep?'<w:keepNext/>':'')+'<w:keepLines/>'+(o.frame?framePr(sigL):'')+'<w:spacing w:before="'+(o.before||0)+'" w:after="'+(o.after||0)+'" w:line="240" w:lineRule="auto"/>'
     +'<w:ind w:left="'+(o.ind||0)+'" w:right="0"'+(o.hang?' w:hanging="'+o.hang+'"':'')+'/><w:jc w:val="'+(o.jc||"left")+'"/>'+rPr(o.bold)+'</w:pPr>';
   if(Array.isArray(x.t)) p+=run(x.t[0],o.bold)+'<w:r>'+rPr(o.bold)+'<w:tab/></w:r>'+run(x.t[1],o.bold);
   else if(x.t) p+=run(x.t,o.bold);
   return '<w:p>'+p+'</w:p>';
 }
-function bodyXml(m){const L=sigLeft(m);return lines(m).map(x=>para(x,L)).join("")}
+// ย่อหน้าว่างสูง 1pt ปิดท้าย: เป็นจุดยึดของกรอบลงชื่อ (LibreOffice ยึดกรอบกับย่อหน้าถัดไป) ถ้าหน้าเต็ม
+// เที่ยวบินสุดท้าย+กรอบลงชื่อจะขึ้นหน้าใหม่ด้วยกัน (keepNext) ไม่ทับรายการเที่ยวบิน
+const ANCHOR_P='<w:p><w:pPr><w:spacing w:before="0" w:after="0" w:line="20" w:lineRule="exact"/><w:ind w:left="0" w:right="0"/>'+rPr(false)+'</w:pPr></w:p>';
+function bodyXml(m){const L=sigLeft(m);return lines(m).map(x=>para(x,L)).join("")+ANCHOR_P}
 const MIME="application/vnd.openxmlformats-officedocument.wordprocessingml.document";
 async function buildDocx(JSZip,b64,m,type){
   const zip=await JSZip.loadAsync(b64,{base64:true});
@@ -168,11 +175,13 @@ function fileBase(d){const S=shift(d);return "Delay_"+(S.b?iso(S.b).replace(/-/g
 // ---------- หน้าจำลอง A4 (HTML) ----------
 function h(t){return String(t).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")}
 function pageHTML(m){
-  const L=sigLeft(m)/15;
-  return '<div class="a4-body">'+lines(m).map(x=>{
-    const st=x.k==="sig"||x.k==="pos"||x.k==="date"?' style="margin-left:'+L.toFixed(1)+'px"':'';
-    const t=Array.isArray(x.t)?'<span class="no">'+h(x.t[0])+'</span>'+h(x.t[1]):(x.t?h(x.t):NB);
-    return '<p class="'+x.k+'"'+st+'>'+t+'</p>'}).join("")+'</div>';
+  const L=sigLeft(m)/15,isSig=x=>x.k==="sig"||x.k==="pos"||x.k==="date";
+  const p=x=>{const t=Array.isArray(x.t)?'<span class="no">'+h(x.t[0])+'</span>'+h(x.t[1]):(x.t?h(x.t):NB);
+    return '<p class="'+x.k+'">'+t+'</p>'};
+  const all=lines(m);
+  // บล็อกลงชื่อแยกเป็น .sigb ดันลงล่างสุดของหน้า (margin-top:auto) เยื้องซ้ายเท่า sigL ของไฟล์ Word
+  return '<div class="a4-body">'+all.filter(x=>!isSig(x)).map(p).join("")
+    +'<div class="sigb" style="margin-left:'+L.toFixed(1)+'px">'+all.filter(isSig).map(p).join("")+'</div></div>';
 }
 const api={M,BKK,CAUSES,DEF_POS,UNITS,swapUnit,th,iso,normTime,toMin,shift,newFlight,labels,setDir,hasData,fmtDur,calcDelay,routeText,lineText,defaultSmsDate,nowTime,model,lines,textW,sigLeft,bodyXml,buildDocx,fileBase,pageHTML,MIME};
 if(typeof module!=="undefined"&&module.exports) module.exports=api; else root.DelayLib=api;
