@@ -12,6 +12,7 @@
   .card{background:#fff;border-radius:12px;padding:14px;margin-bottom:12px;box-shadow:0 1px 3px rgba(0,0,0,.08)}
   .card h2{font-size:15px;margin:0 0 10px;color:#0b5394}
   .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+  .full{grid-column:1/-1}
   label{display:flex;flex-direction:column;font-size:13px;color:#555;gap:4px}
   input,select,textarea{font-size:16px;padding:9px;border:1px solid #c9d2dc;border-radius:8px;font-family:inherit;width:100%}
   input:focus,select:focus{outline:2px solid #0b5394;border-color:#0b5394}
@@ -84,7 +85,7 @@
 <div class="card"><h2>1. เหตุการณ์</h2>
 <div class="grid">
   <label>ประเภท<input id="type" value="Return Taxi"></label>
-  <label>สาเหตุ<input id="reason" class="up" value="TECHNICAL PROBLEM" list="reasons"></label>
+  <label class="full">สาเหตุ<input id="reason" class="up" value="TECHNICAL PROBLEM" list="reasons"></label>
   <datalist id="reasons"><option>TECHNICAL PROBLEM</option><option>MEDICAL CASE</option><option>PASSENGER OFFLOAD</option><option>BIRD STRIKE</option><option>WEATHER</option></datalist>
 </div></div>
 
