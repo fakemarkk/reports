@@ -7,6 +7,10 @@ const NB="\u00a0";
 const BKK={name:"BANGKOK",code:"BKK"};
 const CAUSES=["AIRCRAFT ROTATION","TECHNICAL PROBLEM","WEATHER","LATE ARRIVAL","OPERATIONAL REQUIREMENT"];
 const DEF_POS="หน.พนง.งานกะ ศูนย์ควบคุมปฏิบัติการเขตการบิน AOCC";
+// หน่วยงานของหัวหน้า AOCC (หมุนเวียน) ค่าเริ่มต้นตัวแรก
+const UNITS=["งพบ.สบบ.ฝปข.ทสภ.", "งกบ.สบบ.ฝปข.ทสภ.", "งบจ.สบข.ฝปข.ทสภ."];
+// เปลี่ยนชื่อหน่วยงานที่อยู่ในข้อความตำแหน่ง (ถ้ามี) เป็นหน่วยงานที่เลือก
+function swapUnit(t,u){return String(t==null?"":t).split(/(งพบ\.สบบ\.ฝปข\.ทสภ\.|งกบ\.สบบ\.ฝปข\.ทสภ\.|งบจ\.สบข\.ฝปข\.ทสภ\.)/).map((x,i)=>i%2?u:x).join("")}
 const s=x=>(x==null?"":String(x)).trim();
 const U=x=>s(x).toUpperCase();
 const yy=d=>String(d.getFullYear()+543).slice(-2);
@@ -66,7 +70,7 @@ function routeText(f){
   return names+codes;
 }
 // ---------- ข้อความไลน์ ----------
-function lineText(d,name,shiftNo){
+function lineText(d,name,shiftNo,unit){
   d=d||{};const S=shift(d),n=(d.flights&&d.flights.length)||0;
   const when=S.night?"วันที่ "+S.start+" ระหว่างเวลา 17.00 น. ถึงเวลา 08.00 น. ("+S.end+")":"วันที่ "+S.start+" ระหว่างเวลา 08.00 น. ถึงเวลา 17.00 น.";
   return [
@@ -77,7 +81,7 @@ when,
 "",
 "จึงเรียนมาเพื่อทราบ",
 s(name)||"XXXXXX",
-"หน.พนง.งานกะ งพบ.สบบ.ฝปข.ทสภ.(ผลัด"+s(shiftNo)+")"
+"หน.พนง.งานกะ "+(UNITS.includes(unit)?unit:UNITS[0])+"(ผลัด"+s(shiftNo)+")"
   ].join("\n");
 }
 // ---------- แบบฟอร์ม Word ----------
@@ -106,9 +110,10 @@ function lines(m){
   for(let i=0;i<4;i++)L.push({k:"top",t:""});
   L.push({k:"ttl",t:"แบบฟอร์มการจัดส่งข้อมูลให้ผู้บริหาร ทอท."},{k:"ttl",t:"ผ่านระบบโทรศัพท์มือถือ (SMS)"});
   L.push({k:"to",t:"ถึง  ศูนย์รักษาความปลอดภัย ทสภ. (SCC)"});
-  L.push({k:"hd",t:"วันที่ "+or(m.range,14)+"  เวลา "+or(m.smsTime,8)+" น."});
+  // บรรทัดบน = วันที่/เวลาที่ส่งรายงาน (วันเดียว) · บรรทัดเรื่อง = ช่วงวันที่ของผลัด
+  L.push({k:"hd",t:"วันที่ "+or(m.smsDate,14)+"  เวลา "+or(m.smsTime,8)+" น."});
   L.push({k:"hd",t:"จาก ศูนย์ควบคุมปฏิบัติการเขตการบิน AOCC (โทร. 24103)"});
-  L.push({k:"hd",t:"เรื่อง แจ้งข้อมูลเที่ยวบินล่าช้า  วันที่ "+or(m.subj,12)+"  ช่วงเวลา "+m.p[0]+" - "+m.p[1]+" น."});
+  L.push({k:"hd",t:"เรื่อง แจ้งข้อมูลเที่ยวบินล่าช้า  วันที่ "+or(m.range,12)+"  ช่วงเวลา "+m.p[0]+" - "+m.p[1]+" น."});
   L.push({k:"dash",t:"มีเที่ยวบินล่าช้ามากกว่า 3 ชั่วโมง จำนวน "+m.count+" เที่ยวบิน ดังนี้"});
   m.flights.forEach((f,i)=>{
     L.push({k:i?"fl":"fl1",t:[f.no+".","เที่ยวบิน "+or(f.flight,10)+"  "+f.L[0]+" "+or(f.sched,8)+" น. "+f.L[1]+" "+or(f.est,8)+" น."]});
@@ -169,6 +174,6 @@ function pageHTML(m){
     const t=Array.isArray(x.t)?'<span class="no">'+h(x.t[0])+'</span>'+h(x.t[1]):(x.t?h(x.t):NB);
     return '<p class="'+x.k+'"'+st+'>'+t+'</p>'}).join("")+'</div>';
 }
-const api={M,BKK,CAUSES,DEF_POS,th,iso,normTime,toMin,shift,newFlight,labels,setDir,hasData,fmtDur,calcDelay,routeText,lineText,defaultSmsDate,nowTime,model,lines,textW,sigLeft,bodyXml,buildDocx,fileBase,pageHTML,MIME};
+const api={M,BKK,CAUSES,DEF_POS,UNITS,swapUnit,th,iso,normTime,toMin,shift,newFlight,labels,setDir,hasData,fmtDur,calcDelay,routeText,lineText,defaultSmsDate,nowTime,model,lines,textW,sigLeft,bodyXml,buildDocx,fileBase,pageHTML,MIME};
 if(typeof module!=="undefined"&&module.exports) module.exports=api; else root.DelayLib=api;
 })(typeof window!=="undefined"?window:this);

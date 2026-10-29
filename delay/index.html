@@ -46,6 +46,9 @@
   .clear{background:#dde3ea;color:#333;flex:0 0 120px}
   .toast{position:fixed;left:50%;top:20px;transform:translateX(-50%);background:#1c2733;color:#fff;padding:10px 18px;border-radius:20px;opacity:0;transition:.3s;pointer-events:none}
   .toast.show{opacity:1}
+  .ulab{font-size:13px;color:#555;margin:12px 0 4px}
+  .useg button{font-size:17px;font-weight:600;padding:10px 4px;min-height:52px}
+  .useg button span{font-size:12px}
   .hint{font-size:12px;color:#888;margin-top:6px}
   textarea{min-height:76px;resize:vertical;line-height:1.4}
   textarea:focus{outline:2px solid #0b5394;border-color:#0b5394}
@@ -96,7 +99,10 @@
   <label>ชื่อ<input id="name" placeholder="ชื่อผู้รายงาน"></label>
   <label>ผลัด<select id="shift"><option>1</option><option>2</option><option selected>3</option><option>4</option></select></label>
 </div>
-<div class="hint">ชื่อและผลัดไม่ถูกบันทึกในเครื่อง</div>
+<div class="ulab">หน่วยงาน (หน.พนง.งานกะ)</div>
+<input type="hidden" id="unit" value="งพบ.สบบ.ฝปข.ทสภ.">
+<div class="seg useg" id="unitSeg"><button type="button" data-v="งพบ.สบบ.ฝปข.ทสภ." class="on">งพบ.<span>สบบ.ฝปข.ทสภ.</span></button><button type="button" data-v="งกบ.สบบ.ฝปข.ทสภ.">งกบ.<span>สบบ.ฝปข.ทสภ.</span></button><button type="button" data-v="งบจ.สบข.ฝปข.ทสภ.">งบจ.<span>สบข.ฝปข.ทสภ.</span></button></div>
+<div class="hint">ชื่อ ผลัด และหน่วยงานไม่ถูกบันทึกในเครื่อง</div>
 </div>
 
 <div class="card"><h2>ตัวอย่างข้อความ</h2><pre id="out">⚠️ ถ้าเห็นข้อความนี้ แปลว่าหน้าที่เปิดอยู่ไม่ได้รันสคริปต์ กรุณาดาวน์โหลดไฟล์แล้วเปิดด้วย Chrome, Edge หรือ Safari โดยตรง</pre></div>
@@ -114,6 +120,11 @@
 <script>
 const D=window.DelayLib;
 const $=id=>document.getElementById(id);
+// หน่วยงานของหัวหน้า AOCC (หมุนเวียน 3 หน่วย) — ไม่บันทึกในเครื่อง ค่าเริ่มต้น งพบ.
+const UNITS=["งพบ.สบบ.ฝปข.ทสภ.", "งกบ.สบบ.ฝปข.ทสภ.", "งบจ.สบข.ฝปข.ทสภ."];
+function unit(){const u=$("unit").value;return UNITS.includes(u)?u:UNITS[0]}
+function paintUnit(){document.querySelectorAll("#unitSeg button").forEach(b=>b.classList.toggle("on",b.dataset.v===unit()))}
+function initUnit(after,start){$("unit").value=UNITS.includes(start)?start:UNITS[0];paintUnit();document.querySelectorAll("#unitSeg button").forEach(b=>b.addEventListener("click",()=>{const old=unit();$("unit").value=b.dataset.v;paintUnit();after(old,unit())}))}
 const store={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,x){try{localStorage.setItem(k,x)}catch(e){}}};
 const v=id=>$(id).value.trim();
 const W=["อาทิตย์","จันทร์","อังคาร","พุธ","พฤหัสบดี","ศุกร์","เสาร์"];
@@ -175,7 +186,7 @@ function build(){
   else{$("dateLabel").textContent="แตะเพื่อเลือกวันที่";$("dateSub").textContent=""}
   document.querySelectorAll("#periodSeg button").forEach(b=>b.classList.toggle("on",b.dataset.v===$("period").value));
   F.forEach((f,i)=>showRes(i));
-  $("out").textContent=D.lineText(d,v("name"),$("shift").value);
+  $("out").textContent=D.lineText(d,v("name"),$("shift").value,unit());
   saveDraft();
 }
 // ไม่บันทึกชื่อผู้รายงานและผลัด
@@ -195,7 +206,7 @@ function clearFlights(){
   F=[D.newFlight("arr")];renderCards();build();
 }
 // ชื่อผู้รายงานส่งต่อให้หน้า Word ผ่าน sessionStorage (ไม่บันทึกถาวร)
-function goWord(){saveDraft();try{sessionStorage.setItem("delay_word_name",v("name"))}catch(e){}location.href="word/"}
+function goWord(){saveDraft();try{sessionStorage.setItem("delay_word_name",v("name"));sessionStorage.setItem("delay_word_unit",unit())}catch(e){}location.href="word/"}
 // กลับมาจากหน้า Word ด้วยลิงก์ #f0-est ฯลฯ → โฟกัสช่องนั้น
 function focusHash(){const m=/^#(f\d+-\w+|d1)$/.exec(location.hash||"");if(!m)return;const el=$(m[1]);if(el){if(el.scrollIntoView)el.scrollIntoView({block:"center"});el.focus()}}
 (function(){
@@ -204,6 +215,7 @@ function focusHash(){const m=/^#(f\d+-\w+|d1)$/.exec(location.hash||"");if(!m)re
   $("d1").value=D.iso(now);
   $("causes").innerHTML=D.CAUSES.map(c=>"<option>"+c+"</option>").join("");
   loadDraft();
+  initUnit(()=>build());
   document.querySelectorAll("#periodSeg button").forEach(b=>b.addEventListener("click",()=>{$("period").value=b.dataset.v;build()}));
   ["d1","name","shift"].forEach(i=>{$(i).addEventListener("input",build);$(i).addEventListener("change",build)});
   renderCards();build();focusHash();
