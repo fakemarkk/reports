@@ -46,6 +46,9 @@
   .clear{background:#dde3ea;color:#333;flex:0 0 120px}
   .toast{position:fixed;left:50%;top:20px;transform:translateX(-50%);background:#1c2733;color:#fff;padding:10px 18px;border-radius:20px;opacity:0;transition:.3s;pointer-events:none}
   .toast.show{opacity:1}
+  .ulab{font-size:13px;color:#555;margin:12px 0 4px}
+  .useg button{font-size:17px;font-weight:600;padding:10px 4px;min-height:52px}
+  .useg button span{font-size:12px}
   .hint{font-size:12px;color:#888;margin-top:6px}
   .wordbtn{display:block;width:100%;background:#fff;color:#0b5394;border:2px solid #0b5394;font-weight:600}
   .wordbtn:active{background:#dde8f5}
@@ -133,6 +136,9 @@
   <label>ชื่อ<input id="name" placeholder="ชื่อผู้รายงาน"></label>
   <label>ผลัด<select id="shift"><option>1</option><option>2</option><option selected>3</option><option>4</option></select></label>
 </div>
+<div class="ulab">หน่วยงาน (หน.พนง.งานกะ)</div>
+<input type="hidden" id="unit" value="งพบ.สบบ.ฝปข.ทสภ.">
+<div class="seg useg" id="unitSeg"><button type="button" data-v="งพบ.สบบ.ฝปข.ทสภ." class="on">งพบ.<span>สบบ.ฝปข.ทสภ.</span></button><button type="button" data-v="งกบ.สบบ.ฝปข.ทสภ.">งกบ.<span>สบบ.ฝปข.ทสภ.</span></button><button type="button" data-v="งบจ.สบข.ฝปข.ทสภ.">งบจ.<span>สบข.ฝปข.ทสภ.</span></button></div>
 </div>
 
 <div class="card"><h2>ตัวอย่างข้อความ</h2><pre id="out">⚠️ ถ้าเห็นข้อความนี้ แปลว่าหน้าที่เปิดอยู่ไม่ได้รันสคริปต์ กรุณาดาวน์โหลดไฟล์แล้วเปิดด้วย Chrome, Edge หรือ Safari โดยตรง</pre></div>
@@ -150,6 +156,11 @@
 <script>
 const M=["ม.ค.","ก.พ.","มี.ค.","เม.ย.","พ.ค.","มิ.ย.","ก.ค.","ส.ค.","ก.ย.","ต.ค.","พ.ย.","ธ.ค."];
 const $=id=>document.getElementById(id);
+// หน่วยงานของหัวหน้า AOCC (หมุนเวียน 3 หน่วย) — ไม่บันทึกในเครื่อง ค่าเริ่มต้น งพบ.
+const UNITS=["งพบ.สบบ.ฝปข.ทสภ.", "งกบ.สบบ.ฝปข.ทสภ.", "งบจ.สบข.ฝปข.ทสภ."];
+function unit(){const u=$("unit").value;return UNITS.includes(u)?u:UNITS[0]}
+function paintUnit(){document.querySelectorAll("#unitSeg button").forEach(b=>b.classList.toggle("on",b.dataset.v===unit()))}
+function initUnit(after,start){$("unit").value=UNITS.includes(start)?start:UNITS[0];paintUnit();document.querySelectorAll("#unitSeg button").forEach(b=>b.addEventListener("click",()=>{const old=unit();$("unit").value=b.dataset.v;paintUnit();after(old,unit())}))}
 const store={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,x){try{localStorage.setItem(k,x)}catch(e){}}};
 const v=id=>$(id).value.trim();
 const V=id=>v(id).toUpperCase();
@@ -217,7 +228,7 @@ more?"รายงานข้อมูลเพิ่มเติม":"รา�
 "",
 "จึงเรียนมาเพื่อทราบ",
 v("name")||"XXXXXX",
-"หน.พนง.งานกะ งพบ.สบบ.ฝปข.ทสภ.(ผลัด "+$("shift").value+")"
+"หน.พนง.งานกะ "+unit()+"(ผลัด "+$("shift").value+")"
   ];
   $("out").textContent=t.join("\n");
   saveDraft();
@@ -226,7 +237,7 @@ const DRAFT=["d1","period","kind","type","reason","airline","flight","org","dst"
 function saveDraft(){const o={};DRAFT.forEach(i=>o[i]=$(i).value);o.paxUnk=$("paxUnk").checked;o.unk=$("unk").checked;store.set("rf_draft",JSON.stringify(o))}
 function migrateRoute(o){let r=String(o.route).trim();if(!r)return;const m=r.match(/^(.*?)\s*\(\s*([A-Za-z0-9]*)\s*-\s*([A-Za-z0-9]*)\s*\)\s*$/);if(m){r=m[1];if(o.org==null){$("org").value=m[2];$("dst").value=m[3]}}const p=r.split(/\s+-\s+/);$("orgName").value=p[0]||"";$("dstName").value=p.slice(1).join(" - ")}
 function loadDraft(){try{const o=JSON.parse(store.get("rf_draft")||"null");if(!o)return;DRAFT.forEach(i=>{if(o[i]!=null)$(i).value=o[i]});if(o.orgName==null&&o.route!=null)migrateRoute(o);$("paxUnk").checked=(o.paxUnk!=null)?!!o.paxUnk:o.hasPax!==true;$("unk").checked=o.unk!==false}catch(e){}}
-function goWord(){saveDraft();try{sessionStorage.setItem("rf_word_name",v("name"))}catch(e){}location.href="word/"}
+function goWord(){saveDraft();try{sessionStorage.setItem("rf_word_name",v("name"));sessionStorage.setItem("rf_word_unit",unit())}catch(e){}location.href="word/"}
 function copyText(){
   const txt=$("out").textContent;
   const done=()=>{const t=$("toast");t.classList.add("show");setTimeout(()=>t.classList.remove("show"),1500)};
@@ -250,6 +261,7 @@ function clearFlight(){
   $("d1").value=now.getFullYear()+"-"+String(now.getMonth()+1).padStart(2,"0")+"-"+String(now.getDate()).padStart(2,"0");
   document.querySelectorAll(".t").forEach(el=>{el.setAttribute("inputmode","decimal");el.addEventListener("input",()=>cleanTime(el));el.addEventListener("blur",()=>{fmtTime(el);build()})});
   loadDraft();
+  initUnit(()=>build());
   document.querySelectorAll("#kindSeg button").forEach(b=>b.addEventListener("click",()=>{$("kind").value=b.dataset.v;build()}));
   document.querySelectorAll("#periodSeg button").forEach(b=>b.addEventListener("click",()=>{$("period").value=b.dataset.v;build()}));
   document.querySelectorAll(".daySeg").forEach(sg=>sg.querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>{$(sg.dataset.for).value=b.dataset.v;build()})));
