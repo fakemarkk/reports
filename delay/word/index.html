@@ -3,65 +3,114 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<script>/* theme: saved choice (localStorage "theme") or system setting — set before paint */(function(){var d=document.documentElement,m=window.matchMedia&&matchMedia("(prefers-color-scheme: dark)");function s(){try{var t=localStorage.getItem("theme");return t==="light"||t==="dark"?t:""}catch(e){return ""}}function a(){d.dataset.theme=s()||(m&&m.matches?"dark":"light")}a();if(m){if(m.addEventListener)m.addEventListener("change",a);else if(m.addListener)m.addListener(a)}addEventListener("storage",a);addEventListener("pageshow",a)})();</script>
 <title>แบบฟอร์ม Word – เที่ยวบินล่าช้า</title>
 <style>
+:root{
+  /* 🎨 Pastel calm theme — ปรับสีทั้งหมดได้ที่นี่ */
+  --bg:#f6f4fa;          /* พื้นหลังหน้า: ลาเวนเดอร์อ่อนมาก */
+  --card:#ffffff;        /* การ์ด/ช่องกรอก */
+  --soft:#f9f8fc;        /* พื้นอ่อนในกล่อง */
+  --ink:#2b2f45;         /* ตัวอักษรหลัก */
+  --muted:#575c6e;       /* ป้ายช่องกรอก */
+  --muted2:#5e6376;      /* คำอธิบาย/hint */
+  --faint:#a9acbd;       /* ไอคอนลูกศร/disabled */
+  --accent:#3e5f94;      /* หัวข้อ/ลิงก์: น้ำเงินหม่น */
+  --accent-soft:#e7edf8; /* พื้นปุ่มรอง */
+  --accent-line:#b4c6e6;
+  --btn:#cddcf3;         /* ปุ่มหลัก: ฟ้าพาสเทล */
+  --btn-ink:#1f3a66;
+  --seg-bg:#ece9f4;      /* พื้นปุ่มเลือก */
+  --chip:#eeecf4;
+  --line:#e4e2ee;        /* เส้นขอบอ่อน */
+  --field-line:#d4d2e3;  /* ขอบช่องกรอก */
+  --disabled-ink:#a1a5b4;
+  --line-green:#15834a;  /* ปุ่มคัดลอกไปไลน์ (เขียวไลน์โทนนุ่ม) */
+  --warn:#ec9a3c; --warn-bg:#fff3e6; --warn-line:#f1c08a; --warn-ink:#b4470f; --warn-text:#7a4210;
+  --ok-bg:#eaf7ef; --ok-line:#8fd3a8; --ok-ink:#1d5e33;
+  --err-bg:#fdeef0; --err-line:#f2c4c8; --err-ink:#b3261e;
+  --shadow-c:rgba(72,62,120,.10);
+  --radius:16px;
+}
+:root{
+  /* 🎨 หน้าด้านใน: เข้มขึ้นอีกนิดให้อ่านง่าย (หน้าแรกใช้ค่าด้านบน) */
+  --bg:#e9e5f3;          /* พื้นหลังลาเวนเดอร์ชัดขึ้น การ์ดขาวลอยเด่น */
+  --soft:#f6f4fb;
+  --ink:#1f2236;
+  --muted:#41465a;       /* ป้ายช่องกรอก เข้มขึ้น */
+  --muted2:#53586c;
+  --faint:#8f92a8;
+  --accent:#2c4a7e;      /* หัวข้อการ์ด เข้มขึ้น */
+  --accent-soft:#dde6f6;
+  --accent-line:#8faad8;
+  --btn:#bfd2f2; --btn-ink:#16305a;
+  --seg-bg:#e1ddef;
+  --seg-on:#c5d7f5; --seg-on-ink:#16305a; --seg-on-line:#8faad8;
+  --chip:#e3e0ee;
+  --line:#bdb8d3;        /* ขอบการ์ด */
+  --field-line:#a9a4c4;  /* ขอบช่องกรอก */
+  --placeholder:#9c9cb2;
+  --disabled-ink:#8f93a5;
+  --shadow-c:rgba(58,48,110,.14);
+}
+
   @font-face{font-family:"TH SarabunPSK";font-weight:400;font-style:normal;font-display:block;src:url("fonts/THSarabunPSK.ttf") format("truetype")}
   @font-face{font-family:"TH SarabunPSK";font-weight:700;font-style:normal;font-display:block;src:url("../../return-flight/word/fonts/THSarabunPSK-Bold.ttf") format("truetype")}
   *{box-sizing:border-box}
-  body{font-family:system-ui,"Sarabun","Noto Sans Thai",sans-serif;background:#eef2f7;margin:0;padding:12px;color:#1c2733}
+  body{font-family:system-ui,"Sarabun","Noto Sans Thai",sans-serif;background:var(--bg);margin:0;padding:12px;color:var(--ink)}
   .wrap{max-width:720px;margin:auto}
   h1{font-size:20px;margin:6px 0 12px}
-  .card{background:#fff;border-radius:12px;padding:14px;margin-bottom:12px;box-shadow:0 1px 3px rgba(0,0,0,.08)}
-  .card h2{font-size:15px;margin:0 0 10px;color:#0b5394;display:flex;align-items:center;justify-content:space-between;gap:8px}
+  .card{background:var(--card);border-radius:12px;padding:14px;margin-bottom:12px;box-shadow:0 1px 3px var(--shadow-c)}
+  .card h2{font-size:15px;margin:0 0 10px;color:var(--accent);display:flex;align-items:center;justify-content:space-between;gap:8px}
   .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
   .full{grid-column:1/-1}
-  label{display:flex;flex-direction:column;font-size:13px;color:#555;gap:4px}
-  input,select,textarea{font-size:16px;padding:9px;border:1px solid #c9d2dc;border-radius:8px;font-family:inherit;width:100%;color:#1c2733;background:#fff}
+  label{display:flex;flex-direction:column;font-size:13px;color:var(--muted);gap:4px}
+  input,select,textarea{font-size:16px;padding:9px;border:1px solid var(--field-line);border-radius:8px;font-family:inherit;width:100%;color:var(--ink);background:var(--card)}
   input{-webkit-appearance:none;appearance:none;height:46px}
   textarea{min-height:84px;resize:vertical;line-height:1.4}
-  input:focus,textarea:focus{outline:2px solid #0b5394;border-color:#0b5394}
+  input:focus,textarea:focus{outline:2px solid var(--accent);border-color:var(--accent)}
   .up{text-transform:uppercase}
-  .seg{display:flex;background:#e6ebf1;border-radius:10px;padding:4px;gap:4px}
-  .seg button{flex:1;white-space:nowrap;font-size:15px;padding:10px 6px;border-radius:8px;background:transparent;color:#555;line-height:1.3}
-  .seg button.on{background:#fff;color:#0b5394;font-weight:600;box-shadow:0 1px 3px rgba(0,0,0,.15)}
-  .seg button span{display:block;font-size:13px;font-weight:400;color:#888}
-  .topbar{position:sticky;top:0;z-index:5;background:#eef2f7;margin:-12px -12px 4px;padding:10px 12px}
-  .back{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 18px;border-radius:22px;background:#fff;color:#0b5394;font-size:17px;font-weight:600;text-decoration:none;box-shadow:0 1px 3px rgba(0,0,0,.12)}
-  .back:active{background:#dde8f5}
-  .edit{font-size:14px;font-weight:600;color:#0b5394;text-decoration:none;background:#eef4fb;border-radius:16px;padding:6px 12px;white-space:nowrap}
+  .seg{display:flex;background:var(--seg-bg);border-radius:10px;padding:4px;gap:4px}
+  .seg button{flex:1;white-space:nowrap;font-size:15px;padding:10px 6px;border-radius:8px;background:transparent;color:var(--muted);line-height:1.3}
+  .seg button.on{background:var(--card);color:var(--accent);font-weight:600;box-shadow:0 1px 3px rgba(72,62,120,.16)}
+  .seg button span{display:block;font-size:13px;font-weight:400;color:var(--muted2)}
+  .topbar{position:sticky;top:0;z-index:5;background:var(--bg);margin:-12px -12px 4px;padding:10px 12px}
+  .back{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 18px;border-radius:22px;background:var(--card);color:var(--accent);font-size:17px;font-weight:600;text-decoration:none;box-shadow:0 1px 3px var(--shadow-c)}
+  .back:active{background:var(--accent-soft)}
+  .edit{font-size:14px;font-weight:600;color:var(--accent);text-decoration:none;background:var(--accent-soft);border-radius:16px;padding:6px 12px;white-space:nowrap}
   .sum{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;margin:0;font-size:14px}
-  .sum dt{color:#7a8794}
+  .sum dt{color:var(--muted2)}
   .sum dd{margin:0;font-weight:600;word-break:break-word}
-  .sum dd.na{color:#c2410c;font-weight:400}
+  .sum dd.na{color:var(--warn-ink);font-weight:400}
   /* เตือนช่องที่ยังไม่ได้กรอก (เฉพาะหน้าจอ ไม่อยู่ในเอกสาร) */
-  input.miss,textarea.miss{border:2px solid #f08c00;background:#fff4e6}
-  .mh{font-size:12px;color:#c2410c;font-weight:600}
+  input.miss,textarea.miss{border:2px solid var(--warn);background:var(--warn-bg)}
+  .mh{font-size:12px;color:var(--warn-ink);font-weight:600}
   input,textarea,.chk{scroll-margin-top:76px;scroll-margin-bottom:120px}
   .chk{border-radius:12px;padding:12px 14px;margin-bottom:12px;font-size:15px}
-  .chk.bad{background:#fff4e6;border:2px solid #f08c00;color:#7a3500}
-  .chk.ok{background:#ebfbee;border:2px solid #40c057;color:#1b5e20;font-weight:600}
+  .chk.bad{background:var(--warn-bg);border:2px solid var(--warn);color:var(--warn-text)}
+  .chk.ok{background:var(--ok-bg);border:2px solid var(--ok-line);color:var(--ok-ink);font-weight:600}
   .chk b{display:block;font-size:16px;margin-bottom:6px}
   .chk ul{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:6px}
-  .chk li button{flex:none;font-size:14px;padding:7px 11px;border-radius:16px;background:#fff;color:#c2410c;border:1px solid #f3b770;line-height:1.2}
-  .chk .tip{font-size:12px;color:#8a5a2b;margin-top:8px}
+  .chk li button{flex:none;font-size:14px;padding:7px 11px;border-radius:16px;background:var(--card);color:var(--warn-ink);border:1px solid var(--warn-line);line-height:1.2}
+  .chk .tip{font-size:12px;color:var(--warn-text);margin-top:8px}
   .barmsg{flex-basis:100%;font-size:14px;text-align:center;border-radius:8px;padding:7px 8px;cursor:pointer}
-  .barmsg.bad{background:#fff4e6;color:#c2410c;border:1px solid #f3b770;font-weight:600}
-  .barmsg.ok{background:#ebfbee;color:#1b5e20;border:1px solid #8ce99a;font-weight:600}
-  .warn{background:#fff6e5;border:1px solid #f3d9a4;color:#7a5200;border-radius:10px;padding:12px;font-size:14px}
+  .barmsg.bad{background:var(--warn-bg);color:var(--warn-ink);border:1px solid var(--warn-line);font-weight:600}
+  .barmsg.ok{background:var(--ok-bg);color:var(--ok-ink);border:1px solid var(--ok-line);font-weight:600}
+  .warn{background:var(--warn-bg);border:1px solid var(--warn-line);color:var(--warn-text);border-radius:10px;padding:12px;font-size:14px}
   .hidden{display:none!important}
-  .ulab{font-size:13px;color:#555;margin:12px 0 4px}
+  .ulab{font-size:13px;color:var(--muted);margin:12px 0 4px}
   .useg button{font-size:17px;font-weight:600;padding:10px 4px;min-height:52px}
   .useg button span{font-size:12px}
-  .hint{font-size:12px;color:#888;margin-top:6px}
-  .lbl{font-size:13px;color:#555;margin:12px 0 4px}
+  .hint{font-size:12px;color:var(--muted2);margin-top:6px}
+  .lbl{font-size:13px;color:var(--muted);margin:12px 0 4px}
   button{flex:1;font-size:17px;padding:13px;border:0;border-radius:10px;cursor:pointer;font-family:inherit}
-  .mini{flex:none;font-size:14px;padding:8px 14px;background:#eef1f4;color:#555;margin-top:10px}
-  .bar{position:sticky;bottom:0;display:flex;flex-wrap:wrap;gap:8px;padding:10px 0;background:#eef2f7;z-index:4}
+  .mini{flex:none;font-size:14px;padding:8px 14px;background:var(--chip);color:var(--muted);margin-top:10px}
+  .bar{position:sticky;bottom:0;display:flex;flex-wrap:wrap;gap:8px;padding:10px 0;background:var(--bg);z-index:4}
   .bar button{font-size:15px;padding:12px 6px;line-height:1.3}
-  .doc{background:#0b5394;color:#fff;font-weight:600}
-  .img{background:#fff;color:#0b5394;font-weight:600;border:2px solid #0b5394}
+  .doc{background:var(--accent);color:var(--card);font-weight:600}
+  .img{background:var(--card);color:var(--accent);font-weight:600;border:2px solid var(--accent)}
   button:disabled{opacity:.6}
-  .toast{position:fixed;left:50%;top:20px;transform:translateX(-50%);background:#1c2733;color:#fff;padding:10px 18px;border-radius:20px;opacity:0;transition:.3s;pointer-events:none;z-index:30;max-width:90vw;text-align:center}
+  .toast{position:fixed;left:50%;top:20px;transform:translateX(-50%);background:var(--ink);color:var(--card);padding:10px 18px;border-radius:20px;opacity:0;transition:.3s;pointer-events:none;z-index:30;max-width:90vw;text-align:center}
   .toast.show{opacity:1}
   /* พรีวิวหน้าเอกสาร */
   .pvbox{position:relative;overflow:hidden;border:1px solid #dde3ea;border-radius:6px;background:#fff}
@@ -86,17 +135,64 @@
   .a4 .a4-body{flex:1 0 auto;display:flex;flex-direction:column}
   .a4 .sigb{margin-top:auto;padding-top:25.47px}
   .a4 .sig,.a4 .pos,.a4 .date{text-align:center}
-  .sheet{position:fixed;inset:0;background:rgba(15,25,35,.55);display:flex;align-items:flex-end;justify-content:center;z-index:20}
-  .sheet .box{background:#fff;width:100%;max-width:720px;max-height:92vh;overflow:auto;border-radius:16px 16px 0 0;padding:16px 14px calc(16px + env(safe-area-inset-bottom))}
+  .sheet{position:fixed;inset:0;background:rgba(43,40,70,.45);display:flex;align-items:flex-end;justify-content:center;z-index:20}
+  .sheet .box{background:var(--card);width:100%;max-width:720px;max-height:92vh;overflow:auto;border-radius:16px 16px 0 0;padding:16px 14px calc(16px + env(safe-area-inset-bottom))}
   .sheet h3{margin:0 0 6px;font-size:17px}
-  .sheet img{display:block;width:100%;border:1px solid #dde3ea;border-radius:6px;margin:8px 0;-webkit-touch-callout:default}
+  .sheet img{display:block;width:100%;border:1px solid var(--line);border-radius:6px;margin:8px 0;-webkit-touch-callout:default}
   .sheet .row{display:flex;gap:8px;margin-top:10px}
-  .sheet .fname{font-size:14px;color:#555;word-break:break-all}
-  .share{background:#06c755;color:#fff;font-weight:600}
-  .dl{background:#0b5394;color:#fff;font-weight:600}
-  .close{background:#dde3ea;color:#333}
-  .sum dd.under{color:#e65100}
-  .chk li a{display:inline-block;font-size:14px;padding:7px 11px;border-radius:16px;background:#fff;color:#c2410c;border:1px solid #f3b770;line-height:1.2;text-decoration:none}
+  .sheet .fname{font-size:14px;color:var(--muted);word-break:break-all}
+  .share{background:var(--line-green);color:var(--card);font-weight:600}
+  .dl{background:var(--accent);color:var(--card);font-weight:600}
+  .close{background:var(--line);color:var(--ink)}
+  .sum dd.under{color:var(--warn-ink)}
+  .chk li a{display:inline-block;font-size:14px;padding:7px 11px;border-radius:16px;background:var(--card);color:var(--warn-ink);border:1px solid var(--warn-line);line-height:1.2;text-decoration:none}
+
+  /* ---- pastel theme: softer shapes & buttons (visual only) ---- */
+  .card{border-radius:var(--radius);border:1px solid var(--line);box-shadow:0 2px 10px var(--shadow-c)}
+  .card h2{color:var(--accent)}
+  .seg{border-radius:12px}
+  .seg button.on{background:var(--card);color:var(--accent);box-shadow:0 1px 4px rgba(72,62,120,.16)}
+  .back{border:1px solid var(--line)}
+  button{border-radius:12px}
+  .copy,.share{background:var(--line-green);color:#fff;box-shadow:0 2px 8px rgba(21,131,74,.28)}
+  .doc,.dl{background:var(--btn);color:var(--btn-ink);border:1px solid var(--accent-line)}
+  .img,.wordbtn{background:var(--card);color:var(--accent);border:2px solid var(--accent-line)}
+  .clear,.close{background:var(--chip);color:var(--ink)}
+  .toast{background:#3a3f58}
+  input:focus,select:focus,textarea:focus{outline:2px solid var(--accent-line);border-color:var(--accent)}
+
+  /* ---- inner pages: more defined ---- */
+  .seg{border:1px solid var(--line)}
+  .seg button.on{background:var(--seg-on);color:var(--seg-on-ink);box-shadow:inset 0 0 0 1px var(--seg-on-line),0 1px 3px rgba(58,48,110,.18)}
+  .seg button.on span{color:var(--seg-on-ink)}
+  input,select,textarea,.datebox{border-color:var(--field-line)}
+  input,select,textarea{color:var(--ink);-webkit-text-fill-color:var(--ink);font-weight:500}
+  input::placeholder,textarea::placeholder{color:var(--placeholder);-webkit-text-fill-color:var(--placeholder);font-weight:400}
+  .back,.img,.wordbtn{border-color:var(--accent-line)}
+
+/* ===== 🌙 Dark mode (soft): เปลี่ยนเฉพาะตัวแปรสี เมื่อ html[data-theme="dark"] (ตามเครื่อง หรือเลือกจากปุ่มในหน้าแรก) ===== */
+  html[data-theme="dark"]{
+    color-scheme:dark;
+    --bg:#1c2030; --card:#262b3d; --soft:#2c3246;
+    --ink:#e6e8f0; --muted:#c5c9d8; --muted2:#aab0c4; --faint:#80869c;
+    --accent:#a9c4f2; --accent-soft:#33405e; --accent-line:#6580b3;
+    --btn:#a9c4f2; --btn-ink:#14233f;
+    --seg-bg:#1f2435; --seg-on:#3f5888; --seg-on-ink:#eef3ff; --seg-on-line:#7f9bd0;
+    --chip:#363c53;
+    --line:#3e4560; --field-line:#5a6180;
+    --placeholder:#7f859c; --disabled-ink:#727890;
+    --line-green:#15834a;
+    --warn:#f0a75a; --warn-bg:#3a2c1e; --warn-line:#a87238; --warn-ink:#ffc08a; --warn-text:#f7d6ae;
+    --ok-bg:#1f3529; --ok-line:#4f8f69; --ok-ink:#a8e4bf;
+    --err-bg:#3d2228; --err-line:#8d4a52; --err-ink:#ffadb5;
+    --shadow-c:rgba(0,0,0,.35);
+  }
+  html[data-theme="dark"] .toast{background:#e6e8f0;color:#1c2030}
+  html[data-theme="dark"] h1 small{color:var(--muted2)!important}
+  html[data-theme="dark"] .copy,html[data-theme="dark"] .share{box-shadow:0 2px 10px rgba(0,0,0,.4)}
+  html[data-theme="dark"] select{background-color:var(--card)}
+  /* เอกสาร A4 และรูปที่ export ต้องขาว-ดำเสมอ */
+  html[data-theme="dark"] .pvbox,html[data-theme="dark"] .a4{color-scheme:light;background:#fff;color:#000}
 </style>
 </head>
 <body>
