@@ -67,12 +67,12 @@
   .pvbox{position:relative;overflow:hidden;border:1px solid #dde3ea;border-radius:6px;background:#fff}
   .pvscale{transform-origin:0 0;width:794px}
   /* หน้าจำลอง A4 @96dpi: 794×1123px ขอบเท่าแบบฟอร์มต้นฉบับ บน 630tw / ซ้าย 1440tw / ขวา 864tw / ล่าง 548tw (1px = 15tw) */
-  .a4{position:relative;width:794px;min-height:1123px;background:#fff;color:#000;font-family:"TH SarabunPSK",sans-serif;font-weight:400;font-size:21.333px;line-height:24.13px;padding:42px 57.6px 36.5px 96px;-webkit-text-size-adjust:none;text-size-adjust:none}
+  .a4{position:relative;display:flex;flex-direction:column;width:794px;min-height:1123px;background:#fff;color:#000;font-family:"TH SarabunPSK",sans-serif;font-weight:400;font-size:21.333px;line-height:24.13px;padding:42px 57.6px 36.5px 96px;-webkit-text-size-adjust:none;text-size-adjust:none}
   .a4 p{margin:0;white-space:pre-wrap;word-break:break-word;position:relative}
   .a4 .top,.a4 .ttl{font-weight:700}
   .a4 .ttl{text-align:center}
   /* ระยะหลังย่อหน้า: 160tw = 10.67px, 20tw = 1.33px */
-  .a4 .top,.a4 .ttl,.a4 .to,.a4 .pos,.a4 .date{margin-bottom:10.67px}
+  .a4 .top,.a4 .ttl,.a4 .to,.a4 .pos{margin-bottom:10.67px}
   .a4 .hd,.a4 .dash,.a4 .fl,.a4 .fl1,.a4 .sub,.a4 .subl,.a4 .sig{margin-bottom:1.33px}
   /* บรรทัดว่างก่อน/หลัง "- มีเที่ยวบิน..." = 1 บรรทัด 16pt (360tw = 24px) ระหว่างเที่ยวบิน/ก่อนลงชื่อ 382tw = 25.47px */
   .a4 .dash{margin-top:24px;padding-left:60px}
@@ -81,8 +81,10 @@
   .a4 .fl,.a4 .fl1{padding-left:110px}
   .a4 .no{position:absolute;left:94px;top:0}
   .a4 .sub,.a4 .subl{padding-left:126.67px}
-  /* บล็อกลงชื่อ (แบบ C): เยื้องซ้ายตาม sigLeft (≤3810tw = 254px) จัดกึ่งกลางทุกบรรทัด */
-  .a4 .sig{margin-top:25.47px}
+  /* บล็อกลงชื่อ (แบบ C): เยื้องซ้ายตาม sigLeft (≤3810tw = 254px) จัดกึ่งกลางทุกบรรทัด
+     อยู่ขวาล่างสุดของหน้า: .a4/.a4-body เป็น flex column, .sigb ดันลงล่าง (margin-top:auto) ห่างเนื้อหาอย่างน้อย 382tw = 25.47px */
+  .a4 .a4-body{flex:1 0 auto;display:flex;flex-direction:column}
+  .a4 .sigb{margin-top:auto;padding-top:25.47px}
   .a4 .sig,.a4 .pos,.a4 .date{text-align:center}
   .sheet{position:fixed;inset:0;background:rgba(15,25,35,.55);display:flex;align-items:flex-end;justify-content:center;z-index:20}
   .sheet .box{background:#fff;width:100%;max-width:720px;max-height:92vh;overflow:auto;border-radius:16px 16px 0 0;padding:16px 14px calc(16px + env(safe-area-inset-bottom))}
