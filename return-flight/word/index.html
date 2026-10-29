@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>แบบฟอร์ม Word – Return Flight</title>
+<style>
+  @font-face{font-family:"TH SarabunPSK";font-weight:700;font-style:normal;font-display:block;src:url("fonts/THSarabunPSK-Bold.ttf") format("truetype")}
+  *{box-sizing:border-box}
+  body{font-family:system-ui,"Sarabun","Noto Sans Thai",sans-serif;background:#eef2f7;margin:0;padding:12px;color:#1c2733}
+  .wrap{max-width:720px;margin:auto}
+  h1{font-size:20px;margin:6px 0 12px}
+  .card{background:#fff;border-radius:12px;padding:14px;margin-bottom:12px;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+  .card h2{font-size:15px;margin:0 0 10px;color:#0b5394;display:flex;align-items:center;justify-content:space-between;gap:8px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+  .full{grid-column:1/-1}
+  label{display:flex;flex-direction:column;font-size:13px;color:#555;gap:4px}
+  input,select,textarea{font-size:16px;padding:9px;border:1px solid #c9d2dc;border-radius:8px;font-family:inherit;width:100%;color:#1c2733;background:#fff}
+  input{-webkit-appearance:none;appearance:none;height:46px}
+  textarea{min-height:84px;resize:vertical;line-height:1.4}
+  input:focus,textarea:focus{outline:2px solid #0b5394;border-color:#0b5394}
+  .up{text-transform:uppercase}
+  .seg{display:flex;background:#e6ebf1;border-radius:10px;padding:4px;gap:4px}
+  .seg button{flex:1;white-space:nowrap;font-size:15px;padding:10px 6px;border-radius:8px;background:transparent;color:#555;line-height:1.3}
+  .seg button.on{background:#fff;color:#0b5394;font-weight:600;box-shadow:0 1px 3px rgba(0,0,0,.15)}
+  .seg button span{display:block;font-size:13px;font-weight:400;color:#888}
+  .topbar{position:sticky;top:0;z-index:5;background:#eef2f7;margin:-12px -12px 4px;padding:10px 12px}
+  .back{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 18px;border-radius:22px;background:#fff;color:#0b5394;font-size:17px;font-weight:600;text-decoration:none;box-shadow:0 1px 3px rgba(0,0,0,.12)}
+  .back:active{background:#dde8f5}
+  .edit{font-size:14px;font-weight:600;color:#0b5394;text-decoration:none;background:#eef4fb;border-radius:16px;padding:6px 12px;white-space:nowrap}
+  .sum{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;margin:0;font-size:14px}
+  .sum dt{color:#7a8794}
+  .sum dd{margin:0;font-weight:600;word-break:break-word}
+  .sum dd.na{color:#b0b8c1;font-weight:400}
+  .warn{background:#fff6e5;border:1px solid #f3d9a4;color:#7a5200;border-radius:10px;padding:12px;font-size:14px}
+  .hidden{display:none!important}
+  .hint{font-size:12px;color:#888;margin-top:6px}
+  .lbl{font-size:13px;color:#555;margin:12px 0 4px}
+  button{flex:1;font-size:17px;padding:13px;border:0;border-radius:10px;cursor:pointer;font-family:inherit}
+  .mini{flex:none;font-size:14px;padding:8px 14px;background:#eef1f4;color:#555;margin-top:10px}
+  .bar{position:sticky;bottom:0;display:flex;gap:8px;padding:10px 0;background:#eef2f7;z-index:4}
+  .bar button{font-size:15px;padding:12px 6px;line-height:1.3}
+  .doc{background:#0b5394;color:#fff;font-weight:600}
+  .img{background:#fff;color:#0b5394;font-weight:600;border:2px solid #0b5394}
+  button:disabled{opacity:.6}
+  .toast{position:fixed;left:50%;top:20px;transform:translateX(-50%);background:#1c2733;color:#fff;padding:10px 18px;border-radius:20px;opacity:0;transition:.3s;pointer-events:none;z-index:30;max-width:90vw;text-align:center}
+  .toast.show{opacity:1}
+  /* พรีวิวหน้าเอกสาร */
+  .pvbox{position:relative;overflow:hidden;border:1px solid #dde3ea;border-radius:6px;background:#fff}
+  .pvscale{transform-origin:0 0;width:794px}
+  /* หน้าจำลอง A4 @96dpi: 794×1123px, ขอบ บน 810tw / ซ้าย 1109tw / ขวา 1106tw */
+  .a4{position:relative;width:794px;min-height:1123px;background:#fff;color:#000;font-family:"TH SarabunPSK",sans-serif;font-weight:700;font-size:21.333px;line-height:24.1px;padding:54px 73.7px 96px 73.9px;-webkit-text-size-adjust:none;text-size-adjust:none}
+  .a4 p{margin:0;white-space:pre-wrap;word-break:break-word}
+  .a4 u{text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:3px}
+  .a4 .ttl{text-align:center;font-size:32px;line-height:41.6px;margin:20px 0 14px}
+  .a4 .n{position:relative;padding-left:24px}
+  .a4 .n .no{position:absolute;left:0;top:0}
+  .a4 .n.l2{padding-left:52.8px}
+  .a4 .n.l2 .no{left:24px}
+  .a4 .c{padding-left:24px}
+  .a4 .j{text-align:justify}
+  .a4 .gap{margin-bottom:13.3px}
+  .a4 .e{height:24.1px}
+  .a4 .sig{padding-left:384px;margin-top:33px}
+  .a4 .pos{text-align:right;margin-top:-1px}
+  .a4-foot{position:absolute;left:73.9px;right:73.7px;bottom:22px;font-size:16px;line-height:18.1px;padding-top:8px;background:linear-gradient(#622423 0 4px,transparent 4px 5px,#622423 5px 6px,transparent 6px) top/100% 6px no-repeat}
+  .a4-foot p{text-align:center;white-space:nowrap}
+  .a4-foot p.r{text-align:right}
+  .a4-foot p.r + p{text-align:right}
+  /* แผ่นผลลัพธ์ */
+  .sheet{position:fixed;inset:0;background:rgba(15,25,35,.55);display:flex;align-items:flex-end;justify-content:center;z-index:20}
+  .sheet .box{background:#fff;width:100%;max-width:720px;max-height:92vh;overflow:auto;border-radius:16px 16px 0 0;padding:16px 14px calc(16px + env(safe-area-inset-bottom))}
+  .sheet h3{margin:0 0 6px;font-size:17px}
+  .sheet img{display:block;width:100%;border:1px solid #dde3ea;border-radius:6px;margin:8px 0;-webkit-touch-callout:default}
+  .sheet .row{display:flex;gap:8px;margin-top:10px}
+  .sheet .fname{font-size:14px;color:#555;word-break:break-all}
+  .share{background:#06c755;color:#fff;font-weight:600}
+  .dl{background:#0b5394;color:#fff;font-weight:600}
+  .close{background:#dde3ea;color:#333}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="topbar"><a class="back" href="../">‹ กลับไปรายงาน</a></div>
+<h1>📄 แบบฟอร์มบันทึกข้อมูล Return Flight</h1>
+
+<div class="card warn hidden" id="noDraft">ยังไม่มีข้อมูลจากหน้ารายงาน กรุณากด “‹ กลับไปรายงาน” แล้วกรอกข้อมูลเที่ยวบินก่อน</div>
+
+<div class="card"><h2>ข้อมูลจากรายงาน <a class="edit" href="../">✏️ แก้ไข</a></h2>
+<dl class="sum" id="sum"></dl>
+<div id="fdayWrap" class="hidden">
+  <div class="lbl">วันที่ทำการบิน (วันของ ATOT เที่ยวแรก)</div>
+  <div class="seg" id="fdaySeg"><button type="button" data-v="1">วันแรก<span id="fd1"></span></button><button type="button" data-v="2">หลังเที่ยงคืน<span id="fd2"></span></button></div>
+</div>
+<div class="hint">ข้อมูลส่วนนี้ดึงมาจากหน้ารายงานอัตโนมัติ ถ้าต้องแก้ ให้กด “แก้ไข”</div>
+</div>
+
+<div class="card"><h2>ข้อมูลเพิ่มเติมสำหรับแบบฟอร์ม</h2>
+<div class="grid">
+  <label class="full">ผู้แจ้ง<input id="informer" list="who" placeholder="เช่น หอบังคับการบิน"></label>
+  <label>เวลาแจ้ง<input id="infTime" class="t" inputmode="decimal" placeholder="23.40"></label>
+  <label>SOBT (ตามตาราง)<input id="sobt" class="t" inputmode="decimal" placeholder="23.35"></label>
+  <label>แบบอากาศยาน<input id="actype" class="up" placeholder="B77W" autocapitalize="characters"></label>
+  <label>ทางวิ่งเที่ยวแรก<input id="rwy1" class="up" placeholder="01R" autocapitalize="characters"></label>
+  <label>ทางวิ่งขาเข้า<input id="rwy2" class="up" placeholder="19L" autocapitalize="characters"></label>
+  <label class="full">อ้างอิงจาก<input id="ref" list="who" placeholder="เช่น หอบังคับการบิน"></label>
+  <label class="full">ข้อมูลอื่น ๆ เพิ่มเติม<textarea id="other" rows="3" placeholder="(ถ้ามี)"></textarea></label>
+</div>
+<datalist id="who"><option>หอบังคับการบิน</option><option>ศูนย์ควบคุมปฏิบัติการเขตการบิน</option><option>สายการบิน</option><option>บริษัทผู้ให้บริการภาคพื้น</option></datalist>
+<div class="hint">ช่องเหล่านี้จำไว้ในเครื่องนี้ เวลาพิมพ์ได้ทั้ง 23.40 หรือ 2340</div>
+<button type="button" class="mini" onclick="clearWord()">ล้างช่องเหล่านี้</button>
+</div>
+
+<div class="card"><h2>ผู้บันทึกข้อมูล</h2>
+<div class="grid">
+  <label>ชื่อ<input id="recName" placeholder="ชื่อ-นามสกุล" autocomplete="off"></label>
+  <label>ตำแหน่ง<input id="recPos" placeholder="เช่น จทส. งพบ.สบบ.ฝปข.ทสภ." autocomplete="off"></label>
+</div>
+<div class="hint">ชื่อและตำแหน่งจะไม่ถูกบันทึกเก็บไว้ในเครื่อง</div>
+</div>
+
+<div class="card"><h2>ตัวอย่างเอกสาร</h2>
+<div class="pvbox" id="pvbox"><div class="pvscale" id="pvscale"><div class="a4" id="page"></div></div></div>
+<div class="hint">หน้าตัวอย่างนี้ใช้ทำรูปภาพ ไฟล์ Word จะจัดหน้าเหมือนแบบฟอร์มต้นฉบับ</div>
+</div>
+
+<div class="bar">
+  <button class="img" id="btnImg" type="button">🖼️ บันทึกเป็นรูป</button>
+  <button class="doc" id="btnDoc" type="button">📄 ดาวน์โหลดไฟล์ Word</button>
+</div>
+</div>
+
+<div class="sheet hidden" id="sheet"><div class="box">
+  <h3 id="shTitle"></h3>
+  <div class="fname" id="shName"></div>
+  <img id="shImg" class="hidden" alt="รูปแบบฟอร์ม">
+  <div class="hint" id="shHint"></div>
+  <div class="row"><button class="share" id="shShare" type="button">📤 แชร์ / บันทึก</button><button class="dl" id="shDl" type="button">⬇️ ดาวน์โหลด</button></div>
+  <div class="row"><button class="close" type="button" onclick="closeSheet()">ปิด</button></div>
+</div></div>
+<div class="toast" id="toast"></div>
+
+<script src="rfword.js"></script>
+<script src="template.js"></script>
+<script src="lib/jszip.min.js"></script>
+<script src="lib/html2canvas.min.js"></script>
+<script>
+const $=id=>document.getElementById(id);
+const store={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,x){try{localStorage.setItem(k,x)}catch(e){}}};
+const WF=["informer","infTime","sobt","actype","rwy1","rwy2","ref","other"];
+const WDEF={informer:"หอบังคับการบิน",ref:"หอบังคับการบิน"};
+let D=null, Wd={};
+function readDraft(){try{return JSON.parse(store.get("rf_draft")||"null")}catch(e){return null}}
+// ร่างเก่าที่ยังเป็นช่อง route เดียว
+function migrate(o){if(!o||o.orgName!=null||o.route==null)return o;let r=String(o.route).trim();const m=r.match(/^(.*?)\s*\(\s*([A-Za-z0-9]*)\s*-\s*([A-Za-z0-9]*)\s*\)\s*$/);if(m){r=m[1];if(o.org==null){o.org=m[2];o.dst=m[3]}}const p=r.split(/\s+-\s+/);o.orgName=p[0]||"";o.dstName=p.slice(1).join(" - ");return o}
+function saveWord(){const o={};WF.forEach(i=>o[i]=$(i).value);if(Wd.fday){o.fday=Wd.fday;o.fdaySig=Wd.fdaySig}store.set("rf_word_draft",JSON.stringify(o))}
+function loadWord(){let o=null;try{o=JSON.parse(store.get("rf_word_draft")||"null")}catch(e){}
+  WF.forEach(i=>{$(i).value=(o&&o[i]!=null)?o[i]:(WDEF[i]||"")});Wd={fday:o&&o.fday,fdaySig:o&&o.fdaySig}}
+function wordInput(){const o={};WF.forEach(i=>o[i]=$(i).value);o.fday=Wd.fday;o.fdaySig=Wd.fdaySig;return o}
+function rec(){return {name:$("recName").value,pos:$("recPos").value}}
+function vals(){return RFWord.values(D||{},wordInput(),rec())}
+function fmtTime(el){const t=RFWord.normTime(el.value);if(t)el.value=t}
+function summary(){
+  const d=D||{},x=vals(),more=d.kind==="more";
+  const rows=[
+    ["ประเภท",more?"รายงานเพิ่มเติม":"รายงานเบื้องต้น"],
+    ["สายการบิน",x.airline],["เที่ยวบิน",x.flight],["วันที่ทำการบิน",x.fdate],["ATOT เที่ยวแรก",x.atot0&&x.atot0+" น."],
+    ["ทะเบียน",x.reg],["เส้นทางบิน",x.route],["สาเหตุ",x.reason],
+    ["หลุมจอด / ALDT",[x.bay,x.aldt&&x.aldt+" น."].filter(Boolean).join(" / ")],["AIBT",x.aibt&&x.aibt+" น."],
+    ["ลูกเรือ / ผู้โดยสาร",(x.crew||x.pax)?(x.crew||"–")+" / "+(x.pax||"–")+" คน":""],
+    ["EOBT เที่ยวที่ 2",x.eobt&&x.eobt+" น."],["ATOT เที่ยวที่ 2",x.atot&&x.atot+" น."]];
+  $("sum").innerHTML="";
+  rows.forEach(([k,v])=>{const dt=document.createElement("dt"),dd=document.createElement("dd");dt.textContent=k;dd.textContent=v||"(ว่าง)";if(!v)dd.className="na";$("sum").append(dt,dd)});
+  const night=RFWord.isNight(d)&&!!d.d1;
+  $("fdayWrap").classList.toggle("hidden",!night);
+  if(night){const a=new Date(d.d1+"T00:00:00"),b=new Date(a);b.setDate(a.getDate()+1);$("fd1").textContent=RFWord.th(a);$("fd2").textContent=RFWord.th(b);
+    const cur=RFWord.flightDay(d,wordInput());document.querySelectorAll("#fdaySeg button").forEach(btn=>btn.classList.toggle("on",+btn.dataset.v===cur))}
+}
+function fitPreview(){const w=$("pvbox").clientWidth||794,s=w/794;$("pvscale").style.transform="scale("+s+")";$("pvbox").style.height=Math.ceil($("page").offsetHeight*s)+"px"}
+function render(){summary();$("page").innerHTML=RFWord.pageHTML(vals());fitPreview()}
+function update(){saveWord();render()}
+function clearWord(){if(!confirm("ล้างช่องข้อมูลเพิ่มเติมทั้งหมด?"))return;WF.forEach(i=>$(i).value=WDEF[i]||"");Wd={};update()}
+function toast(t){const e=$("toast");e.textContent=t;e.classList.add("show");setTimeout(()=>e.classList.remove("show"),2200)}
+const isIOS=/iP(hone|ad|od)/.test(navigator.userAgent)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);
+function canShareFile(f){try{return !!(navigator.canShare&&navigator.share&&navigator.canShare({files:[f]}))}catch(e){return false}}
+function download(blob,name){const u=URL.createObjectURL(blob),a=document.createElement("a");a.href=u;a.download=name;a.rel="noopener";document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),60000)}
+let sheetUrl=null;
+function openSheet(blob,name,isImg){
+  const file=new File([blob],name,{type:blob.type});const share=canShareFile(file);
+  $("shTitle").textContent=isImg?"🖼️ รูปแบบฟอร์มพร้อมแล้ว":"📄 ไฟล์ Word พร้อมแล้ว";
+  $("shName").textContent=name;
+  if(sheetUrl)URL.revokeObjectURL(sheetUrl);sheetUrl=URL.createObjectURL(blob);
+  $("shImg").classList.toggle("hidden",!isImg);if(isImg)$("shImg").src=sheetUrl;
+  $("shHint").textContent=isImg?"กด “แชร์ / บันทึก” แล้วเลือกบันทึกรูปหรือส่งเข้าไลน์ หรือกดค้างที่รูปเพื่อบันทึก":"กด “แชร์ / บันทึก” แล้วเลือก “บันทึกไปยังไฟล์” หรือแอปที่ต้องการ";
+  $("shShare").classList.toggle("hidden",!share);
+  $("shShare").onclick=()=>navigator.share({files:[file],title:name}).catch(e=>{if(e&&e.name!=="AbortError")download(blob,name)});
+  $("shDl").onclick=()=>{if(isIOS&&!share&&!isImg){window.open(sheetUrl,"_blank")}else download(blob,name)};
+  $("sheet").classList.remove("hidden");
+}
+function closeSheet(){$("sheet").classList.add("hidden")}
+async function makeDocx(){
+  const btn=$("btnDoc");btn.disabled=true;
+  try{
+    ["infTime","sobt"].forEach(i=>fmtTime($(i)));
+    const blob=await RFWord.buildDocx(JSZip,window.RF_TEMPLATE_B64,vals(),"blob");
+    const name=RFWord.fileBase(D||{},wordInput())+".docx";
+    if(isIOS) openSheet(blob,name,false);
+    else {download(blob,name);toast("ดาวน์โหลด "+name+" แล้ว ✓")}
+  }catch(e){alert("สร้างไฟล์ Word ไม่สำเร็จ: "+e)}
+  finally{btn.disabled=false}
+}
+async function makeImage(){
+  const btn=$("btnImg");btn.disabled=true;const old=btn.textContent;btn.textContent="⏳ กำลังสร้างรูป…";
+  try{
+    try{await document.fonts.load('700 21px "TH SarabunPSK"');await document.fonts.ready}catch(e){}
+    const canvas=await html2canvas($("page"),{scale:2,backgroundColor:"#ffffff",useCORS:true,logging:false,
+      onclone:doc=>{doc.getElementById("pvscale").style.transform="none";doc.getElementById("pvbox").style.height="auto"}});
+    const blob=await new Promise(r=>canvas.toBlob(r,"image/png"));
+    openSheet(blob,RFWord.fileBase(D||{},wordInput())+".png",true);
+  }catch(e){alert("สร้างรูปไม่สำเร็จ: "+e)}
+  finally{btn.disabled=false;btn.textContent=old}
+}
+(function init(){
+  D=migrate(readDraft());
+  $("noDraft").classList.toggle("hidden",!!D);
+  loadWord();
+  try{const n=sessionStorage.getItem("rf_word_name");if(n!=null){$("recName").value=n;sessionStorage.removeItem("rf_word_name")}}catch(e){}
+  document.querySelectorAll(".t").forEach(el=>{el.addEventListener("input",()=>{el.value=el.value.replace(/[:,]/g,".").replace(/[^0-9.]/g,"").slice(0,5)});el.addEventListener("blur",()=>{fmtTime(el);update()})});
+  document.querySelectorAll("input,textarea").forEach(el=>el.addEventListener("input",update));
+  document.querySelectorAll("#fdaySeg button").forEach(b=>b.addEventListener("click",()=>{Wd.fday=+b.dataset.v;Wd.fdaySig=RFWord.daySig(D||{});update()}));
+  $("btnDoc").addEventListener("click",makeDocx);
+  $("btnImg").addEventListener("click",makeImage);
+  $("sheet").addEventListener("click",e=>{if(e.target===$("sheet"))closeSheet()});
+  window.addEventListener("resize",fitPreview);
+  render();
+  if(document.fonts&&document.fonts.ready)document.fonts.ready.then(fitPreview);
+})();
+</script>
+</body>
+</html>
