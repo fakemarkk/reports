@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="th"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<html lang="th"><head><meta charset="UTF-8"><meta name="robots" content="noindex, nofollow, noarchive"><meta name="viewport" content="width=device-width, initial-scale=1">
 <script>/* theme: saved choice (localStorage "theme") or system setting — set before paint */(function(){var d=document.documentElement,m=window.matchMedia&&matchMedia("(prefers-color-scheme: dark)");function s(){try{var t=localStorage.getItem("theme");return t==="light"||t==="dark"?t:""}catch(e){return ""}}function a(){d.dataset.theme=s()||(m&&m.matches?"dark":"light")}a();if(m){if(m.addEventListener)m.addEventListener("change",a);else if(m.addListener)m.addListener(a)}addEventListener("storage",a);addEventListener("pageshow",a)})();</script>
 <title>Change log · รายงาน ฝปข.ทสภ.</title>
 <script>
@@ -10,6 +10,16 @@
    items: รายการที่เปลี่ยน (ภาษาไทย)
    หลังเพิ่มเวอร์ชัน ให้แก้เลขเวอร์ชันบนปุ่มในหน้าเมนู (index.html) ให้ตรงกันด้วย */
 const CHANGELOG=[
+  {v:"1.7.1",date:"2026-10-31 12:30",items:[
+    "แก้วันที่ค้างเป็นวันเก่า: วันที่เริ่มผลัดในทุกฟอร์ม (Return Taxi, Return Flight, AOG, เที่ยวบินล่าช้า) เป็นวันปัจจุบันตามเวลาไทยทุกครั้งที่เปิดหน้าใหม่ ไม่ดึงวันที่จากข้อมูลที่กรอกค้างไว้ครั้งก่อนแล้ว (ข้อมูลเที่ยวบินยังจำไว้เหมือนเดิม)",
+    "ยังใช้กติกาเดิม: ก่อน 08.00 นับเป็นผลัดกลางคืนที่เริ่มเมื่อวาน และเลือกช่วงเวลา 08.00-17.00 / 17.00-08.00 ให้ตรงกับวันที่",
+    "ระหว่างที่เปิดหน้ากรอกอยู่ วันที่และช่วงเวลาจะไม่เปลี่ยนเอง เช่น เริ่มกรอกผลัดกลางคืนตอน 07.55 แล้วเลย 08.00 ไปก็ยังเป็นผลัดกลางคืน",
+    "ถ้าเปิดแท็บค้างไว้หรือสลับไปแอปอื่นนานเกิน 1 ชั่วโมง แล้วกลับมา (รวมกดย้อนกลับมาที่หน้าเดิม) วันที่และช่วงเวลาจะอัปเดตเป็นผลัดปัจจุบันให้เอง",
+    "ถ้าเลือกวันที่/ช่วงเวลาเอง จะคงค่าที่เลือกไว้ตลอดผลัดนั้น (รวมไปหน้า Word แล้วกลับมา) และไม่จำวันที่ไว้ในเครื่อง",
+    "หน้า Word รายงานเที่ยวบินล่าช้า: วันที่ส่งและวันที่ใต้ลายเซ็นอัปเดตเป็นวันปัจจุบันเมื่อกลับมาที่หน้าหลังออกไปนานเกิน 1 ชั่วโมง (ถ้ายังไม่ได้แก้เอง)",
+    "ปิดการเติมค่าอัตโนมัติของเบราว์เซอร์ในช่องวันที่ทุกช่อง เพื่อไม่ให้เบราว์เซอร์ใส่วันที่เก่ากลับมา",
+    "ไม่ให้ Google และเว็บค้นหาอื่นเก็บเว็บนี้ไปแสดงในผลการค้นหา: ใส่ป้ายห้ามเก็บข้อมูล (noindex, nofollow, noarchive) ในทุกหน้า และเพิ่มไฟล์ robots.txt"
+  ]},
   {v:"1.7.0",date:"2026-10-29 22:48",items:[
     "ปรับสีทั้งเว็บเป็นโทนพาสเทลนุ่ม ๆ สบายตา หน้าเมนูแต่ละรายงานมีสีอ่อนต่างกันให้แยกง่าย",
     "หน้าฟอร์มด้านในเพิ่มความคมชัด: พื้นหลังเข้มขึ้นนิด การ์ดขาวลอยเด่น ตัวอักษร/ป้ายช่องกรอก/ขอบช่องกรอกชัดขึ้น อ่านง่ายขึ้น",
