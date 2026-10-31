@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-<meta charset="utf-8">
+<meta charset="utf-8"><meta name="robots" content="noindex, nofollow, noarchive">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <script>/* theme: saved choice (localStorage "theme") or system setting — set before paint */(function(){var d=document.documentElement,m=window.matchMedia&&matchMedia("(prefers-color-scheme: dark)");function s(){try{var t=localStorage.getItem("theme");return t==="light"||t==="dark"?t:""}catch(e){return ""}}function a(){d.dataset.theme=s()||(m&&m.matches?"dark":"light")}a();if(m){if(m.addEventListener)m.addEventListener("change",a);else if(m.addListener)m.addListener(a)}addEventListener("storage",a);addEventListener("pageshow",a)})();</script>
 <title>แบบฟอร์ม Word – เที่ยวบินล่าช้า</title>
@@ -211,7 +211,7 @@
 
 <div class="card"><h2>การส่ง SMS</h2>
 <div class="grid">
-  <label>วันที่ส่ง<input type="date" id="smsDate"></label>
+  <label>วันที่ส่ง<input type="date" id="smsDate" autocomplete="off"></label>
   <label>เวลาที่ส่ง<input id="smsTime" class="t" inputmode="decimal" placeholder="14.30"></label>
 </div>
 <div class="hint" id="smsHint"></div>
@@ -221,7 +221,7 @@
 <div class="grid">
   <label class="full">ชื่อ<input id="recName" placeholder="ชื่อ-นามสกุล" autocomplete="off"></label>
   <label class="full">ตำแหน่ง<input id="recPos" autocomplete="off"></label>
-  <label>วันที่ใต้ลายเซ็น<input type="date" id="sigDate"></label>
+  <label>วันที่ใต้ลายเซ็น<input type="date" id="sigDate" autocomplete="off"></label>
 </div>
 <div class="ulab">หน่วยงาน (หน.พนง.งานกะ)</div>
 <input type="hidden" id="unit" value="งพบ.สบบ.ฝปข.ทสภ.">
@@ -269,7 +269,22 @@ let D=null, sigTouched=false;
 const REQ=[["smsDate","วันที่ส่ง"],["smsTime","เวลาที่ส่ง"],["recName","ชื่อผู้ลงชื่อ"],["recPos","ตำแหน่ง"],["sigDate","วันที่ใต้ลายเซ็น"]];
 // ช่องของแต่ละเที่ยวบิน (แก้ที่หน้ารายงาน)
 const FREQ=[["flight","เที่ยวบิน"],["sched",null],["est",null],["orgName","ต้นทาง"],["dstName","ปลายทาง"],["cause","สาเหตุ"]];
-function readDraft(){try{const o=JSON.parse(store.get("delay_draft")||"null");return o&&Array.isArray(o.flights)?o:null}catch(e){return null}}
+// วันที่/ช่วงเวลาของผลัดรับจากหน้ารายงานผ่าน sessionStorage (ไม่บันทึกใน localStorage) ถ้าไม่มี ใช้ผลัดปัจจุบันตามเวลาไทย (ก่อน 08.00 = ผลัดกลางคืนที่เริ่มเมื่อวาน)
+function shiftNow(t){const b=new Date((t==null?Date.now():t)+7*36e5),h=b.getUTCHours();if(h<8)b.setUTCDate(b.getUTCDate()-1);return {d1:b.getUTCFullYear()+"-"+String(b.getUTCMonth()+1).padStart(2,"0")+"-"+String(b.getUTCDate()).padStart(2,"0"),day:h>=8&&h<17}}
+function withShift(o,pre){if(!o)return o;let d1=null,p=null;try{d1=sessionStorage.getItem(pre+"_d1");p=sessionStorage.getItem(pre+"_period")}catch(e){}
+  if(d1==null){const s=shiftNow();d1=s.d1;p=s.day?"08.00-17.00":"17.00-08.00"}
+  o.d1=d1;o.period=(p==="08.00-17.00"||p==="17.00-08.00")?p:"17.00-08.00";return o}
+// เวลาปัจจุบันตามเวลาไทย (ให้ getDate()/getHours() อ่านเป็นเวลาไทยแม้เครื่องตั้งเขตเวลาอื่น)
+function bkkNow(){const n=new Date();return new Date(n.getTime()+(420+n.getTimezoneOffset())*6e4)}
+// วันที่ส่ง/วันที่ใต้ลายเซ็น: คำนวณใหม่เมื่อกลับมาที่หน้า (รวม back-forward cache) หลังออกไปนานเกิน 1 ชั่วโมง เว้นแต่ผู้ใช้เปลี่ยนเองในหน้านี้ — ไม่เปลี่ยนเองระหว่างที่หน้าเปิดอยู่
+let smsTouched=false, hiddenAt=null;
+function autoDates(){if(smsTouched)return;const v=DL.defaultSmsDate(data(),bkkNow());let ch=false;
+  if($("smsDate").value!==v){$("smsDate").value=v;ch=true}
+  if(!sigTouched&&$("sigDate").value!==v){$("sigDate").value=v;ch=true}
+  if(ch)render()}
+function pageHide(){if(hiddenAt===null)hiddenAt=Date.now()}
+function pageBack(){const t=hiddenAt;hiddenAt=null;if(t!==null&&Date.now()-t>36e5)autoDates()}
+function readDraft(){try{const o=JSON.parse(store.get("delay_draft")||"null");return o&&Array.isArray(o.flights)?withShift(o,"delay_word"):null}catch(e){return null}}
 function data(){return D||{d1:"",period:"17.00-08.00",flights:[]}}
 function w(){return {smsDate:$("smsDate").value,smsTime:$("smsTime").value,name:$("recName").value,pos:$("recPos").value,sigDate:$("sigDate").value}}
 function model(){return DL.model(data(),w())}
@@ -364,7 +379,7 @@ async function makeImage(){
   D=readDraft();
   $("noDraft").classList.toggle("hidden",!!D);
   const now=new Date();
-  $("smsDate").value=DL.defaultSmsDate(data(),now);
+  $("smsDate").value=DL.defaultSmsDate(data(),bkkNow());
   $("sigDate").value=$("smsDate").value;
   $("smsTime").value=DL.nowTime(now);
   $("recPos").value=DL.DEF_POS;
@@ -375,7 +390,11 @@ async function makeImage(){
   const t=$("smsTime");
   t.addEventListener("input",()=>{t.value=t.value.replace(/[:,]/g,".").replace(/[^0-9.]/g,"").slice(0,5)});
   t.addEventListener("blur",()=>{fmtTime(t);render()});
-  $("smsDate").addEventListener("change",()=>{if(!sigTouched)$("sigDate").value=$("smsDate").value});
+  $("smsDate").addEventListener("change",()=>{smsTouched=true;if(!sigTouched)$("sigDate").value=$("smsDate").value});
+  $("smsDate").addEventListener("input",()=>{smsTouched=true});
+  addEventListener("pagehide",pageHide);
+  addEventListener("pageshow",e=>{if(e&&e.persisted)pageBack()});
+  document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="hidden")pageHide();else pageBack()});
   $("sigDate").addEventListener("change",()=>{sigTouched=!!$("sigDate").value&&$("sigDate").value!==$("smsDate").value});
   document.querySelectorAll("input").forEach(el=>{el.addEventListener("input",render);el.addEventListener("change",render)});
   $("barMsg").addEventListener("click",()=>{try{$("chkBox").scrollIntoView({block:"start",behavior:"smooth"})}catch(e){$("chkBox").scrollIntoView()}});
