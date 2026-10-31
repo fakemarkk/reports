@@ -5,6 +5,17 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <script>/* theme: saved choice (localStorage "theme") or system setting — set before paint */(function(){var d=document.documentElement,m=window.matchMedia&&matchMedia("(prefers-color-scheme: dark)");function s(){try{var t=localStorage.getItem("theme");return t==="light"||t==="dark"?t:""}catch(e){return ""}}function a(){d.dataset.theme=s()||(m&&m.matches?"dark":"light")}a();if(m){if(m.addEventListener)m.addEventListener("change",a);else if(m.addListener)m.addListener(a)}addEventListener("storage",a);addEventListener("pageshow",a)})();</script>
 <title>รายงาน Aircraft on Ground (AOG)</title>
+<!-- PWA: ติดตั้งลงหน้าจอโฮม + ใช้งานออฟไลน์ -->
+<link rel="manifest" href="../manifest.webmanifest">
+<meta name="theme-color" content="#f6f4fa" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#1c2030" media="(prefers-color-scheme: dark)">
+<link rel="icon" type="image/png" sizes="192x192" href="../icon-192.png">
+<link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="รายงาน ฝปข.">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+
 <style>
 :root{
   /* 🎨 Pastel calm theme — ปรับสีทั้งหมดได้ที่นี่ */
@@ -452,5 +463,20 @@ const AUTO={day:"08.00-17.00",night:"17.00-08.00",sk:"aog_shift",away:36e5,hidde
 })();
 </script>
 <script>document.querySelectorAll(".datebox input").forEach(function(i){i.addEventListener("click",function(){try{if(i.showPicker)i.showPicker()}catch(e){}})})</script>
+<!-- PWA: ลงทะเบียน service worker + ป้าย "ออฟไลน์" + แถบแจ้งเวอร์ชันใหม่ -->
+<div id="offlineBadge" role="status" aria-live="polite" hidden style="position:fixed;top:calc(env(safe-area-inset-top,0px) + 4px);right:6px;z-index:60;font:600 11px/1.6 system-ui,sans-serif;padding:1px 8px;border-radius:10px;background:var(--warn-bg,#fff3e6);color:var(--warn-ink,#b4470f);border:1px solid var(--warn-line,#f1c08a);opacity:.92;pointer-events:none">● ออฟไลน์</div>
+<style>#swUpdate[hidden],#offlineBadge[hidden]{display:none!important}</style>
+<div id="swUpdate" role="status" aria-live="polite" hidden style="position:fixed;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom,0px) + 78px);z-index:70;display:flex;align-items:center;gap:10px;max-width:calc(100% - 24px);box-sizing:border-box;padding:8px 8px 8px 14px;border-radius:14px;background:var(--ink,#2b2f45);color:var(--bg,#f6f4fa);font:14px/1.4 system-ui,sans-serif;box-shadow:0 4px 16px rgba(0,0,0,.25)"><span id="swUpdateTxt" style="white-space:nowrap">มีเวอร์ชันใหม่</span><button id="swUpdateBtn" type="button" style="border:0;border-radius:10px;padding:7px 12px;font:600 14px system-ui,sans-serif;background:var(--btn,#cddcf3);color:var(--btn-ink,#1f3a66);cursor:pointer;white-space:nowrap">🔄 กดเพื่ออัปเดต</button></div>
+<script>/* PWA: ป้ายออฟไลน์ + service worker + แถบแจ้งเวอร์ชันใหม่ (อัปเดตเมื่อกดปุ่มเท่านั้น ไม่รีโหลดเอง) */
+(function(){var b=document.getElementById("offlineBadge");function u(){b.hidden=navigator.onLine!==false}u();addEventListener("online",u);addEventListener("offline",u);
+if(!("serviceWorker"in navigator))return;var sw=navigator.serviceWorker,bar=document.getElementById("swUpdate"),wait=null,reloading=false,hadCtrl=!!sw.controller;
+function ver(w,cb){try{var c=new MessageChannel();c.port1.onmessage=function(e){cb(e.data)};w.postMessage({type:"GET_VERSION"},[c.port2]);setTimeout(function(){cb("")},1500)}catch(e){cb("")}}
+function show(w){if(!w||!hadCtrl||wait===w)return;wait=w;var done=false;ver(w,function(v){if(done)return;done=true;document.getElementById("swUpdateTxt").textContent="มีเวอร์ชันใหม่"+(v?" (v"+v+")":"");bar.hidden=false})}
+function watch(r){if(r.waiting)show(r.waiting);r.addEventListener("updatefound",function(){var n=r.installing;if(n)n.addEventListener("statechange",function(){if(n.state==="installed"&&r.waiting===n)show(n);if(n.state==="redundant"&&wait===n&&!reloading){wait=null;bar.hidden=true}})})}
+sw.addEventListener("controllerchange",function(){if(!reloading&&wait){reloading=true;location.reload()}});
+document.getElementById("swUpdateBtn").addEventListener("click",function(){if(!wait)return;this.disabled=true;this.textContent="กำลังอัปเดต…";
+  var a=document.activeElement;if(a&&a.blur)a.blur();wait.postMessage({type:"SKIP_WAITING"})});
+addEventListener("load",function(){sw.register("../sw.js",{scope:"../"}).then(function(r){watch(r);r.update().catch(function(){});
+  document.addEventListener("visibilitychange",function(){if(document.visibilityState==="visible")r.update().catch(function(){})})}).catch(function(){})})})();</script>
 </body>
 </html>
