@@ -92,16 +92,55 @@ html[data-theme="dark"] .tt::before{content:"☀️"}
   html[data-theme="dark"] a.item[href="aog/"]{--tint:#302b45;--tint-line:#a996d8}
   html[data-theme="dark"] .ic{background:rgba(255,255,255,.08)}
   html[data-theme="dark"] p,html[data-theme="dark"] .d{color:var(--muted2)}
+
+/* ---- กล่อง "อัปเดตล่าสุด" ท้ายหน้าแรก (ดึงอัตโนมัติจาก changelog/ — แก้ที่ changelog/index.html ที่เดียว) ---- */
+.upd[hidden]{display:none!important}
+.upd{margin:22px 0 8px;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:14px 16px 12px;box-shadow:0 2px 10px var(--shadow-c)}
+.upd-h{display:flex;align-items:center;gap:10px;margin:0 0 6px}
+.upd-h b{font-size:15px;color:var(--ink)}
+.upd-all{margin-left:auto;font-size:13px;color:var(--accent);text-decoration:none;white-space:nowrap;padding:4px 0}
+.upd-all:hover,.upd-v:hover{text-decoration:underline}
+.upd-e{padding:9px 0 2px;border-top:1px solid var(--line)}
+.upd-e:first-of-type{border-top:0}
+.upd-eh{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+.upd-v{font-weight:700;font-size:15px;color:var(--accent);text-decoration:none}
+.upd-new{font-size:11px;background:var(--accent);color:var(--card);border-radius:10px;padding:1px 8px}
+.upd-dt{font-size:12.5px;color:var(--muted2)}
+.upd ul{margin:4px 0 0;padding-left:18px}
+.upd li{margin:3px 0;font-size:13.5px;line-height:1.5;color:var(--muted)}
+.upd li>span{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;line-clamp:2;overflow:hidden}
+.upd li.more{list-style:none;margin-left:-18px;font-size:12.5px;color:var(--muted2);display:block}
 </style></head><body><div class="wrap">
-<a class="cl" href="changelog/" aria-label="Change log">📋 v1.8.0</a>
+<a class="cl" href="changelog/" aria-label="Change log">📋 v1.8.1</a>
 <button class="tt" id="themeToggle" type="button" aria-label="สลับโหมดมืด / ปกติ" title="สลับโหมดมืด / ปกติ"></button>
 <h1>📋 รายงาน ฝปข.ทสภ.</h1><p>เลือกรายงานที่ต้องการ กรอกข้อมูล แล้วกดคัดลอกไปวางในไลน์</p>
 <a class="item" href="delay/"><span class="ic">⏱️</span><span><div class="t">รายงานเที่ยวบินล่าช้า</div><div class="d">ล่าช้าเกิน 3 ชั่วโมง</div></span><span class="ar">›</span></a>
 <a class="item" href="return-taxi/"><span class="ic">✈️</span><span><div class="t">รายงาน Return Taxi</div><div class="d">เบื้องต้น / เพิ่มเติม</div></span><span class="ar">›</span></a>
 <a class="item" href="return-flight/"><span class="ic">🛬</span><span><div class="t">รายงาน Return Flight</div><div class="d">เบื้องต้น / เพิ่มเติม</div></span><span class="ar">›</span></a>
 <a class="item" href="aog/"><span class="ic">🛠️</span><span><div class="t">รายงาน Aircraft on Ground (AOG)</div><div class="d">เบื้องต้น / เพิ่มเติม</div></span><span class="ar">›</span></a>
+<section class="upd" id="updBox" hidden aria-label="อัปเดตล่าสุด"><div class="upd-h"><b>🆕 อัปเดตล่าสุด</b><a class="upd-all" href="changelog/">ดูทั้งหมด ›</a></div><div id="updList"></div></section>
 </div>
 <script>/* ปุ่มสลับโหมด: บันทึก light/dark ใน localStorage "theme" */document.getElementById("themeToggle").addEventListener("click",function(){var d=document.documentElement,t=d.dataset.theme==="dark"?"light":"dark";d.dataset.theme=t;try{localStorage.setItem("theme",t)}catch(e){}});</script>
+<script>/* กล่อง "อัปเดตล่าสุด": ดึง changelog/ (ผ่าน service worker → ใช้ได้ตอนออฟไลน์) แล้วอ่าน CHANGELOG จาก <script> ด้วย DOMParser
+   แสดง 2 เวอร์ชันล่าสุด (สูงสุด 2 ข้อ/เวอร์ชัน) ถ้าโหลดหรืออ่านไม่ได้ → ซ่อนกล่องเงียบ ๆ */
+(function(){var box=document.getElementById("updBox"),list=document.getElementById("updList");if(!box||!window.fetch||!window.DOMParser)return;
+var M=["ม.ค.","ก.พ.","มี.ค.","เม.ย.","พ.ค.","มิ.ย.","ก.ค.","ส.ค.","ก.ย.","ต.ค.","พ.ย.","ธ.ค."];
+function thDate(s){var m=/^(\d{4})-(\d\d)-(\d\d)(?: (\d\d):(\d\d))?/.exec(s||"");if(!m)return s||"";return (+m[3])+" "+M[m[2]-1]+" "+String(+m[1]+543).slice(-2)+(m[4]?" เวลา "+m[4]+"."+m[5]+" น.":"")}
+function esc(t){return String(t).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
+var STR='"(?:\\\\.|[^"\\\\])*"';
+function str(q){q=q.slice(1,-1);try{return JSON.parse('"'+q.replace(/\\'/g,"'")+'"')}catch(e){return q.replace(/\\(.)/g,"$1")}}
+function cut(t,n){t=String(t).replace(/\s+/g," ").trim();return t.length>n?t.slice(0,n).replace(/[\s,:/(]+$/,"")+"…":t}
+function parse(html){var doc=new DOMParser().parseFromString(html,"text/html"),src="",ss=doc.querySelectorAll("script");
+  for(var i=0;i<ss.length;i++){if(/CHANGELOG\s*=\s*\[/.test(ss[i].textContent)){src=ss[i].textContent;break}}
+  var re=new RegExp("\\{\\s*v\\s*:\\s*("+STR+")\\s*,\\s*date\\s*:\\s*("+STR+")\\s*,\\s*items\\s*:\\s*\\[((?:\\s*"+STR+"\\s*,?)*)\\s*\\]","g"),out=[],m;
+  while((m=re.exec(src))&&out.length<2){var it=m[3].match(new RegExp(STR,"g"))||[];out.push({v:str(m[1]),date:str(m[2]),items:it.map(str)})}
+  return out}
+fetch("changelog/").then(function(r){if(!r.ok)throw 0;return r.text()}).then(function(h){var e=parse(h);if(!e.length)return;
+  list.innerHTML=e.map(function(x,i){var more=x.items.length-2;
+    return '<div class="upd-e"><div class="upd-eh"><a class="upd-v" href="changelog/#v'+esc(x.v)+'">v'+esc(x.v)+'</a>'+(i===0?'<span class="upd-new">ล่าสุด</span>':'')+'<span class="upd-dt">'+esc(thDate(x.date))+'</span></div><ul>'
+      +x.items.slice(0,2).map(function(t){return '<li title="'+esc(t)+'"><span>'+esc(cut(t,140))+'</span></li>'}).join("")
+      +(more>0?'<li class="more">และอีก '+more+' รายการ</li>':'')+'</ul></div>'}).join("");
+  box.hidden=false}).catch(function(){box.hidden=true})})();</script>
 <!-- PWA: ลงทะเบียน service worker + ป้าย "ออฟไลน์" + แถบแจ้งเวอร์ชันใหม่ -->
 <div id="offlineBadge" role="status" aria-live="polite" hidden style="position:fixed;top:calc(env(safe-area-inset-top,0px) + 4px);right:6px;z-index:60;font:600 11px/1.6 system-ui,sans-serif;padding:1px 8px;border-radius:10px;background:var(--warn-bg,#fff3e6);color:var(--warn-ink,#b4470f);border:1px solid var(--warn-line,#f1c08a);opacity:.92;pointer-events:none">● ออฟไลน์</div>
 <style>#swUpdate[hidden],#offlineBadge[hidden]{display:none!important}</style>
