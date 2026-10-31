@@ -1,0 +1,20 @@
+{
+  "name": "รายงาน ฝปข.ทสภ.",
+  "short_name": "รายงาน ฝปข.",
+  "description": "กรอกรายงาน แล้วคัดลอกไปวางในไลน์ / ทำไฟล์ Word และรูปภาพ",
+  "id": "./",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "lang": "th",
+  "dir": "ltr",
+  "background_color": "#f6f4fa",
+  "theme_color": "#f6f4fa",
+  "icons": [
+    {"src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any"},
+    {"src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any"},
+    {"src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable"},
+    {"src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable"}
+  ]
+}
