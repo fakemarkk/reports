@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-<meta charset="utf-8">
+<meta charset="utf-8"><meta name="robots" content="noindex, nofollow, noarchive">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <script>/* theme: saved choice (localStorage "theme") or system setting — set before paint */(function(){var d=document.documentElement,m=window.matchMedia&&matchMedia("(prefers-color-scheme: dark)");function s(){try{var t=localStorage.getItem("theme");return t==="light"||t==="dark"?t:""}catch(e){return ""}}function a(){d.dataset.theme=s()||(m&&m.matches?"dark":"light")}a();if(m){if(m.addEventListener)m.addEventListener("change",a);else if(m.addListener)m.addListener(a)}addEventListener("storage",a);addEventListener("pageshow",a)})();</script>
 <title>แบบฟอร์ม Word – Return Flight</title>
@@ -307,7 +307,12 @@ function buildFx(){const g=$("fxGrid");FXF.forEach(([k,l,ph,t])=>{const lb=docum
   if(t==="n")i.inputMode="numeric";
   i.value=Fx[k]||"";lb.append(l,i);g.append(lb)})}
 function readFx(){const o={};FXK.forEach(k=>{const v=$("fx_"+k).value;if(v.trim())o[k]=v});return o}
-function readDraft(){try{return JSON.parse(store.get("rf_draft")||"null")}catch(e){return null}}
+// วันที่/ช่วงเวลาของผลัดรับจากหน้ารายงานผ่าน sessionStorage (ไม่บันทึกใน localStorage) ถ้าไม่มี ใช้ผลัดปัจจุบันตามเวลาไทย (ก่อน 08.00 = ผลัดกลางคืนที่เริ่มเมื่อวาน)
+function shiftNow(t){const b=new Date((t==null?Date.now():t)+7*36e5),h=b.getUTCHours();if(h<8)b.setUTCDate(b.getUTCDate()-1);return {d1:b.getUTCFullYear()+"-"+String(b.getUTCMonth()+1).padStart(2,"0")+"-"+String(b.getUTCDate()).padStart(2,"0"),day:h>=8&&h<17}}
+function withShift(o,pre){if(!o)return o;let d1=null,p=null;try{d1=sessionStorage.getItem(pre+"_d1");p=sessionStorage.getItem(pre+"_period")}catch(e){}
+  if(d1==null){const s=shiftNow();d1=s.d1;p=s.day?"08.00-17.00":"17.00-08.00"}
+  o.d1=d1;o.period=(p==="08.00-17.00"||p==="17.00-08.00")?p:"17.00-08.00";return o}
+function readDraft(){try{return withShift(JSON.parse(store.get("rf_draft")||"null"),"rf_word")}catch(e){return null}}
 // ร่างเก่าที่ยังเป็นช่อง route เดียว
 function migrate(o){if(!o||o.orgName!=null||o.route==null)return o;let r=String(o.route).trim();const m=r.match(/^(.*?)\s*\(\s*([A-Za-z0-9]*)\s*-\s*([A-Za-z0-9]*)\s*\)\s*$/);if(m){r=m[1];if(o.org==null){o.org=m[2];o.dst=m[3]}}const p=r.split(/\s+-\s+/);o.orgName=p[0]||"";o.dstName=p.slice(1).join(" - ");return o}
 function saveWord(){const o={};WF.forEach(i=>o[i]=$(i).value);if(Wd.fday){o.fday=Wd.fday;o.fdaySig=Wd.fdaySig}Fx=readFx();if(Object.keys(Fx).length){o.fx=Fx;o.fxSig=fxSig()}store.set("rf_word_draft",JSON.stringify(o))}
