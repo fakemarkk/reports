@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-<meta charset="UTF-8">
+<meta charset="UTF-8"><meta name="robots" content="noindex, nofollow, noarchive">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <script>/* theme: saved choice (localStorage "theme") or system setting — set before paint */(function(){var d=document.documentElement,m=window.matchMedia&&matchMedia("(prefers-color-scheme: dark)");function s(){try{var t=localStorage.getItem("theme");return t==="light"||t==="dark"?t:""}catch(e){return ""}}function a(){d.dataset.theme=s()||(m&&m.matches?"dark":"light")}a();if(m){if(m.addEventListener)m.addEventListener("change",a);else if(m.addListener)m.addListener(a)}addEventListener("storage",a);addEventListener("pageshow",a)})();</script>
 <title>รายงานเที่ยวบินล่าช้า</title>
@@ -185,9 +185,9 @@
 <div class="card"><h2>ช่วงเวลารายงาน</h2>
 <div class="stack">
   <label>วันที่เริ่มผลัด
-    <div class="datebox">📅 <span id="dateLabel"></span><small id="dateSub"></small><input type="date" id="d1"></div>
+    <div class="datebox">📅 <span id="dateLabel"></span><small id="dateSub"></small><input type="date" id="d1" autocomplete="off"></div>
   </label>
-  <input type="hidden" id="period" value="17.00-08.00">
+  <input type="hidden" id="period" value="17.00-08.00" autocomplete="off">
   <div class="seg" id="periodSeg">
     <button type="button" data-v="08.00-17.00">☀️ กะกลางวัน<span>08.00 - 17.00</span></button>
     <button type="button" data-v="17.00-08.00">🌙 กะกลางคืน<span>17.00 - 08.00</span></button>
@@ -295,10 +295,9 @@ function build(){
   $("out").textContent=D.lineText(d,v("name"),$("shift").value,unit());
   saveDraft();
 }
-// ไม่บันทึกชื่อผู้รายงานและผลัด
-function saveDraft(){store.set("delay_draft",JSON.stringify({d1:v("d1"),period:$("period").value,flights:F.map(f=>{const o={};KEYS.forEach(k=>o[k]=f[k]==null?"":String(f[k]));return o})}))}
+// ไม่บันทึกชื่อผู้รายงานและผลัด และไม่บันทึกวันที่/ช่วงเวลา (คำนวณจากเวลาปัจจุบันทุกครั้ง — ส่งให้หน้า Word ผ่าน sessionStorage)
+function saveDraft(){store.set("delay_draft",JSON.stringify({flights:F.map(f=>{const o={};KEYS.forEach(k=>o[k]=f[k]==null?"":String(f[k]));return o})}))}
 function loadDraft(){try{const o=JSON.parse(store.get("delay_draft")||"null");if(!o)return;
-  if(o.d1)$("d1").value=o.d1; if(o.period==="08.00-17.00"||o.period==="17.00-08.00")$("period").value=o.period;
   if(Array.isArray(o.flights)&&o.flights.length)F=o.flights.map(x=>{const f=D.newFlight(x&&x.dir);KEYS.forEach(k=>{if(x&&x[k]!=null)f[k]=String(x[k])});f.dir=f.dir==="dep"?"dep":"arr";return f})}catch(e){}}
 function toast(t){const e=$("toast");e.textContent=t;e.classList.add("show");setTimeout(()=>e.classList.remove("show"),1500)}
 function copyText(){
@@ -312,15 +311,35 @@ function clearFlights(){
   F=[D.newFlight("arr")];renderCards();build();
 }
 // ชื่อผู้รายงานส่งต่อให้หน้า Word ผ่าน sessionStorage (ไม่บันทึกถาวร)
-function goWord(){saveDraft();try{sessionStorage.setItem("delay_word_name",v("name"));sessionStorage.setItem("delay_word_unit",unit())}catch(e){}location.href="word/"}
+function goWord(){saveDraft();try{sessionStorage.setItem("delay_word_name",v("name"));sessionStorage.setItem("delay_word_d1",v("d1"));sessionStorage.setItem("delay_word_period",$("period").value);sessionStorage.setItem("delay_word_unit",unit())}catch(e){}location.href="word/"}
 // กลับมาจากหน้า Word ด้วยลิงก์ #f0-est ฯลฯ → โฟกัสช่องนั้น
 function focusHash(){const m=/^#(f\d+-\w+|d1)$/.exec(location.hash||"");if(!m)return;const el=$(m[1]);if(el){if(el.scrollIntoView)el.scrollIntoView({block:"center"});el.focus()}}
+// วันที่เริ่มผลัดอัตโนมัติตามเวลาไทย (Asia/Bangkok): ก่อน 08.00 = ผลัดกลางคืนที่เริ่มเมื่อวาน, 08.00-16.59 = ผลัดกลางวัน, 17.00 ขึ้นไป = ผลัดกลางคืน
+// คำนวณตอนเปิดหน้าใหม่ และตอนกลับมาที่แท็บ/กดย้อนกลับ (back-forward cache) เฉพาะเมื่อออกจากหน้าไปนานเกิน 1 ชั่วโมง — ไม่เปลี่ยนเองระหว่างที่หน้าเปิดอยู่
+// ค่าที่เลือกเองเก็บใน sessionStorage ของแท็บนี้เท่านั้น ใช้ได้ภายในผลัดนั้น (ไม่บันทึกวันที่ไว้ใน localStorage)
+function shiftNow(t){const b=new Date((t==null?Date.now():t)+7*36e5),h=b.getUTCHours();if(h<8)b.setUTCDate(b.getUTCDate()-1);return {d1:b.getUTCFullYear()+"-"+String(b.getUTCMonth()+1).padStart(2,"0")+"-"+String(b.getUTCDate()).padStart(2,"0"),day:h>=8&&h<17}}
+const AUTO={day:"08.00-17.00",night:"17.00-08.00",sk:"delay_shift",away:36e5,hiddenAt:null,
+  key(){const s=shiftNow();return s.d1+(s.day?"D":"N")},
+  set(){const s=shiftNow(),p=s.day?this.day:this.night,ch=$("d1").value!==s.d1||$("period").value!==p;$("d1").value=s.d1;$("period").value=p;return ch},
+  read(){try{return JSON.parse(sessionStorage.getItem(this.sk)||"null")}catch(e){return null}},
+  touch(){setTimeout(()=>{try{sessionStorage.setItem(this.sk,JSON.stringify({k:this.key(),d1:$("d1").value,period:$("period").value}))}catch(e){}},0)},
+  // ค่าที่เลือกเองในผลัดปัจจุบัน (ถ้าข้ามผลัดแล้ว ค่าเดิมหมดอายุ)
+  manual(){const m=this.read();if(m&&m.k===this.key()&&(m.period===this.day||m.period===this.night))return m;try{sessionStorage.removeItem(this.sk)}catch(e){}return null},
+  apply(){const m=this.manual();if(m){$("d1").value=m.d1;$("period").value=m.period}else this.set()},
+  hide(){if(this.hiddenAt===null)this.hiddenAt=Date.now()},
+  // กลับมาที่หน้า: คำนวณใหม่เฉพาะเมื่อหายไปนานเกิน 1 ชั่วโมง
+  back(){const t=this.hiddenAt;this.hiddenAt=null;if(t===null||Date.now()-t<=this.away)return;const a=$("d1").value,b=$("period").value;this.apply();if($("d1").value!==a||$("period").value!==b)build()},
+  init(){this.apply();
+    ["input","change"].forEach(e=>$("d1").addEventListener(e,()=>this.touch()));
+    document.querySelectorAll("#periodSeg button").forEach(b=>b.addEventListener("click",()=>this.touch()));
+    addEventListener("pagehide",()=>this.hide());
+    addEventListener("pageshow",e=>{if(e&&e.persisted)this.back()});
+    document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="hidden")this.hide();else this.back()})}};
 (function(){
-  const now=new Date(),hr=now.getHours();
-  if(hr>=8&&hr<17){$("period").value="08.00-17.00"} else if(hr<8){now.setDate(now.getDate()-1)}
-  $("d1").value=D.iso(now);
+  AUTO.set();
   $("causes").innerHTML=D.CAUSES.map(c=>"<option>"+c+"</option>").join("");
   loadDraft();
+  AUTO.init();
   initUnit(()=>build());
   document.querySelectorAll("#periodSeg button").forEach(b=>b.addEventListener("click",()=>{$("period").value=b.dataset.v;build()}));
   ["d1","name","shift"].forEach(i=>{$(i).addEventListener("input",build);$(i).addEventListener("change",build)});
