@@ -105,8 +105,13 @@ function blank(n){return NB+" ".repeat(Math.max(n-2,1))+NB}
 const or=(v,n)=>v||blank(n);
 // โครงบรรทัดของเอกสาร: ใช้ร่วมกันระหว่างไฟล์ Word และหน้าจำลอง A4
 // k = ชนิดย่อหน้า, t = ข้อความ (สตริง หรือ [เลขข้อ, ข้อความ])
-function lines(m){
-  const L=[];
+// รูปภาพ (PNG): แบ่งหน้าตามความสูงจริงที่วัดจากหน้าจำลอง A4 (ดู paginate ในหน้า word/) ใส่เที่ยวบินให้เต็มหน้า
+// หน้าแรกมีหัวเอกสาร หน้าสุดท้ายมีช่องลงชื่อ เลขข้อเที่ยวบินต่อเนื่องกัน
+// pg = {a,b: ช่วงเที่ยวบิน [a,b), head: มีหัวเอกสาร, sig: มีช่องลงชื่อ} — ไม่ส่ง pg = เอกสารเต็ม (ไฟล์ Word / หน้าตัวอย่าง)
+function lines(m,pg){
+  const L=[],first=!pg||!!pg.head,last=!pg||!!pg.sig;
+  const fl=pg?m.flights.slice(pg.a,pg.b):m.flights;
+  if(first){
   for(let i=0;i<4;i++)L.push({k:"top",t:""});
   L.push({k:"ttl",t:"แบบฟอร์มการจัดส่งข้อมูลให้ผู้บริหาร ทอท."},{k:"ttl",t:"ผ่านระบบโทรศัพท์มือถือ (SMS)"});
   L.push({k:"to",t:"ถึง  ศูนย์รักษาความปลอดภัย ทสภ. (SCC)"});
@@ -115,13 +120,14 @@ function lines(m){
   L.push({k:"hd",t:"จาก ศูนย์ควบคุมปฏิบัติการเขตการบิน AOCC (โทร. 24103)"});
   L.push({k:"hd",t:"เรื่อง แจ้งข้อมูลเที่ยวบินล่าช้า  วันที่ "+or(m.range,12)+"  ช่วงเวลา "+m.p[0]+" - "+m.p[1]+" น."});
   L.push({k:"dash",t:"มีเที่ยวบินล่าช้ามากกว่า 3 ชั่วโมง จำนวน "+m.count+" เที่ยวบิน ดังนี้"});
-  m.flights.forEach((f,i)=>{
+  }
+  fl.forEach((f,i)=>{
     L.push({k:i?"fl":"fl1",t:[f.no+".","เที่ยวบิน "+or(f.flight,10)+"  "+f.L[0]+" "+or(f.sched,8)+" น. "+f.L[1]+" "+or(f.est,8)+" น."]});
     L.push({k:"sub",t:"รวมเวลาล่าช้า "+or(f.delay,16)});
     L.push({k:"sub",t:"เส้นทางบิน "+or(f.route,30)});
-    L.push({k:"subl",t:"ล่าช้าเนื่องจาก "+or(f.cause,26),keep:i===m.flights.length-1}); // เที่ยวบินสุดท้ายไม่แยกหน้าจากช่องลงชื่อ
+    L.push({k:"subl",t:"ล่าช้าเนื่องจาก "+or(f.cause,26),keep:i===fl.length-1}); // เที่ยวบินสุดท้ายไม่แยกหน้าจากช่องลงชื่อ
   });
-  L.push({k:"sig",t:"(ลงชื่อ) "+or(m.name,30)},{k:"pos",t:or(m.pos,34)},{k:"date",t:or(m.sigDate,14)});
+  if(last)L.push({k:"sig",t:"(ลงชื่อ) "+or(m.name,30)},{k:"pos",t:or(m.pos,34)},{k:"date",t:or(m.sigDate,14)});
   return L;
 }
 // ความกว้างตัวอักษร TH SarabunPSK (ตัวปกติ) หน่วย 1/1000 em
@@ -174,11 +180,11 @@ async function buildDocx(JSZip,b64,m,type){
 function fileBase(d){const S=shift(d);return "Delay_"+(S.b?iso(S.b).replace(/-/g,""):"")}
 // ---------- หน้าจำลอง A4 (HTML) ----------
 function h(t){return String(t).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")}
-function pageHTML(m){
+function pageHTML(m,pg){
   const L=sigLeft(m)/15,isSig=x=>x.k==="sig"||x.k==="pos"||x.k==="date";
   const p=x=>{const t=Array.isArray(x.t)?'<span class="no">'+h(x.t[0])+'</span>'+h(x.t[1]):(x.t?h(x.t):NB);
     return '<p class="'+x.k+'">'+t+'</p>'};
-  const all=lines(m);
+  const all=lines(m,pg);
   // บล็อกลงชื่อแยกเป็น .sigb ดันลงล่างสุดของหน้า (margin-top:auto) เยื้องซ้ายเท่า sigL ของไฟล์ Word
   return '<div class="a4-body">'+all.filter(x=>!isSig(x)).map(p).join("")
     +'<div class="sigb" style="margin-left:'+L.toFixed(1)+'px">'+all.filter(isSig).map(p).join("")+'</div></div>';
