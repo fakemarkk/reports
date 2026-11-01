@@ -191,7 +191,7 @@
 
 <div class="card"><h2>1. เหตุการณ์</h2>
 <div class="grid">
-  <label>ประเภท<input id="type" value="Return Taxi"></label>
+  <label>ประเภท<input id="type" class="up" value="RETURN TAXI"></label>
   <label class="full">สาเหตุ<input id="reason" class="up" value="TECHNICAL PROBLEM" list="reasons"></label>
   <datalist id="reasons"><option>TECHNICAL PROBLEM</option><option>MEDICAL CASE</option><option>PASSENGER OFFLOAD</option><option>BIRD STRIKE</option><option>WEATHER</option></datalist>
 </div></div>
@@ -213,6 +213,7 @@
 
 <div class="card"><h2>3. ผู้โดยสาร / ลูกเรือ</h2>
 <label class="chk" id="hasPaxWrap"><input type="checkbox" id="paxUnk" checked> ยังไม่ทราบข้อมูลลูกเรือ/ผู้โดยสาร</label>
+<label class="chk hidden" id="hasPaxMoreWrap"><input type="checkbox" id="paxUnkMore" checked> ยังไม่ทราบข้อมูลลูกเรือ/ผู้โดยสาร</label>
 <div class="grid" id="paxGrid">
   <label>ผู้โดยสาร (คน)<input id="pax" inputmode="numeric" placeholder="180"></label>
   <label>ลูกเรือ (คน)<input id="crew" inputmode="numeric" placeholder="24"></label>
@@ -227,10 +228,10 @@
 <div class="hint" id="neobtHint">ถ้าทราบเวลาแล้ว เอาติ๊กออกแล้วพิมพ์เวลา เช่น 01.35 หรือ 0135</div>
 </div>
 
-<div class="card" id="card45"><h2>4–5. เที่ยวที่ 2</h2>
+<div class="card" id="card45"><h2 id="h45">4–5. เที่ยวที่สอง</h2>
 <div class="grid">
-  <label>EOBT<input id="eobt" class="t" inputmode="numeric" placeholder="04.45"></label>
-  <label>ATOT<input id="atot" class="t" inputmode="numeric" placeholder="05.12"></label>
+  <label>AOBT (เที่ยวที่สอง)<input id="eobt" class="t" inputmode="numeric" placeholder="04.45"></label>
+  <label>ATOT (บินขึ้นจริง)<input id="atot" class="t" inputmode="numeric" placeholder="05.12"></label>
 </div>
 <div class="hint">พิมพ์เป็น 02.50 หรือพิมพ์แค่ 0250 ก็ได้ ระบบจะจัดรูปแบบให้ตอนออกจากช่อง • ช่องที่ยังไม่รู้เว้นว่างได้</div>
 </div>
@@ -298,12 +299,13 @@ function build(){
   if(D.day1){$("sd1").textContent=D.day1.replace(/ \d+$/,"");$("sd2").textContent=D.day2.replace(/ \d+$/,"");}
   const sobtDate = (night && $("sobtDay").value==="2")?D.day2:D.day1;
   const bay2 = V("bay2")||V("bay");
-  const more=$("kind").value==="more", showPax=more||!$("paxUnk").checked;
+  const more=$("kind").value==="more", showPax=!$(more?"paxUnkMore":"paxUnk").checked;
   document.querySelectorAll("#kindSeg button").forEach(b=>b.classList.toggle("on",b.dataset.v===$("kind").value));
   $("hasPaxWrap").classList.toggle("hidden",more);
-  $("paxHint").classList.toggle("hidden",more);
+  $("hasPaxMoreWrap").classList.toggle("hidden",!more);
   $("paxGrid").querySelectorAll("input").forEach(e=>e.disabled=!showPax);
   $("card45").classList.toggle("hidden",!more);
+  $("h45").textContent=(showPax?"4–5":"3–4")+". เที่ยวที่สอง";
   $("cardNext").classList.toggle("hidden",more);
   $("neobt").disabled=$("unk").checked;
   const nextItem=(showPax?"4":"3")+". "+($("unk").checked?"ยังไม่ทราบเวลาออกใหม่ที่แน่นอน":"เวลาที่คาดว่าจะออกใหม่ (EOBT) "+v("neobt")+" น.");
@@ -313,7 +315,7 @@ function build(){
 "ระหว่างเวลา "+v("period")+" น.",
 "",
 more?"รายงานข้อมูลเพิ่มเติม":"รายงานข้อมูลเบื้องต้น",
-"1. เที่ยวบิน "+v("type"),
+"1. เที่ยวบิน "+V("type"),
 "เนื่องจาก "+V("reason"),
 "",
 "2. สายการบิน "+V("airline"),
@@ -326,8 +328,8 @@ more?"รายงานข้อมูลเพิ่มเติม":"รา�
 "หลุมจอดอากาศยาน (ที่กลับเข้ามา) BAY "+bay2,
 "เวลาเข้าหลุมจอดฯ (AIBT) "+v("aibt")+" น.",
 ...(showPax?["","3. ผู้โดยสาร "+v("pax")+" คน","    ลูกเรือ "+v("crew")+" คน"]:[]),
-...(more?["","4. เวลาที่คาดว่าจะออกในเที่ยวที่ 2","EOBT "+v("eobt")+" น.","5. เวลาที่ทำการบินขึ้นจริง","ATOT "+v("atot")+" น."]
-       :["",nextItem].concat(showPax?["",""]:[""],["รายละเอียดเพิ่มเติมจะแจ้งให้ทราบภายหลัง"])),
+...(more?["",(showPax?"4":"3")+". เวลาอากาศยานออกจากหลุมจอดในเที่ยวที่สอง (AOBT) "+v("eobt")+" น.","",(showPax?"5":"4")+". เวลาที่ทำการบินขึ้นจริง (ATOT) "+v("atot")+" น."]
+       :["",nextItem,"","รายละเอียดเพิ่มเติมจะแจ้งให้ทราบต่อไป"]),
 "",
 "จึงเรียนมาเพื่อทราบ",
 v("name")||"XXXXXX",
@@ -338,9 +340,9 @@ v("name")||"XXXXXX",
 }
 // ไม่บันทึกวันที่/ช่วงเวลาในร่าง (คำนวณจากเวลาปัจจุบันทุกครั้ง)
 const DRAFT=["sobtDay","kind","type","reason","airline","flight","org","dst","sobt","orgName","dstName","reg","bay","aobt","bay2","aibt","pax","crew","neobt","eobt","atot"];
-function saveDraft(){const o={};DRAFT.forEach(i=>o[i]=$(i).value);o.paxUnk=$("paxUnk").checked;o.unk=$("unk").checked;store.set("rt_draft",JSON.stringify(o))}
+function saveDraft(){const o={};DRAFT.forEach(i=>o[i]=$(i).value);o.paxUnk=$("paxUnk").checked;o.paxUnkMore=$("paxUnkMore").checked;o.unk=$("unk").checked;store.set("rt_draft",JSON.stringify(o))}
 function migrateRoute(o){let r=String(o.route).trim();if(!r)return;const m=r.match(/^(.*?)\s*\(\s*([A-Za-z0-9]*)\s*-\s*([A-Za-z0-9]*)\s*\)\s*$/);if(m){r=m[1];if(o.org==null){$("org").value=m[2];$("dst").value=m[3]}}const p=r.split(/\s+-\s+/);$("orgName").value=p[0]||"";$("dstName").value=p.slice(1).join(" - ")}
-function loadDraft(){try{const o=JSON.parse(store.get("rt_draft")||"null");if(!o)return;DRAFT.forEach(i=>{if(o[i]!=null)$(i).value=o[i]});if(o.orgName==null&&o.route!=null)migrateRoute(o);$("paxUnk").checked=(o.paxUnk!=null)?!!o.paxUnk:o.hasPax!==true;$("unk").checked=o.unk!==false}catch(e){}}
+function loadDraft(){try{const o=JSON.parse(store.get("rt_draft")||"null");if(!o)return;DRAFT.forEach(i=>{if(o[i]!=null)$(i).value=o[i]});if(o.orgName==null&&o.route!=null)migrateRoute(o);$("paxUnk").checked=(o.paxUnk!=null)?!!o.paxUnk:o.hasPax!==true;$("paxUnkMore").checked=o.paxUnkMore!==false;$("unk").checked=o.unk!==false}catch(e){}}
 function copyText(){
   const txt=$("out").textContent;
   const done=()=>{const t=$("toast");t.classList.add("show");setTimeout(()=>t.classList.remove("show"),1500)};
@@ -353,7 +355,7 @@ function clearFlight(){
   if(!confirm("ล้างข้อมูลเที่ยวบินทั้งหมด?"))return;
   $("orgName").value="BANGKOK";$("org").value="BKK";$("dstName").value="";$("dst").value="";
   ["airline","flight","sobt","reg","bay","aobt","bay2","aibt","pax","crew","neobt","eobt","atot"].forEach(i=>$(i).value="");
-  $("paxUnk").checked=true;$("unk").checked=true;$("kind").value="initial";$("type").value="Return Taxi";$("reason").value="TECHNICAL PROBLEM";
+  $("paxUnk").checked=true;$("paxUnkMore").checked=true;$("unk").checked=true;$("kind").value="initial";$("type").value="RETURN TAXI";$("reason").value="TECHNICAL PROBLEM";
   build();
 }
 // วันที่เริ่มผลัดอัตโนมัติตามเวลาไทย (Asia/Bangkok): ก่อน 08.00 = ผลัดกลางคืนที่เริ่มเมื่อวาน, 08.00-16.59 = ผลัดกลางวัน, 17.00 ขึ้นไป = ผลัดกลางคืน
@@ -389,7 +391,7 @@ const AUTO={day:"08.00 - 17.00",night:"17.00 - 08.00",sk:"rt_shift",away:36e5,hi
   document.querySelectorAll("#sobtSeg button").forEach(b=>b.addEventListener("click",()=>{$("sobtDay").value=b.dataset.v;build()}));
   document.querySelectorAll("input,select").forEach(el=>{el.addEventListener("input",build);el.addEventListener("change",build)});
   $("unk").addEventListener("change",()=>{if(!$("unk").checked)$("neobt").focus()});
-  $("paxUnk").addEventListener("change",()=>{if(!$("paxUnk").checked)$("paxGrid").querySelector("input").focus()});
+  ["paxUnk","paxUnkMore"].forEach(id=>$(id).addEventListener("change",()=>{if(!$(id).checked)$("paxGrid").querySelector("input").focus()}));
   build();
 })();
 </script>
