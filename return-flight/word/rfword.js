@@ -64,6 +64,7 @@ function baseValues(d,w,rec){
     reason:U(d.reason), ref:s(w.ref),
     crew:showPax?s(d.crew):"", pax:showPax?s(d.pax):"",
     bay:U(d.bay).replace(/^BAY\s*/,""), aldt:normTime(d.aldt), aibt:normTime(d.aibt),
+    t2:more?"AOBT":"EOBT",
     eobt:more?normTime(d.eobt):(d.unk===false?normTime(d.neobt):""),
     atot:more?normTime(d.atot):"",
     other:(w.other==null?"":String(w.other)).replace(/\r\n?/g,"\n").replace(/^\s+|\s+$/g,""),
@@ -73,9 +74,11 @@ function baseValues(d,w,rec){
 // ค่าว่าง = ช่องว่างไว้เขียนเพิ่ม (ตัดบรรทัดได้ ไม่ดันป้ายชื่อช่องให้ขึ้นบรรทัดใหม่)
 function padded(k,v){return v?NB+v+NB:NB+" ".repeat(Math.max((BLANK[k]||12)-2,1))+NB}
 function xmlEsc(t){return t.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f]/g,"")}
+// ข้อ 12: รายงานเพิ่มเติม (รายงานปิด) ใช้เวลาจริง AOBT / รายงานเบื้องต้นใช้เวลาที่คาดว่าจะออก (ข้อความเดิมของแบบฟอร์ม)
+function l12(vals){return vals&&vals.t2==="AOBT"?"เวลาอากาศยานออกจากหลุมจอดในเที่ยวที่สอง"+NB+"(AOBT)":"เวลาที่คาดว่าจะออกในเที่ยวที่สอง"}
 function fillXml(xml,vals){
   const L=sigLeft(vals);
-  return xml.replace(/w:left="5001"/g,'w:left="'+L+'"').replace(/\{\{(\w+)\}\}/g,(m,k)=>xmlEsc(padded(k,s(vals[k])&&String(vals[k])))
+  return xml.replace(/เวลาที่คาดว่าจะออกในเที่ยวที่สอง <\/w:t>/,l12(vals)+" </w:t>").replace(/เวลาทำการบินขึ้นจริง/g,"เวลาที่ทำการบินขึ้นจริง").replace(/w:left="5001"/g,'w:left="'+L+'"').replace(/\{\{(\w+)\}\}/g,(m,k)=>xmlEsc(padded(k,s(vals[k])&&String(vals[k])))
     .split("\n").join(NB+'</w:t><w:br/><w:t xml:space="preserve">'+NB));
 }
 // ---------- บล็อกลงชื่อ (แบบ C): อยู่ฝั่งขวา จัดกึ่งกลางในบล็อก ถ้าชื่อยาวบล็อกจะขยายไปทางซ้าย ----------
@@ -115,7 +118,7 @@ function pageHTML(vals){
   +n("1.",'ผู้แจ้ง '+u("informer")+' เมื่อเวลา '+u("infTime")+NB+'น.',"j")
   +n("2.",'สายการบิน '+u("airline")+' วันที่ทำการบิน '+u("fdate"))
   +n("3.",'เที่ยวบินที่ '+u("flight")+' เวลาออกตามตารางการบิน'+NB+'(SOBT) '+u("sobt")+NB+'น.',"tight")
-  +c('เวลาทำการบินขึ้นจริง'+NB+'(ATOT) '+u("atot0")+NB+'น.')
+  +c('เวลาที่ทำการบินขึ้นจริง'+NB+'(ATOT) '+u("atot0")+NB+'น.')
   +n("4.",'ทางวิ่งที่ใช้ในเที่ยวบินแรก '+u("rwy1"))
   +n("5.",'แบบอากาศยาน '+u("actype"))
   +n("6.",'เครื่องหมายสัญชาติและทะเบียนอากาศยาน '+u("reg"))
@@ -126,8 +129,8 @@ function pageHTML(vals){
   +n("10.",'จำนวนลูกเรือ '+u("crew")+NB+'คน ผู้โดยสาร '+u("pax")+NB+'คน')
   +n("11.",'หลุมจอดอากาศยาน '+u("bay")+' เวลาลง '+u("aldt")+NB+'น.',"tight")
   +c('เวลาที่อากาศยานจอด'+NB+'ณ'+NB+'หลุมจอดอากาศยาน'+NB+'(AIBT) '+u("aibt")+NB+'น.')
-  +n("12.",'เวลาที่คาดว่าจะออกในเที่ยวที่สอง '+u("eobt")+NB+'น.')
-  +n("13.",'เวลาทำการบินขึ้นจริง'+NB+'(ATOT) '+u("atot")+NB+'น.')
+  +n("12.",l12(vals)+' '+u("eobt")+NB+'น.')
+  +n("13.",'เวลาที่ทำการบินขึ้นจริง'+NB+'(ATOT) '+u("atot")+NB+'น.')
   +n("14.",'ข้อมูลอื่น'+NB+'ๆ'+NB+'เพิ่มเติม '+u("other"),"last")
   +'<div class="sigb" style="margin-left:'+(sigLeft(vals)/15).toFixed(1)+'px">'
   +'<p class="sig">ผู้บันทึกข้อมูล'+NB+u("recName")+'</p>'
@@ -135,6 +138,6 @@ function pageHTML(vals){
   +'</div>'
   +'<div class="a4-foot"><p>ศูนย์ควบคุมปฏิบัติการเขตการบิน ฝ่ายปฏิบัติการเขตการบิน ท่าอากาศยานสุวรรณภูมิ  โทร.02-132-4103 แฟกซ์ 02-132-4119</p><p class="r">VTBS-FM-AOD-CA-001</p><p>Rev00 Effective 01Oct26</p></div>';
 }
-const api={KEYS,BLANK,th,normTime,routeText,daySig,autoDay,flightDay,flightDate,values,fillXml,buildDocx,fileBase,pageHTML,sigLeft,textW,isNight,MIME};
+const api={KEYS,l12,BLANK,th,normTime,routeText,daySig,autoDay,flightDay,flightDate,values,fillXml,buildDocx,fileBase,pageHTML,sigLeft,textW,isNight,MIME};
 if(typeof module!=="undefined"&&module.exports) module.exports=api; else root.RFWord=api;
 })(typeof window!=="undefined"?window:this);

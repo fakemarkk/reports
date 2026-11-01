@@ -339,6 +339,7 @@ function goField(k){const el=fieldEl(k);if(!el)return;try{el.scrollIntoView({blo
   setTimeout(()=>{try{el.focus({preventScroll:true})}catch(e){el.focus()}},350)}
 function checkFields(){
   const base=RFWord.values(D||{},wordInput(),rec());
+  const t2=base.t2+" เที่ยวที่ 2";REQ.forEach(r=>{if(r[0]==="eobt")r[1]=t2});const fl=$("fxl_eobt");if(fl&&fl.firstChild)fl.firstChild.textContent=t2;
   let anyFx=false;FXK.forEach(k=>{const show=!String(base[k]||"").trim();$("fxl_"+k).classList.toggle("hidden",!show);if(show)anyFx=true});
   $("fxCard").classList.toggle("hidden",!anyFx);
   const miss=missing(),mk=miss.map(m=>m[0]);
@@ -363,7 +364,7 @@ function summary(){
     ["ทะเบียน",x.reg],["เส้นทางบิน",x.route],["สาเหตุ",x.reason],
     ["หลุมจอด / ALDT",[x.bay,x.aldt&&x.aldt+" น."].filter(Boolean).join(" / ")],["AIBT",x.aibt&&x.aibt+" น."],
     ["ลูกเรือ / ผู้โดยสาร",(x.crew||x.pax)?(x.crew||"–")+" / "+(x.pax||"–")+" คน":""],
-    ["EOBT เที่ยวที่ 2",x.eobt&&x.eobt+" น."],["ATOT เที่ยวที่ 2",x.atot&&x.atot+" น."]];
+    [x.t2+" เที่ยวที่ 2",x.eobt&&x.eobt+" น."],["ATOT เที่ยวที่ 2",x.atot&&x.atot+" น."]];
   $("sum").innerHTML="";
   rows.forEach(([k,v])=>{const dt=document.createElement("dt"),dd=document.createElement("dd");dt.textContent=k;dd.textContent=v||"(ว่าง)";if(!v)dd.className="na";$("sum").append(dt,dd)});
   const night=RFWord.isNight(d)&&!!d.d1;
