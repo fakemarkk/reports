@@ -146,6 +146,7 @@
   .a4 .a4-body{flex:1 0 auto;display:flex;flex-direction:column}
   .a4 .sigb{margin-top:auto;padding-top:25.47px}
   .a4 .sig,.a4 .pos,.a4 .date{text-align:center}
+  .sheet .imgs img+img{margin-top:12px}
   .sheet{position:fixed;inset:0;background:rgba(43,40,70,.45);display:flex;align-items:flex-end;justify-content:center;z-index:20}
   .sheet .box{background:var(--card);width:100%;max-width:720px;max-height:92vh;overflow:auto;border-radius:16px 16px 0 0;padding:16px 14px calc(16px + env(safe-area-inset-bottom))}
   .sheet h3{margin:0 0 6px;font-size:17px}
@@ -242,7 +243,7 @@
 
 <div class="card"><h2>ตัวอย่างเอกสาร</h2>
 <div class="pvbox" id="pvbox"><div class="pvscale" id="pvscale"><div class="a4" id="page"></div></div></div>
-<div class="hint">ไฟล์ Word: ถ้ามีเกิน 4 เที่ยวบิน จะขึ้นหน้า 2 โดยไม่ตัดกลางเที่ยวบิน (รูปภาพจะเป็นแผ่นยาวแผ่นเดียว)</div>
+<div class="hint">ไฟล์ Word: ถ้ามีเกิน 4 เที่ยวบิน จะขึ้นหน้า 2 โดยไม่ตัดกลางเที่ยวบิน · รูปภาพ: ถ้าไม่พอหน้าเดียว จะแยกเป็นหลายรูป (ไฟล์ _p1of2, _p2of2 …) ใส่เที่ยวบินให้เต็มแต่ละหน้า A4 หน้าแรกมีหัวเอกสาร หน้าสุดท้ายมีชื่อผู้รายงาน/ช่องลงชื่อขวาล่าง</div>
 </div>
 
 <div class="bar">
@@ -255,7 +256,7 @@
 <div class="sheet hidden" id="sheet"><div class="box">
   <h3 id="shTitle"></h3>
   <div class="fname" id="shName"></div>
-  <img id="shImg" class="hidden" alt="รูปแบบฟอร์ม">
+  <div id="shImgs" class="imgs hidden"></div>
   <div class="hint" id="shHint"></div>
   <div class="row"><button class="share" id="shShare" type="button">📤 แชร์ / บันทึก</button><button class="dl" id="shDl" type="button">⬇️ ดาวน์โหลด</button></div>
   <div class="row"><button class="close" type="button" onclick="closeSheet()">ปิด</button></div>
@@ -345,17 +346,23 @@ function toast(t){const e=$("toast");e.textContent=t;e.classList.add("show");set
 const isIOS=/iP(hone|ad|od)/.test(navigator.userAgent)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);
 function canShareFile(f){try{return !!(navigator.canShare&&navigator.share&&navigator.canShare({files:[f]}))}catch(e){return false}}
 function download(blob,name){const u=URL.createObjectURL(blob),a=document.createElement("a");a.href=u;a.download=name;a.rel="noopener";document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),60000)}
-let sheetUrl=null;
+let sheetUrl=null,sheetUrls=[];
+function canShareFiles(fs){try{return !!(navigator.canShare&&navigator.share&&navigator.canShare({files:fs}))}catch(e){return false}}
+// blob/name เป็นค่าเดียว หรือเป็นรายการ (รูปหลายหน้า) ก็ได้
 function openSheet(blob,name,isImg){
-  const file=new File([blob],name,{type:blob.type});const share=canShareFile(file);
-  $("shTitle").textContent=isImg?"🖼️ รูปแบบฟอร์มพร้อมแล้ว":"📄 ไฟล์ Word พร้อมแล้ว";
-  $("shName").textContent=name;
-  if(sheetUrl)URL.revokeObjectURL(sheetUrl);sheetUrl=URL.createObjectURL(blob);
-  $("shImg").classList.toggle("hidden",!isImg);if(isImg)$("shImg").src=sheetUrl;
-  $("shHint").textContent=isImg?"กด “แชร์ / บันทึก” แล้วเลือกบันทึกรูปหรือส่งเข้าไลน์ หรือกดค้างที่รูปเพื่อบันทึก":"กด “แชร์ / บันทึก” แล้วเลือก “บันทึกไปยังไฟล์” หรือแอปที่ต้องการ";
+  const blobs=[].concat(blob),names=[].concat(name),n=blobs.length;
+  const files=blobs.map((b,i)=>new File([b],names[i],{type:b.type}));const share=canShareFiles(files);
+  $("shTitle").textContent=isImg?"🖼️ รูปแบบฟอร์มพร้อมแล้ว"+(n>1?" ("+n+" รูป)":""):"📄 ไฟล์ Word พร้อมแล้ว";
+  $("shName").textContent=names.join("\n");$("shName").style.whiteSpace="pre-line";
+  sheetUrls.forEach(u=>URL.revokeObjectURL(u));sheetUrls=blobs.map(b=>URL.createObjectURL(b));sheetUrl=sheetUrls[0];
+  const box=$("shImgs");box.innerHTML="";box.classList.toggle("hidden",!isImg);
+  if(isImg)sheetUrls.forEach((u,i)=>{const im=document.createElement("img");im.src=u;im.alt="รูปแบบฟอร์ม"+(n>1?" หน้า "+(i+1)+"/"+n:"");box.append(im)});
+  $("shHint").textContent=isImg?(n>1?"มี "+n+" รูป (เอกสารยาวเกิน 1 หน้า) กด “แชร์ / บันทึก” เพื่อส่งทุกรูปพร้อมกันเข้าไลน์ หรือกดค้างที่รูปเพื่อบันทึกทีละรูป":"กด “แชร์ / บันทึก” แล้วเลือกบันทึกรูปหรือส่งเข้าไลน์ หรือกดค้างที่รูปเพื่อบันทึก"):"กด “แชร์ / บันทึก” แล้วเลือก “บันทึกไปยังไฟล์” หรือแอปที่ต้องการ";
   $("shShare").classList.toggle("hidden",!share);
-  $("shShare").onclick=()=>navigator.share({files:[file],title:name}).catch(e=>{if(e&&e.name!=="AbortError")download(blob,name)});
-  $("shDl").onclick=()=>{if(isIOS&&!share&&!isImg){window.open(sheetUrl,"_blank")}else download(blob,name)};
+  const dlAll=()=>blobs.forEach((b,i)=>setTimeout(()=>download(b,names[i]),i*400));
+  $("shShare").onclick=()=>navigator.share({files:files,title:names[0]}).catch(e=>{if(e&&e.name!=="AbortError")dlAll()});
+  $("shDl").textContent=n>1?"⬇️ ดาวน์โหลดทั้งหมด ("+n+")":"⬇️ ดาวน์โหลด";
+  $("shDl").onclick=()=>{if(isIOS&&!share&&!isImg){window.open(sheetUrl,"_blank")}else dlAll()};
   $("sheet").classList.remove("hidden");
 }
 function closeSheet(){$("sheet").classList.add("hidden")}
@@ -372,6 +379,27 @@ async function makeDocx(){
   }catch(e){alert("สร้างไฟล์ Word ไม่สำเร็จ: "+e)}
   finally{btn.disabled=false}
 }
+// แบ่งหน้ารูปภาพ: วางหน้าจำลอง A4 นอกจอแล้ววัดความสูงจริง ใส่เที่ยวบินให้มากที่สุดที่ยังไม่ล้นหน้า A4
+// หน้าแรกมีหัวเอกสาร · หน้าสุดท้ายต้องมีที่พอสำหรับช่องลงชื่อ ถ้าไม่พอย้ายเที่ยวบินท้ายไปหน้าถัดไป
+// ผลลัพธ์ = รายการ pg ({a,b,head,sig}) ส่งให้ DL.pageHTML; ถ้าทั้งหมดพอดีหน้าเดียว ได้ 1 หน้า
+function paginate(m){
+  const N=m.flights.length,el=document.createElement("div");
+  el.className="a4";el.style.cssText="position:absolute;left:-10000px;top:0;visibility:hidden";
+  document.body.appendChild(el);
+  el.innerHTML="";const H=el.offsetHeight; // ความสูงหน้า A4 (min-height)
+  const fits=(a,b,head,sig)=>{el.innerHTML=DL.pageHTML(m,{a,b,head,sig});return el.offsetHeight<=H+0.5};
+  const P=[];let s=0,head=true;
+  try{
+    while(P.length<200){
+      if(fits(s,N,head,true)){P.push({a:s,b:N,head,sig:true});break}
+      let k=1;while(s+k<N&&fits(s,s+k+1,head,false))k++;
+      if(s+k===N&&k>1)k--; // เที่ยวบินที่เหลือพอดีหน้า แต่ไม่พอรวมช่องลงชื่อ → ย้ายเที่ยวสุดท้ายไปหน้าถัดไป
+      P.push({a:s,b:s+k,head,sig:false});s+=k;head=false;
+    }
+  }finally{el.remove()}
+  return P;
+}
+window.__paginate=paginate;
 async function makeImage(){
   const btn=$("btnImg");if(btn.disabled)return;
   fmtTime($("smsTime"));render();
@@ -379,10 +407,17 @@ async function makeImage(){
   btn.disabled=true;const old=btn.textContent;btn.textContent="⏳ กำลังสร้างรูป…";
   try{
     try{await document.fonts.load('400 21px "TH SarabunPSK"');await document.fonts.load('700 21px "TH SarabunPSK"');await document.fonts.ready}catch(e){}
-    const canvas=await html2canvas($("page"),{scale:2,backgroundColor:"#ffffff",useCORS:true,logging:false,
-      onclone:doc=>{doc.getElementById("pvscale").style.transform="none";doc.getElementById("pvbox").style.height="auto"}});
-    const blob=await new Promise(r=>canvas.toBlob(r,"image/png"));
-    openSheet(blob,DL.fileBase(data())+".png",true);
+    // แบ่งหน้ารูปตามความสูงจริง (หน้าตัวอย่างบนจอยังเป็นแผ่นเดียว — เปลี่ยนเฉพาะในสำเนาที่ใช้ทำรูป)
+    const m=model(),P=paginate(m),n=P.length,base=DL.fileBase(data()),blobs=[],names=[];
+    for(let i=0;i<n;i++){
+      if(n>1)btn.textContent="⏳ กำลังสร้างรูป "+(i+1)+"/"+n+"…";
+      const canvas=await html2canvas($("page"),{scale:2,backgroundColor:"#ffffff",useCORS:true,logging:false,
+        onclone:doc=>{doc.getElementById("pvscale").style.transform="none";doc.getElementById("pvbox").style.height="auto";
+          if(n>1)doc.getElementById("page").innerHTML=DL.pageHTML(m,P[i])}});
+      blobs.push(await new Promise(r=>canvas.toBlob(r,"image/png")));
+      names.push(base+(n>1?"_p"+(i+1)+"of"+n:"")+".png");
+    }
+    openSheet(n>1?blobs:blobs[0],n>1?names:names[0],true);
   }catch(e){alert("สร้างรูปไม่สำเร็จ: "+e)}
   finally{btn.disabled=false;btn.textContent=old}
 }
