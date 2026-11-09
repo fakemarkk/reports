@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="robots" content="noindex, nofollow, noarchive">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script>/* theme: saved choice (localStorage "theme") or system setting — set before paint */(function(){var d=document.documentElement,m=window.matchMedia&&matchMedia("(prefers-color-scheme: dark)");function s(){try{var t=localStorage.getItem("theme");return t==="light"||t==="dark"?t:""}catch(e){return ""}}function a(){d.dataset.theme=s()||(m&&m.matches?"dark":"light")}a();if(m){if(m.addEventListener)m.addEventListener("change",a);else if(m.addListener)m.addListener(a)}addEventListener("storage",a);addEventListener("pageshow",a)})();</script>
+<title>รายงาน Divert Flight</title>
+<!-- PWA: ติดตั้งลงหน้าจอโฮม + ใช้งานออฟไลน์ -->
+<link rel="manifest" href="../manifest.webmanifest">
+<meta name="theme-color" content="#f6f4fa" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#1c2030" media="(prefers-color-scheme: dark)">
+<link rel="icon" type="image/png" sizes="192x192" href="../icon-192.png">
+<link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="รายงาน ฝปข.">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<style>
+:root{
+  --bg:#e9e5f3; --card:#ffffff; --soft:#f6f4fb; --ink:#1f2236; --muted:#41465a; --muted2:#53586c;
+  --faint:#8f92a8; --accent:#2c4a7e; --accent-soft:#dde6f6; --accent-line:#8faad8;
+  --btn:#bfd2f2; --btn-ink:#16305a; --seg-bg:#e1ddef; --seg-on:#c5d7f5; --seg-on-ink:#16305a; --seg-on-line:#8faad8;
+  --chip:#e3e0ee; --line:#bdb8d3; --field-line:#a9a4c4; --placeholder:#9c9cb2; --disabled-ink:#8f93a5;
+  --line-green:#15834a; --shadow-c:rgba(58,48,110,.14); --radius:16px;
+  --warn:#ec9a3c; --warn-bg:#fff3e6; --warn-line:#f1c08a; --warn-ink:#b4470f;
+}
+html[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#1c2030; --card:#262b3d; --soft:#2c3246; --ink:#e6e8f0; --muted:#c5c9d8; --muted2:#aab0c4;
+  --faint:#80869c; --accent:#a9c4f2; --accent-soft:#33405e; --accent-line:#6580b3;
+  --btn:#a9c4f2; --btn-ink:#14233f; --seg-bg:#1f2435; --seg-on:#3f5888; --seg-on-ink:#eef3ff; --seg-on-line:#7f9bd0;
+  --chip:#363c53; --line:#3e4560; --field-line:#5a6180; --placeholder:#7f859c; --disabled-ink:#727890;
+  --line-green:#15834a; --shadow-c:rgba(0,0,0,.35);
+  --warn-bg:#3a2c1e; --warn-line:#a87238; --warn-ink:#ffc08a;
+}
+*{box-sizing:border-box}
+body{font-family:system-ui,"Sarabun","Noto Sans Thai",sans-serif;background:var(--bg);margin:0;padding:12px;color:var(--ink)}
+.wrap{max-width:720px;margin:auto}
+.topbar{position:sticky;top:0;z-index:5;background:var(--bg);margin:-12px -12px 4px;padding:10px 12px}
+.back{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 18px;border-radius:22px;background:var(--card);color:var(--accent);font-size:17px;font-weight:600;text-decoration:none;box-shadow:0 1px 3px var(--shadow-c);border:1px solid var(--line)}
+.back:active{background:var(--accent-soft)}
+/* เตือนช่องที่ยังไม่ได้กรอก (เฉพาะหน้าจอ) */
+input.miss,select.miss,textarea.miss{border:2px solid var(--warn);background:var(--warn-bg)}
+.mh{font-size:12px;color:var(--warn-ink);font-weight:600;display:inline-block;margin-top:2px}
+.mh.hidden{display:none}
+input,select,textarea{scroll-margin-top:76px;scroll-margin-bottom:120px}
+h1{font-size:20px;margin:6px 0 12px}
+h1 small{display:block;font-size:13px;font-weight:500;color:var(--muted2);margin-top:4px}
+.card{background:var(--card);border-radius:var(--radius);padding:14px;margin-bottom:12px;border:1px solid var(--line);box-shadow:0 2px 10px var(--shadow-c)}
+.card h2{font-size:15px;margin:0 0 10px;color:var(--accent)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.full{grid-column:1/-1}
+label{display:flex;flex-direction:column;font-size:13px;color:var(--muted);gap:4px}
+input,select,textarea{font-size:16px;padding:9px;border:1px solid var(--field-line);border-radius:8px;font-family:inherit;width:100%;background:var(--card);color:var(--ink);font-weight:500}
+input,select{height:46px;-webkit-appearance:none;appearance:none}
+select{background:var(--card) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23555' stroke-width='2' fill='none'/%3E%3C/svg%3E") no-repeat right 12px center;padding-right:32px}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--accent-line);border-color:var(--accent)}
+.up{text-transform:uppercase}
+.seg{display:flex;background:var(--seg-bg);border-radius:12px;padding:4px;gap:4px;border:1px solid var(--line)}
+.seg button{flex:1;white-space:nowrap;font-size:15px;padding:10px 6px;border-radius:8px;background:transparent;color:var(--muted);line-height:1.3;border:0;cursor:pointer;font-family:inherit}
+.seg button.on{background:var(--seg-on);color:var(--seg-on-ink);font-weight:600;box-shadow:inset 0 0 0 1px var(--seg-on-line),0 1px 3px rgba(58,48,110,.18)}
+.seg button span{display:block;font-size:12px;font-weight:400;color:var(--muted2)}
+.seg button.on span{color:var(--seg-on-ink)}
+.hint{font-size:12px;color:var(--muted2);margin-top:6px}
+.hidden{display:none!important}
+.banner{background:var(--warn-bg);border:1px solid var(--warn-line);color:var(--warn-ink);border-radius:12px;padding:10px 12px;margin-bottom:12px;font-size:14px}
+.flight{border:1px solid var(--line);border-radius:12px;padding:0;margin-bottom:10px;overflow:hidden;background:var(--soft)}
+.flight-head{display:flex;justify-content:space-between;align-items:center;margin:0;padding:10px 12px;font-weight:700}
+.flight .grid{padding:12px}
+.flight.odd{background:#eef5ff;border-color:#b7cce8}
+.flight.odd .flight-head{background:#cfe0f7;color:#16305a}
+.flight.even{background:#fff6e8;border-color:#e2c79a}
+.flight.even .flight-head{background:#f5dfb8;color:#6b3f0c}
+html[data-theme="dark"] .flight.odd{background:#24344d;border-color:#4a6288}
+html[data-theme="dark"] .flight.odd .flight-head{background:#334e73;color:#d7e6ff}
+html[data-theme="dark"] .flight.even{background:#3a3022;border-color:#8a6a3d}
+html[data-theme="dark"] .flight.even .flight-head{background:#5a4528;color:#ffe6bd}
+@media (max-width:480px){
+  .flight-head{padding:12px;font-size:16px}
+  .flight .grid{padding:12px 10px 14px}
+}
+button.mini{flex:0;font-size:13px;padding:6px 10px;border-radius:8px;border:1px solid var(--line);background:var(--chip);color:var(--ink);cursor:pointer}
+button.mini.danger{color:#b3261e}
+button.mini:disabled{opacity:.45;cursor:not-allowed}
+#addFlight{width:100%;background:var(--btn);color:var(--btn-ink);border:1px solid var(--accent-line);font-weight:600;padding:12px;border-radius:12px;cursor:pointer;font-size:16px;font-family:inherit;margin-top:4px}
+pre{white-space:pre-wrap;background:var(--soft);border:1px solid var(--line);border-radius:8px;padding:12px;font-family:inherit;font-size:15px;margin:0}
+.bar{position:sticky;bottom:0;display:flex;flex-wrap:wrap;gap:8px;padding:10px 0;background:var(--bg);z-index:5}
+.bar button,.actions button{font-size:16px;padding:12px;border:0;border-radius:12px;cursor:pointer;font-family:inherit}
+.copy,.share{background:var(--line-green);color:#fff;font-weight:600;flex:1}
+.clear{background:var(--chip);color:var(--ink);flex:0 0 110px}
+.doc{background:var(--btn);color:var(--btn-ink);border:1px solid var(--accent-line);font-weight:600;width:100%;margin-bottom:8px}
+.actions{margin:8px 0 4px}
+.toast{position:fixed;left:50%;top:20px;transform:translateX(-50%);background:#3a3f58;color:#fff;padding:10px 18px;border-radius:20px;opacity:0;transition:.3s;pointer-events:none;z-index:99}
+.toast.show{opacity:1}
+html[data-theme="dark"] .toast{background:#e6e8f0;color:#1c2030}
+.warnline{color:var(--warn-ink);font-size:13px;margin-top:6px}
+.linkish{background:none;border:0;color:var(--accent);text-decoration:underline;cursor:pointer;font:inherit;padding:0}
+.useg button{font-size:15px;font-weight:600;min-height:52px}
+
+
+.datebox{position:relative;height:52px;border:1px solid var(--field-line);border-radius:10px;display:flex;align-items:center;gap:10px;padding:0 14px;background:var(--card);font-size:18px;font-weight:600;cursor:pointer}
+.datebox small{font-weight:400;color:var(--muted2);font-size:14px}
+.datebox input{position:absolute;inset:0;opacity:0;width:100%;height:100%;border:0;cursor:pointer}
+.stack{display:flex;flex-direction:column;gap:10px}
+.sheet{position:fixed;inset:0;z-index:80;background:rgba(20,24,40,.55);display:flex;align-items:flex-end;justify-content:center;padding:12px}
+.sheet.hidden{display:none!important}
+.sheet-card{background:var(--card);color:var(--ink);border-radius:18px 18px 12px 12px;width:min(520px,100%);padding:16px;border:1px solid var(--line);box-shadow:0 -4px 24px var(--shadow-c);max-height:min(86vh,720px);overflow:auto}
+.sheet-card h3{margin:0 0 8px;font-size:18px;color:var(--accent)}
+.sheet-card .shname{font-size:13px;color:var(--muted2);margin-bottom:10px;word-break:break-all}
+.sheet-card img{display:block;width:100%;border:1px solid var(--line);border-radius:8px;background:#fff;margin-bottom:10px}
+.sheet-actions{display:flex;gap:8px;flex-wrap:wrap}
+.sheet-actions button{flex:1;min-width:120px;font-size:16px;padding:12px;border:0;border-radius:12px;cursor:pointer;font-family:inherit;font-weight:600}
+.sheet-actions .share{background:var(--line-green);color:#fff}
+.sheet-actions .doc{background:var(--btn);color:var(--btn-ink);border:1px solid var(--accent-line)}
+.sheet-actions .clear{background:var(--chip);color:var(--ink);flex:0 0 auto}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="topbar"><a class="back" href="../">‹ กลับเมนู</a></div>
+  <h1>✈️ Divert Flight<small>รายงานเที่ยวบิน Divert · เบื้องต้น / เพิ่มเติม</small></h1>
+
+  <div class="card"><h2>ประเภทรายงาน</h2>
+    <input type="hidden" id="kind" value="more">
+    <div class="seg" id="kindSeg">
+      <button type="button" data-v="initial">📝 เบื้องต้น<span>ส่งทันทีตอนเกิดเหตุ</span></button>
+      <button type="button" data-v="more" class="on">📋 เพิ่มเติม<span>เมื่อได้ข้อมูลครบ/อัปเดต</span></button>
+    </div>
+    <div class="hint">สลับประเภทได้ตลอด ข้อมูลที่กรอกไว้ไม่หาย · สถานะแต่ละเที่ยวบินเลือกเองจากดรอปดาวน์</div>
+  </div>
+
+  <div class="card"><h2>ช่วงเวลารายงาน</h2>
+    <input type="hidden" id="toLine" value="ผอก.ฝปข.ทสภ. และผู้บริหาร ฝปข.ทสภ.">
+    <div class="stack">
+      <label>วันที่เริ่มผลัด
+        <div class="datebox">📅 <span id="dateLabel"></span><small id="dateSub"></small><input type="date" id="d1" autocomplete="off"></div>
+      </label>
+      <input type="hidden" id="period" value="17.00-08.00" autocomplete="off">
+      <div class="seg" id="periodSeg">
+        <button type="button" data-v="08.00-17.00">☀️ กะกลางวัน<span>08.00 - 17.00</span></button>
+        <button type="button" data-v="17.00-08.00" class="on">🌙 กะกลางคืน<span>17.00 - 08.00</span></button>
+      </div>
+    </div>
+    <div class="hint" id="dateHint"></div>
+  </div>
+
+  <div class="card"><h2>สาเหตุ Divert</h2>
+    <div class="grid">
+      <label class="full">เนื่องจาก (สาเหตุ)
+        <input id="cause" value="ติดสภาพอากาศที่ ทสภ." placeholder="ติดสภาพอากาศที่ ทสภ.">
+      </label>
+    </div>
+  </div>
+
+  <div class="card"><h2>เที่ยวบิน Divert</h2>
+    <div id="flights"></div>
+    <button type="button" id="addFlight">＋ เพิ่มเที่ยวบิน</button>
+    <div class="hint">ดรอปดาวน์สถานะเก็บเวลาคาดการณ์กับเวลาลงจริงแยกกัน สลับไปมาแล้วค่าไม่หาย · พิมพ์รหัสสนามบินแล้วชื่อเมืองจะเติมให้ถ้าช่องว่าง</div>
+  </div>
+
+  <div class="card"><h2>ผู้รายงาน</h2>
+    <div class="grid">
+      <label>ชื่อ<input id="name" placeholder="ชื่อผู้รายงาน"></label>
+      <label>ผลัด<select id="shift"><option>1</option><option>2</option><option selected>3</option><option>4</option></select></label>
+      <div class="full">
+        <div class="ulab" style="font-size:13px;color:var(--muted);margin:0 0 4px">หน่วยงาน</div>
+        <input type="hidden" id="unit" value="งพบ.สบบ.ฝปข.ทสภ.">
+        <div class="seg useg" id="unitSeg">
+          <button type="button" data-v="งพบ.สบบ.ฝปข.ทสภ." class="on">งพบ.<span>สบบ.ฝปข.ทสภ.</span></button>
+          <button type="button" data-v="งกบ.สบบ.ฝปข.ทสภ.">งกบ.<span>สบบ.ฝปข.ทสภ.</span></button>
+          <button type="button" data-v="งบจ.สบข.ฝปข.ทสภ.">งบจ.<span>สบข.ฝปข.ทสภ.</span></button>
+        </div>
+      </div>
+      <div class="hint full" id="posPreview"></div>
+    </div>
+  </div>
+
+  <div class="card"><h2>สำหรับไฟล์ Excel / รูปฟอร์มผู้บริหาร</h2>
+    <input type="hidden" id="recipient" value="ศูนย์รักษาความปลอดภัย ทสภ. (SCC)">
+    <input type="hidden" id="fromLine" value="งพบ.สบบ.ฝปข.ทสภ. (โทร. 24103)">
+    <input type="hidden" id="subject" value="แจ้งข้อมูลเที่ยวบิน Divert">
+    <div class="grid">
+      <label>วันที่บนฟอร์ม<input id="formDate" placeholder="14 ต.ค. 69"></label>
+      <label>เวลาบนฟอร์ม<input id="formTime" class="t" placeholder="21.35" inputmode="decimal"></label>
+    </div>
+    <div class="hint">ถึง / จาก / เรื่อง บนฟอร์มคงที่ · เวลาลง ทสภ. ใน Excel/PNG ใส่เฉพาะเที่ยวที่ลงจริงแล้ว</div>
+    <h2 style="margin-top:14px">ผู้ลงชื่อบนแบบฟอร์ม (งพบ.)</h2>
+    <div class="grid">
+      <label>ชื่อผู้ลงชื่อ<input id="formSigner" placeholder="ชื่อผู้ลงชื่อบนแบบฟอร์ม"></label>
+      <label>ผลัดบนฟอร์ม<select id="formShift"><option>1</option><option>2</option><option selected>3</option><option>4</option></select></label>
+      <div class="hint full" id="formPosPreview"></div>
+    </div>
+    <div class="hint">แยกจากชื่อผู้รายงานในข้อความไลน์ — ไม่ดึงชื่อมาให้อัตโนมัติ</div>
+  </div>
+
+  <div class="card"><h2>ตัวอย่างข้อความ</h2>
+    <pre id="out">กำลังโหลด…</pre>
+  </div>
+
+  <div class="actions">
+    <button type="button" class="doc" id="btnExcelA">📊 ดาวน์โหลด Excel แบบฟอร์มผู้บริหาร</button>
+    <button type="button" class="doc" id="btnPng">🖼️ รูปแบบฟอร์มผู้บริหาร (PNG)</button>
+    <button type="button" class="doc" id="btnExcelB">📑 ดาวน์โหลดตาราง Excel ส่ง CAAT</button>
+  </div>
+
+  <div class="bar">
+    <button type="button" class="clear" id="btnClear">ล้างฟอร์ม</button>
+    <button type="button" class="share" id="btnShare">แชร์</button>
+    <button type="button" class="copy" id="btnCopy">📋 คัดลอกไปวางในไลน์</button>
+  </div>
+</div>
+
+<div class="sheet hidden" id="sheet" role="dialog" aria-modal="true">
+  <div class="sheet-card">
+    <h3 id="shTitle">🖼️ รูปแบบฟอร์มพร้อมแล้ว</h3>
+    <div class="shname" id="shName"></div>
+    <div id="shImgs"></div>
+    <div class="hint" id="shHint" style="margin-bottom:10px"></div>
+    <div class="sheet-actions">
+      <button type="button" class="share" id="shShare">แชร์ / บันทึก</button>
+      <button type="button" class="doc" id="shDl">⬇️ ดาวน์โหลด</button>
+      <button type="button" class="clear" id="shClose">ปิด</button>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast">คัดลอกแล้ว ✓</div>
+
+<script src="lib/jszip.min.js"></script>
+<script src="lib/html2canvas.min.js"></script>
+<script src="app.js"></script>
+<script>document.querySelectorAll(".datebox input").forEach(function(i){i.addEventListener("click",function(){try{if(i.showPicker)i.showPicker()}catch(e){}})})</script>
+<!-- PWA: ลงทะเบียน service worker + ป้าย "ออฟไลน์" + แถบแจ้งเวอร์ชันใหม่ -->
+<div id="offlineBadge" role="status" aria-live="polite" hidden style="position:fixed;top:calc(env(safe-area-inset-top,0px) + 4px);right:6px;z-index:60;font:600 11px/1.6 system-ui,sans-serif;padding:1px 8px;border-radius:10px;background:var(--warn-bg,#fff3e6);color:var(--warn-ink,#b4470f);border:1px solid var(--warn-line,#f1c08a);opacity:.92;pointer-events:none">● ออฟไลน์</div>
+<style>#swUpdate[hidden],#offlineBadge[hidden]{display:none!important}</style>
+<div id="swUpdate" role="status" aria-live="polite" hidden style="position:fixed;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom,0px) + 78px);z-index:70;display:flex;align-items:center;gap:10px;max-width:calc(100% - 24px);box-sizing:border-box;padding:8px 8px 8px 14px;border-radius:14px;background:var(--ink,#2b2f45);color:var(--bg,#f6f4fa);font:14px/1.4 system-ui,sans-serif;box-shadow:0 4px 16px rgba(0,0,0,.25)"><span id="swUpdateTxt" style="white-space:nowrap">มีเวอร์ชันใหม่</span><button id="swUpdateBtn" type="button" style="border:0;border-radius:10px;padding:7px 12px;font:600 14px system-ui,sans-serif;background:var(--btn,#cddcf3);color:var(--btn-ink,#1f3a66);cursor:pointer;white-space:nowrap">🔄 กดเพื่ออัปเดต</button></div>
+<script>
+(function(){var b=document.getElementById("offlineBadge");function u(){b.hidden=navigator.onLine!==false}u();addEventListener("online",u);addEventListener("offline",u);
+if(!("serviceWorker"in navigator))return;var sw=navigator.serviceWorker,bar=document.getElementById("swUpdate"),wait=null,reloading=false,hadCtrl=!!sw.controller;
+function ver(w,cb){try{var c=new MessageChannel();c.port1.onmessage=function(e){cb(e.data)};w.postMessage({type:"GET_VERSION"},[c.port2]);setTimeout(function(){cb("")},1500)}catch(e){cb("")}}
+function show(w){if(!w||!hadCtrl||wait===w)return;wait=w;var done=false;ver(w,function(v){if(done)return;done=true;document.getElementById("swUpdateTxt").textContent="มีเวอร์ชันใหม่"+(v?" (v"+v+")":"");bar.hidden=false})}
+function watch(r){if(r.waiting)show(r.waiting);r.addEventListener("updatefound",function(){var n=r.installing;if(n)n.addEventListener("statechange",function(){if(n.state==="installed"&&r.waiting===n)show(n);if(n.state==="redundant"&&wait===n&&!reloading){wait=null;bar.hidden=true}})})}
+sw.addEventListener("controllerchange",function(){if(!reloading&&wait){reloading=true;location.reload()}});
+document.getElementById("swUpdateBtn").addEventListener("click",function(){if(!wait)return;this.disabled=true;this.textContent="กำลังอัปเดต…";
+  var a=document.activeElement;if(a&&a.blur)a.blur();wait.postMessage({type:"SKIP_WAITING"})});
+addEventListener("load",function(){sw.register("../sw.js",{scope:"../"}).then(function(r){watch(r);r.update().catch(function(){});
+  document.addEventListener("visibilitychange",function(){if(document.visibilityState==="visible")r.update().catch(function(){})})}).catch(function(){})})})();
+</script>
+</body>
+</html>
