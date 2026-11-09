@@ -4,7 +4,7 @@
    กลยุทธ์:
    - หน้าเว็บ (HTML) และไฟล์ .js ของเว็บ: ดึงจากเน็ตก่อน (ได้ของใหม่เสมอเมื่อออนไลน์) ถ้าไม่มีเน็ต/ช้าเกินไปใช้ของที่เก็บไว้
    - ฟอนต์ ไลบรารี และไอคอน (ไฟล์ใหญ่ ไม่ค่อยเปลี่ยน): ใช้ของที่เก็บไว้ก่อน และอัปเดตเบื้องหลัง */
-const VERSION = "1.8.2";
+const VERSION = "1.9.0";
 const CACHE = "reports-v" + VERSION;
 const PRECACHE = [
   "./",
@@ -17,6 +17,9 @@ const PRECACHE = [
   "return-flight/word/fonts/THSarabunPSK-Bold.ttf",
   "return-flight/word/lib/html2canvas.min.js", "return-flight/word/lib/jszip.min.js",
   "aog/",
+  "divert/", "divert/app.js",
+  "divert/lib/jszip.min.js", "divert/lib/html2canvas.min.js",
+  "divert/template-a-form.xlsx", "divert/template-b-table.xlsx",
   "manifest.webmanifest",
   "icon-192.png", "icon-512.png", "apple-touch-icon.png"
 ];

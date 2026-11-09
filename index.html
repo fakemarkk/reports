@@ -53,6 +53,7 @@ a.item[href="delay/"]{--tint:#fff3ea;--tint-line:#f5bf9a}
 a.item[href="return-taxi/"]{--tint:#eaf6ef;--tint-line:#9fd6b5}
 a.item[href="return-flight/"]{--tint:#eaf1fb;--tint-line:#a9c3ea}
 a.item[href="aog/"]{--tint:#f2edfb;--tint-line:#c5b4ea}
+a.item[href="divert/"]{--tint:#eaf8f6;--tint-line:#9fd4cc}
 .ic{display:flex;align-items:center;justify-content:center;width:52px;height:52px;flex:0 0 52px;border-radius:50%;background:rgba(255,255,255,.75)}
 .cl{border:1px solid var(--line);background:var(--card);color:var(--accent)}
 h1{color:var(--ink)}
@@ -90,6 +91,7 @@ html[data-theme="dark"] .tt::before{content:"☀️"}
   html[data-theme="dark"] a.item[href="return-taxi/"]{--tint:#243a31;--tint-line:#7fbf9b}
   html[data-theme="dark"] a.item[href="return-flight/"]{--tint:#253348;--tint-line:#86a8d8}
   html[data-theme="dark"] a.item[href="aog/"]{--tint:#302b45;--tint-line:#a996d8}
+  html[data-theme="dark"] a.item[href="divert/"]{--tint:#243a38;--tint-line:#7fbfb4}
   html[data-theme="dark"] .ic{background:rgba(255,255,255,.08)}
   html[data-theme="dark"] p,html[data-theme="dark"] .d{color:var(--muted2)}
 
@@ -111,13 +113,14 @@ html[data-theme="dark"] .tt::before{content:"☀️"}
 .upd li>span{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;line-clamp:2;overflow:hidden}
 .upd li.more{list-style:none;margin-left:-18px;font-size:12.5px;color:var(--muted2);display:block}
 </style></head><body><div class="wrap">
-<a class="cl" href="changelog/" aria-label="Change log">📋 v1.8.2</a>
+<a class="cl" href="changelog/" aria-label="Change log">📋 v1.9.0</a>
 <button class="tt" id="themeToggle" type="button" aria-label="สลับโหมดมืด / ปกติ" title="สลับโหมดมืด / ปกติ"></button>
 <h1>📋 รายงาน ฝปข.ทสภ.</h1><p>เลือกรายงานที่ต้องการ กรอกข้อมูล แล้วกดคัดลอกไปวางในไลน์</p>
 <a class="item" href="delay/"><span class="ic">⏱️</span><span><div class="t">รายงานเที่ยวบินล่าช้า</div><div class="d">ล่าช้าเกิน 3 ชั่วโมง</div></span><span class="ar">›</span></a>
 <a class="item" href="return-taxi/"><span class="ic">✈️</span><span><div class="t">รายงาน Return Taxi</div><div class="d">เบื้องต้น / เพิ่มเติม</div></span><span class="ar">›</span></a>
 <a class="item" href="return-flight/"><span class="ic">🛬</span><span><div class="t">รายงาน Return Flight</div><div class="d">เบื้องต้น / เพิ่มเติม</div></span><span class="ar">›</span></a>
 <a class="item" href="aog/"><span class="ic">🛠️</span><span><div class="t">รายงาน Aircraft on Ground (AOG)</div><div class="d">เบื้องต้น / เพิ่มเติม</div></span><span class="ar">›</span></a>
+<a class="item" href="divert/"><span class="ic">🔀</span><span><div class="t">รายงาน Divert</div><div class="d">เบื้องต้น / เพิ่มเติม · แบบฟอร์มผู้บริหาร / Excel ส่ง CAAT</div></span><span class="ar">›</span></a>
 <section class="upd" id="updBox" hidden aria-label="อัปเดตล่าสุด"><div class="upd-h"><b>🆕 อัปเดตล่าสุด</b><a class="upd-all" href="changelog/">ดูทั้งหมด ›</a></div><div id="updList"></div></section>
 </div>
 <script>/* ปุ่มสลับโหมด: บันทึก light/dark ใน localStorage "theme" */document.getElementById("themeToggle").addEventListener("click",function(){var d=document.documentElement,t=d.dataset.theme==="dark"?"light":"dark";d.dataset.theme=t;try{localStorage.setItem("theme",t)}catch(e){}});</script>
