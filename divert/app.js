@@ -419,8 +419,9 @@
     card.querySelectorAll("[data-k]").forEach(el => {
       let v = el.value;
       if (el.classList && el.classList.contains("up")) {
-        v = up(v);
-        if (el.value !== v) el.value = v;
+        const u = String(v || "").toUpperCase();
+        if (el.value !== u) el.value = u;
+        v = u.trim();
       }
       f[el.dataset.k] = v;
     });
