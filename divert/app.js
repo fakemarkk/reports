@@ -119,7 +119,7 @@
 
   function defaultState() {
     return {
-      kind: "more",
+      kind: "initial",
       cause: "ติดสภาพอากาศที่ ทสภ.",
       formDate: "",
       formTime: "",
