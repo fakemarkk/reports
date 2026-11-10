@@ -411,5 +411,51 @@ document.getElementById("swUpdateBtn").addEventListener("click",function(){if(!w
   var a=document.activeElement;if(a&&a.blur)a.blur();wait.postMessage({type:"SKIP_WAITING"})});
 addEventListener("load",function(){sw.register("../sw.js",{scope:"../"}).then(function(r){watch(r);r.update().catch(function(){});
   document.addEventListener("visibilitychange",function(){if(document.visibilityState==="visible")r.update().catch(function(){})})}).catch(function(){})})})();</script>
+
+<script src="../lib/pako.min.js"></script>
+<script src="../lib/qrcode.min.js"></script>
+<script src="../lib/handoff.js"></script>
+<script>
+(function(){
+  function getState(){
+    try{saveDraft();}catch(e){}
+    var draft=null; try{ draft=JSON.parse(localStorage.getItem("rt_draft")||"null"); }catch(e){}
+    return {
+      draft: draft,
+      shift: { d1: (document.getElementById("d1")||{}).value||"", period: (document.getElementById("period")||{}).value||"" },
+      extra: {
+        name: (document.getElementById("name")||{}).value||"",
+        shift: (document.getElementById("shift")||{}).value||"",
+        unit: (typeof unit==="function"?unit(): ((document.getElementById("unit")||{}).value||""))
+      }
+    };
+  }
+  function isEmpty(){
+    try{ var o=JSON.parse(localStorage.getItem("rt_draft")||"null"); return !(o&&(o.flight||o.airline)); }catch(e){return true;}
+  }
+  function applyState(p){
+    if(p.draft) localStorage.setItem("rt_draft", JSON.stringify(p.draft));
+    if(p.shift){
+      if(p.shift.d1) document.getElementById("d1").value=p.shift.d1;
+      if(p.shift.period) document.getElementById("period").value=p.shift.period;
+      try{ if(typeof AUTO!=="undefined" && AUTO.touch) AUTO.touch(); }catch(e){}
+    }
+    if(p.extra){
+      if(p.extra.name!=null && document.getElementById("name")) document.getElementById("name").value=p.extra.name;
+      if(p.extra.shift!=null && document.getElementById("shift")) document.getElementById("shift").value=p.extra.shift;
+      if(p.extra.unit!=null && document.getElementById("unit")) document.getElementById("unit").value=p.extra.unit;
+    }
+    try{loadDraft();}catch(e){}
+    try{build();}catch(e){}
+  }
+  window.__handoff = ReportsHandoff.mount({
+    prefix:"RT",
+    saveBefore:function(){ try{saveDraft();}catch(e){} },
+    getState:getState, applyState:applyState, isEmpty:isEmpty
+  });
+})();
+
+</script>
+
 </body>
 </html>
