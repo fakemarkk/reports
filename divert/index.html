@@ -109,11 +109,17 @@ html[data-theme="dark"] .toast{background:#e6e8f0;color:#1c2030}
 .sheet-card h3{margin:0 0 8px;font-size:18px;color:var(--accent)}
 .sheet-card .shname{font-size:13px;color:var(--muted2);margin-bottom:10px;word-break:break-all}
 .sheet-card img{display:block;width:100%;border:1px solid var(--line);border-radius:8px;background:#fff;margin-bottom:10px}
-.sheet-actions{display:flex;gap:8px;flex-wrap:wrap}
-.sheet-actions button{flex:1;min-width:120px;font-size:16px;padding:12px;border:0;border-radius:12px;cursor:pointer;font-family:inherit;font-weight:600}
-.sheet-actions .share{background:var(--line-green);color:#fff}
-.sheet-actions .doc{background:var(--btn);color:var(--btn-ink);border:1px solid var(--accent-line)}
-.sheet-actions .clear{background:var(--chip);color:var(--ink);flex:0 0 auto}
+.sheet-actions{display:flex;gap:8px;align-items:stretch;flex-wrap:nowrap}
+.sheet-actions button,.sheet-actions .share,.sheet-actions .doc,.sheet-actions .clear{
+  flex:1 1 0 !important;min-width:0 !important;width:auto !important;max-width:none !important;margin:0 !important;margin-bottom:0 !important;
+  min-height:48px !important;height:48px !important;font-size:15px !important;padding:0 8px !important;
+  border:1px solid transparent;border-radius:12px !important;cursor:pointer;font-family:inherit;font-weight:600;
+  display:inline-flex !important;align-items:center;justify-content:center;line-height:1.15;box-sizing:border-box;white-space:nowrap;gap:4px
+}
+.sheet-actions .share{background:var(--line-green);color:#fff;border-color:transparent}
+.sheet-actions .doc{background:var(--btn);color:var(--btn-ink);border-color:var(--accent-line)}
+.sheet-actions .clear{background:var(--chip);color:var(--ink)}
+.sheet-actions button.hidden{display:none !important}
 </style>
 </head>
 <body>
@@ -181,7 +187,9 @@ html[data-theme="dark"] .toast{background:#e6e8f0;color:#1c2030}
     <input type="hidden" id="fromLine" value="งพบ.สบบ.ฝปข.ทสภ. (โทร. 24103)">
     <input type="hidden" id="subject" value="แจ้งข้อมูลเที่ยวบิน Divert">
     <div class="grid">
-      <label>วันที่บนฟอร์ม<input id="formDate" placeholder="14 ต.ค. 69"></label>
+      <label>วันที่บนฟอร์ม
+        <div class="datebox">📅 <span id="formDateLabel"></span><small id="formDateSub"></small><input type="date" id="formDate" autocomplete="off"></div>
+      </label>
       <label>เวลาบนฟอร์ม<input id="formTime" class="t" placeholder="21.35" inputmode="decimal"></label>
     </div>
     <div class="hint">ถึง / จาก / เรื่อง บนฟอร์มคงที่ · เวลาลง ทสภ. ใน Excel/PNG ใส่เฉพาะเที่ยวที่ลงจริงแล้ว</div>
@@ -246,5 +254,54 @@ document.getElementById("swUpdateBtn").addEventListener("click",function(){if(!w
 addEventListener("load",function(){sw.register("../sw.js",{scope:"../"}).then(function(r){watch(r);r.update().catch(function(){});
   document.addEventListener("visibilitychange",function(){if(document.visibilityState==="visible")r.update().catch(function(){})})}).catch(function(){})})})();
 </script>
+
+<script src="../lib/pako.min.js"></script>
+<script src="../lib/qrcode.min.js"></script>
+<script src="../lib/handoff.js"></script>
+<script>
+(function(){
+  function getState(){
+    try{ if(window.__divert && __divert.save) __divert.save(); }catch(e){}
+    var draft=null; try{ draft=JSON.parse(localStorage.getItem("reports_divert_draft_v1")||"null"); }catch(e){}
+    return {
+      draft: draft,
+      shift: { d1: (document.getElementById("d1")||{}).value||"", period: (document.getElementById("period")||{}).value||"" },
+      extra: {}
+    };
+  }
+  function isEmpty(){
+    try{
+      var o=JSON.parse(localStorage.getItem("reports_divert_draft_v1")||"null");
+      if(!o) return true;
+      if(o.flights&&o.flights.some(function(f){return f&&(f.flight||f.airline);})) return false;
+      return !(o.cause||o.formSigner||o.name);
+    }catch(e){return true;}
+  }
+  function applyState(p){
+    if(p.draft && window.__divert && __divert.setState){
+      var o=Object.assign({}, p.draft);
+      if(p.shift){ o.d1=p.shift.d1; o.period=p.shift.period; }
+      __divert.setState(o);
+      try{ if(typeof AUTO!=="undefined" && AUTO.touch) AUTO.touch(); }catch(e){}
+      return;
+    }
+    if(p.draft) localStorage.setItem("reports_divert_draft_v1", JSON.stringify(p.draft));
+    location.reload();
+  }
+  function boot(){
+    if(!window.ReportsHandoff) return;
+    if(!window.__divert){ setTimeout(boot, 50); return; }
+    window.__handoff = ReportsHandoff.mount({
+      prefix:"DIV",
+      saveBefore:function(){ try{__divert.save();}catch(e){} },
+      getState:getState, applyState:applyState, isEmpty:isEmpty
+    });
+  }
+  if(document.readyState==="loading") document.addEventListener("DOMContentLoaded", boot);
+  else boot();
+})();
+
+</script>
+
 </body>
 </html>

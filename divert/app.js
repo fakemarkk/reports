@@ -158,6 +158,8 @@
       if (!Array.isArray(state.flights) || !state.flights.length) state.flights = [blankFlight()];
       state.flights = state.flights.map(f => Object.assign(blankFlight(), f || {}));
       if (!state.cause) state.cause = "ติดสภาพอากาศที่ ทสภ.";
+      // formDate: store ISO; convert legacy Thai text drafts if possible
+      state.formDate = parseFormDateToIso(state.formDate);
       if (!state.formShift) state.formShift = "3";
       if (state.formSigner == null) state.formSigner = "";
     } catch (e) {}
@@ -216,9 +218,43 @@
     return "หน.พนง.งานกะชุดที่.   " + (state.formShift || "3") + "   " + FORM_UNIT;
   }
 
-  function autoFormDate() {
+  function todayIso() {
     const t = todayThaiParts();
-    return t.d + " " + M[t.m - 1] + " " + t.be2;
+    return t.y + "-" + String(t.m).padStart(2, "0") + "-" + String(t.d).padStart(2, "0");
+  }
+
+  /** Thai short form for Excel/PNG, e.g. "14 ต.ค. 69" */
+  function formatFormDateThai(iso) {
+    const s = String(iso || "").trim();
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(s)) return "";
+    const a = new Date(s + "T00:00:00");
+    if (isNaN(a.getTime())) return "";
+    return thSpaced(a);
+  }
+
+  /** Accept ISO or legacy Thai text from old drafts ("14 ต.ค. 69"). */
+  function parseFormDateToIso(raw) {
+    const s = String(raw || "").trim();
+    if (!s) return "";
+    if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
+    for (let mi = 0; mi < M.length; mi++) {
+      const mon = M[mi].replace(/\./g, "\\.");
+      const re = new RegExp("^(\\d{1,2})\\s+" + mon + "\\s*(\\d{2}|\\d{4})$");
+      const m = s.match(re);
+      if (!m) continue;
+      const day = Number(m[1]);
+      if (day < 1 || day > 31) continue;
+      let be = Number(m[2]);
+      if (m[2].length === 2) be = 2500 + be;
+      const ce = be - 543;
+      if (ce < 2000 || ce > 2100) continue;
+      return ce + "-" + String(mi + 1).padStart(2, "0") + "-" + String(day).padStart(2, "0");
+    }
+    return "";
+  }
+
+  function autoFormDate() {
+    return todayIso();
   }
 
   function paintDateLabel() {
@@ -230,6 +266,18 @@
     } else {
       $("dateLabel").textContent = "แตะเพื่อเลือกวันที่";
       $("dateSub").textContent = "";
+    }
+  }
+
+  function paintFormDateLabel() {
+    const s = $("formDate").value;
+    if (s) {
+      const a = new Date(s + "T00:00:00");
+      $("formDateLabel").textContent = thSpaced(a);
+      $("formDateSub").textContent = "วัน" + WTH[a.getDay()];
+    } else {
+      $("formDateLabel").textContent = "แตะเพื่อเลือกวันที่";
+      $("formDateSub").textContent = "";
     }
   }
 
@@ -332,7 +380,8 @@
     $("subject").value = FIXED_SUBJECT;
     document.querySelectorAll("#periodSeg button").forEach(b => b.classList.toggle("on", b.dataset.v === $("period").value));
     $("cause").value = state.cause || "ติดสภาพอากาศที่ ทสภ.";
-    $("formDate").value = state.formDate;
+    $("formDate").value = state.formDate || "";
+    paintFormDateLabel();
     $("formTime").value = state.formTime;
     $("formSigner").value = state.formSigner || "";
     $("formShift").value = state.formShift || "3";
@@ -367,7 +416,14 @@
     const i = Number(card.dataset.i);
     const f = state.flights[i];
     if (!f) return;
-    card.querySelectorAll("[data-k]").forEach(el => { f[el.dataset.k] = el.value; });
+    card.querySelectorAll("[data-k]").forEach(el => {
+      let v = el.value;
+      if (el.classList && el.classList.contains("up")) {
+        v = up(v);
+        if (el.value !== v) el.value = v;
+      }
+      f[el.dataset.k] = v;
+    });
   }
 
   function refreshOut() {
@@ -518,16 +574,18 @@
   function flightRowsForExcel() {
     return state.flights.map((f, i) => {
       const oName = up(f.originName), dName = up(f.destName) || "BANGKOK";
+      const route = [oName, dName].filter(Boolean).join("-");
+      const airline = up(f.airline);
       return {
         seq: i + 1,
-        airline: (f.airline || "").trim(),
-        airlineUp: up(f.airline),
+        airline: airline,
+        airlineUp: airline,
         flight: fmtFlight(f.flight),
         flightCompact: fmtFlight(f.flight).replace(/\s+/g, ""),
         sibt: cleanTimeStr(f.sibt),
-        routeTitle: [titleish(oName), titleish(dName)].filter(Boolean).join("-"),
-        routeUpper: [oName, dName].filter(Boolean).join("-"),
-        divert: divertAirportNameOnly(f.divertName, f.divertCode),
+        routeTitle: route,   // UPPERCASE (was Title Case)
+        routeUpper: route,
+        divert: divertAirportNameOnly(f.divertName, f.divertCode), // already UPPER
         actual: f.status === "actual" ? cleanTimeStr(f.actualTime) : ""
       };
     });
@@ -535,7 +593,8 @@
 
   function formMeta() {
     const D = datesFromInputs();
-    const formDate = (state.formDate || "").trim() || autoFormDate();
+    const iso = parseFormDateToIso(state.formDate) || autoFormDate();
+    const formDate = formatFormDateThai(iso) || formatFormDateThai(autoFormDate());
     const formTime = cleanTimeStr(state.formTime) || todayThaiParts().time;
     const cause = causeText();
     const rows = flightRowsForExcel();
@@ -648,53 +707,110 @@
     if (row.sibt) sheet = setCell(sheet, "J" + r, { str: row.sibt, s: S.J });
     else sheet = setCell(sheet, "J" + r, { empty: true, s: S.J });
     sheet = setCell(sheet, "K" + r, { str: row.routeTitle, s: S.K });
-    sheet = setCell(sheet, "M" + r, { str: titleish(row.divert), s: S.M });
+    sheet = setCell(sheet, "M" + r, { str: row.divert, s: S.M });
     if (row.actual) sheet = setCell(sheet, "N" + r, { str: row.actual, s: S.N });
     else sheet = setCell(sheet, "N" + r, { empty: true, s: S.N });
     return sheet;
   }
 
 
+  const DOC_CODE = "VTBS-FM-AOD-CA-003";
+  const DOC_REV = "Rev00 Effective 01Oct26";
+  // A4 portrait pt; pageMargins top/bottom inches; pageSetup.scale 91%
+  const A4_PT = 841.89;
+  const MARGIN_IN = { t: 0.27, b: 0.17 };
+  const PAGE_SCALE_PCT = 0.91;
+
+  function sumRowHeightsPt(sheet, r1, r2) {
+    // default row height 15pt if unspecified; template uses ~18.75-21.75 for body
+    const hMap = {};
+    sheet.replace(/<row r="(\d+)"([^>]*)>/g, function (full, r, attrs) {
+      const rr = Number(r);
+      if (rr < r1 || rr > r2) return full;
+      const hm = attrs.match(/ht="([0-9.]+)"/);
+      hMap[rr] = hm ? Number(hm[1]) : 15;
+      return full;
+    });
+    let sum = 0;
+    for (let r = r1; r <= r2; r++) sum += (hMap[r] != null ? hMap[r] : 15);
+    return sum;
+  }
+
   function compactExcelASpacers(sheet, L) {
-    // Keep rows 1..posRow, then 2 blank rows, then footer rows (old foot1/foot2 content), drop middle empties.
-    const foot1 = L.foot1, foot2 = L.foot2, pos = L.posRow;
+    // After signature: 2 small blanks + several spacer rows + doc-code rows at sheet bottom.
+    // pageSetup uses fitToHeight=1 so the whole sheet (incl. codes) stays on 1 page with codes at bottom.
+    const pos = L.posRow;
     const rowMap = {};
     sheet.replace(/<row r="(\d+)"[^>]*>[\s\S]*?<\/row>/g, function (full, r) { rowMap[Number(r)] = full; return full; });
-    if (!rowMap[foot1] || !rowMap[foot2] || !rowMap[pos]) return sheet;
-    const blank = rowMap[pos + 1] || rowMap[23] || rowMap[pos];
-    function renum(full, nr) {
-      return full
+    if (!rowMap[pos]) return sheet;
+    const blankSrc = rowMap[pos + 1] || rowMap[23] || rowMap[pos];
+    const footSrc = rowMap[L.foot1] || rowMap[45] || blankSrc;
+    function renum(full, nr, ht) {
+      let out = full
         .replace(/<row r="\d+"/, '<row r="' + nr + '"')
         .replace(/\br="([A-Z]+)\d+"/g, function (_, c) { return 'r="' + c + nr + '"'; });
+      if (ht != null) {
+        if (/ht="[0-9.]+"/.test(out)) out = out.replace(/ht="[0-9.]+"/, 'ht="' + ht + '"');
+        else out = out.replace(/<row r="\d+"/, '<row r="' + nr + '" ht="' + ht + '" customHeight="1"');
+        if (!/customHeight=/.test(out)) out = out.replace(/<row r="\d+"([^>]*)/, '<row r="' + nr + '"$1 customHeight="1"');
+      }
+      return out;
+    }
+    function clearRowText(full) {
+      return full
+        .replace(/\st="s"/g, "")
+        .replace(/\st="inlineStr"/g, "")
+        .replace(/<v>[\s\S]*?<\/v>/g, "")
+        .replace(/<is>[\s\S]*?<\/is>/g, "");
     }
     const keep = [];
-    Object.keys(rowMap).map(Number).sort((a,b)=>a-b).forEach(r => {
+    Object.keys(rowMap).map(Number).sort(function (a, b) { return a - b; }).forEach(function (r) {
       if (r <= pos) keep.push(rowMap[r]);
     });
-    const b1 = pos + 1, b2 = pos + 2, f1 = pos + 3, f2 = pos + 4;
-    keep.push(renum(blank, b1));
-    keep.push(renum(blank, b2));
-    keep.push(renum(rowMap[foot1], f1));
-    keep.push(renum(rowMap[foot2], f2));
+    let rNext = pos + 1;
+    keep.push(renum(clearRowText(blankSrc), rNext++, 10));
+    keep.push(renum(clearRowText(blankSrc), rNext++, 10));
+    // Enough spacer so codes sit at sheet bottom; fitToPage keeps 1 page (up to ~23 flights).
+    const used = sumRowHeightsPt(sheet, 1, pos) + 20;
+    const printablePt = A4_PT - (MARGIN_IN.t + MARGIN_IN.b) * 72;
+    // Aim sheet height ≈ printable/scale so after fit the codes hug the bottom.
+    let need = Math.max(40, printablePt / PAGE_SCALE_PCT - used - 27);
+    if (need > 320) need = 320;
+    const chunk = 20;
+    const nSp = Math.max(2, Math.round(need / chunk));
+    const each = need / nSp;
+    for (let i = 0; i < nSp; i++) {
+      keep.push(renum(clearRowText(blankSrc), rNext++, Number(each.toFixed(2))));
+    }
+    const f1 = rNext++, f2 = rNext++;
+    const footHt = 13.5;
+    keep.push(renum(clearRowText(footSrc), f1, footHt));
+    keep.push(renum(clearRowText(footSrc), f2, footHt));
     L.foot1 = f1; L.foot2 = f2;
-    const body = keep.join("");
-    sheet = sheet.replace(/<sheetData>[\s\S]*?<\/sheetData>/, "<sheetData>" + body + "</sheetData>");
-    // rebuild merges: keep those with rows <= pos, plus footer merges shifted
+    sheet = sheet.replace(/<sheetData>[\s\S]*?<\/sheetData>/, "<sheetData>" + keep.join("") + "</sheetData>");
     const merges = [];
-    (sheet.match(/<mergeCell ref="[^"]+"\/>/g) || []).forEach(m => {
-      const g = m.match(/ref="([A-Z]+)(\d+):([A-Z]+)(\d+)"/);
+    (sheet.match(/<mergeCell ref="[^"]+"\/>/g) || []).forEach(function (mm) {
+      const g = mm.match(/ref="([A-Z]+)(\d+):([A-Z]+)(\d+)"/);
       if (!g) return;
-      const r1 = Number(g[2]), r2 = Number(g[4]);
-      // keep header/flight merges only (before spacer row = sigRow-1)
-      if (r2 < L.sigRow - 1) merges.push(m);
+      if (Number(g[4]) < L.sigRow - 1) merges.push(mm);
     });
     merges.push('<mergeCell ref="L' + L.sigRow + ":N" + L.sigRow + '"/>');
     merges.push('<mergeCell ref="L' + L.posRow + ":N" + L.posRow + '"/>');
     merges.push('<mergeCell ref="M' + f1 + ":N" + f1 + '"/>');
     merges.push('<mergeCell ref="M' + f2 + ":N" + f2 + '"/>');
-    // header merges rows 1-12 preserved from earlier list if r2<=pos — already kept
     sheet = sheet.replace(/<mergeCells[^>]*>[\s\S]*?<\/mergeCells>/, '<mergeCells count="' + merges.length + '">' + merges.join("") + "</mergeCells>");
     sheet = sheet.replace(/<dimension ref="A1:([A-Z]+)\d+"/, '<dimension ref="A1:$1' + f2 + '"');
+    sheet = sheet.replace(/<pageMargins[^/]*\/>/,
+      '<pageMargins left="0.21" right="0" top="0.27" bottom="0.17" header="0.3" footer="0.21"/>');
+    sheet = sheet.replace(/<headerFooter[\s\S]*?<\/headerFooter>/g, "");
+    // Fit sheet to 1 page tall so spacer+codes stay on page 1 at the bottom
+    if (/<sheetPr[\s\S]*?\/>/.test(sheet) || /<sheetPr[\s\S]*?<\/sheetPr>/.test(sheet)) {
+      sheet = sheet.replace(/<sheetPr[\s\S]*?(?:\/>|<\/sheetPr>)/, '<sheetPr><pageSetUpPr fitToPage="1"/></sheetPr>');
+    } else {
+      sheet = sheet.replace(/<sheetData/, '<sheetPr><pageSetUpPr fitToPage="1"/></sheetPr><sheetData');
+    }
+    sheet = sheet.replace(/<pageSetup[^/]*\/>/,
+      '<pageSetup paperSize="9" fitToWidth="1" fitToHeight="1" orientation="portrait" r:id="rId1"/>');
     return sheet;
   }
 
@@ -729,6 +845,8 @@
     // Compact huge empty spacer rows between signature and footer so print can fit one page
     // while keeping a small gap (2 rows) + footer text.
     sheet = compactExcelASpacers(sheet, L);
+    sheet = setCell(sheet, "M" + L.foot1, { str: DOC_CODE });
+    sheet = setCell(sheet, "M" + L.foot2, { str: DOC_REV });
     zip.file("xl/worksheets/sheet1.xml", sheet);
     const blob = await zip.generateAsync({ type: "blob", mimeType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
     return { blob, meta, locs: L };
@@ -886,9 +1004,7 @@
     const posRow = sigRow + 1;
     const blank1 = posRow + 1;
     const blank2 = blank1 + 1;
-    const foot1 = blank2 + 1;
-    const foot2 = foot1 + 1;
-    const totalRows = foot2;
+    const totalRows = blank2;
 
     const heights = {};
     for (let r = 1; r <= totalRows; r++) heights[r] = 21;
@@ -950,13 +1066,11 @@
       parts.push(cell(r, 8, r, 9, esc(row ? (row.flightCompact || row.flight) : ""), "xl-td xl-center"));
       parts.push(cell(r, 10, r, 10, esc(row && row.sibt ? row.sibt : ""), "xl-td xl-center"));
       parts.push(cell(r, 11, r, 12, esc(row ? row.routeTitle : ""), "xl-td xl-center"));
-      parts.push(cell(r, 13, r, 13, esc(row ? titleish(row.divert) : ""), "xl-td xl-center"));
+      parts.push(cell(r, 13, r, 13, esc(row ? row.divert : ""), "xl-td xl-center"));
       parts.push(cell(r, 14, r, 14, esc(row && row.actual ? row.actual : ""), "xl-td xl-center"));
     }
     parts.push(cell(sigRow, 12, sigRow, 14, esc(meta.signLine), "xl-sig"));
     parts.push(cell(posRow, 12, posRow, 14, esc(meta.posLine), "xl-sig"));
-    parts.push(cell(foot1, 13, foot1, 14, esc("VTBS-FM-AOD-CA-003"), "xl-foot"));
-    parts.push(cell(foot2, 13, foot2, 14, esc("Rev00 Effective 01Oct26"), "xl-foot"));
 
     const needH = MARGIN.t + scaledH + MARGIN.b;
     const tall = needH > A4_H + 0.5;
@@ -968,12 +1082,14 @@
       '<div class="xl-sheet" style="width:' + XL_SHEET_W + "px;height:" + sheetH +
       "px;grid-template-columns:" + colLine + ";grid-template-rows:" + rowLine.join(" ") + '">' +
       parts.join("") +
-      "</div></div></div>"
+      "</div></div>" +
+      '<div class="df-docfoot">' + esc(DOC_CODE) + "<br>" + esc(DOC_REV) + "</div>" +
+      "</div>"
     );
   }
 
   const FORM_CSS =
-    ".df-a4{box-sizing:border-box;width:" + A4_W + "px;min-height:" + A4_H + "px;height:" + A4_H + "px;background:#fff;color:#000;" +
+    ".df-a4{box-sizing:border-box;position:relative;width:" + A4_W + "px;min-height:" + A4_H + "px;height:" + A4_H + "px;background:#fff;color:#000;" +
     "padding:" + MARGIN.t + "px " + MARGIN.r + "px " + MARGIN.b + "px " + MARGIN.l + "px;overflow:hidden}" +
     ".df-a4.df-tall{height:auto;min-height:" + A4_H + "px;overflow:visible}" +
     ".df-a4 *{box-sizing:border-box}" +
@@ -995,7 +1111,9 @@
     ".xl-l{border-left:0.75px solid #000}" +
     ".xl-seq{font-size:16pt}" +
     ".xl-sig{justify-content:center;text-align:center;font-size:14pt;white-space:normal}" +
-    ".xl-foot{justify-content:flex-end;text-align:right;font-size:12pt;white-space:nowrap}" +
+    ".df-docfoot{position:absolute;right:6px;bottom:" + MARGIN.b + "px;" +
+    "text-align:right;font-size:12pt;font-weight:700;line-height:1.15;white-space:nowrap;" +
+    "font-family:'TH SarabunPSK',Sarabun,'TH Sarabun New','Noto Sans Thai',Tahoma,sans-serif;color:#000;pointer-events:none;z-index:2}" +
     ".xl-nh{font-size:14pt;line-height:1.15;padding:0;flex-direction:column;justify-content:center;text-align:center}";
 
   let sheetUrls = [];
@@ -1018,11 +1136,18 @@
     box.appendChild(im);
     $("shHint").textContent = share
       ? "กด “แชร์ / บันทึก” เพื่อส่งเข้าไลน์หรือบันทึกรูป หรือกดดาวน์โหลด"
-      : "กดดาวน์โหลดเพื่อบันทึกรูป (แชร์ไฟล์ใช้ได้บนมือถือที่รองรับ)";
-    $("shShare").classList.toggle("hidden", !share);
-    $("shShare").onclick = () => navigator.share({ files: [file], title: name }).catch(e => {
-      if (e && e.name !== "AbortError") downloadBlob(blob, name);
-    });
+      : "กดดาวน์โหลดเพื่อบันทึกรูป · แชร์ไฟล์ใช้ได้บนมือถือที่รองรับ";
+    $("shShare").classList.remove("hidden");
+    $("shShare").onclick = () => {
+      if (share) {
+        navigator.share({ files: [file], title: name }).catch(e => {
+          if (e && e.name !== "AbortError") downloadBlob(blob, name);
+        });
+      } else {
+        downloadBlob(blob, name);
+        showToast("บันทึกรูปแล้ว (เครื่องนี้แชร์ไฟล์ไม่ได้)");
+      }
+    };
     $("shDl").onclick = () => downloadBlob(blob, name);
     $("sheet").classList.remove("hidden");
   }
@@ -1104,7 +1229,20 @@
       state = Object.assign(defaultState(), o || {});
       delete state.recipient; delete state.fromLine; delete state.subject;
       if (!state.flights || !state.flights.length) state.flights = [blankFlight()];
-      state.flights = state.flights.map(f => Object.assign(blankFlight(), f || {}));
+      state.flights = state.flights.map(f => {
+        f = Object.assign(blankFlight(), f || {});
+        ["airline", "flight", "originName", "originCode", "destName", "destCode", "reg", "divertName", "divertCode"].forEach(function (k) {
+          if (f[k]) f[k] = up(f[k]);
+        });
+        if (f.flight) f.flight = fmtFlight(f.flight);
+        if (f.reg) f.reg = fmtReg(f.reg);
+        return f;
+      });
+      if (o && Object.prototype.hasOwnProperty.call(o, "formDate")) {
+        state.formDate = parseFormDateToIso(o.formDate);
+      } else {
+        state.formDate = parseFormDateToIso(state.formDate);
+      }
       if (o && o.d1) $("d1").value = o.d1;
       if (o && o.period) $("period").value = o.period;
       syncFormFromState();
@@ -1113,6 +1251,7 @@
     },
     buildText, save, load, blankFlight, defaultState, LS_KEY,
     cleanTimeStr, fmtFlight, fmtReg, datesFromInputs, formMeta, makeFormPng, buildExcelABlob, missingExportFields, paintMiss, okToMakeExport,
+    formatFormDateThai, parseFormDateToIso, autoFormDate, todayIso, paintFormDateLabel,
     FIXED_RECIPIENT, FIXED_FROM, FIXED_SUBJECT, FIXED_TO
   };
 
@@ -1139,6 +1278,14 @@
       if (t && t.classList.contains("t")) {
         t.value = t.value.replace(/[:,]/g, ".").replace(/[^0-9.]/g, "").slice(0, 5);
       }
+      if (t && t.classList.contains("up")) {
+        const start = t.selectionStart, end = t.selectionEnd;
+        const v = String(t.value || "").toUpperCase();
+        if (t.value !== v) {
+          t.value = v;
+          try { if (start != null) t.setSelectionRange(start, end); } catch (err) {}
+        }
+      }
       if (t && t.dataset.k === "originCode") lookupCity(t, t.closest(".flight").querySelector('[data-k="originName"]'));
       if (t && t.dataset.k === "divertCode") lookupCity(t, t.closest(".flight").querySelector('[data-k="divertName"]'));
       if (t && t.dataset.k === "destCode") lookupCity(t, t.closest(".flight").querySelector('[data-k="destName"]'));
@@ -1150,6 +1297,10 @@
       if (t && t.classList.contains("t")) { t.value = cleanTimeStr(t.value); onAnyChange(); }
       if (t && t.dataset.k === "flight") { t.value = fmtFlight(t.value); onAnyChange(); }
       if (t && t.dataset.k === "reg") { t.value = fmtReg(t.value); onAnyChange(); }
+      if (t && t.classList.contains("up")) {
+        const v = up(t.value);
+        if (t.value !== v) { t.value = v; onAnyChange(); }
+      }
     }, true);
 
     $("flights").addEventListener("click", (e) => {
