@@ -228,6 +228,16 @@
 <div class="hint" id="neobtHint">ถ้าทราบเวลาแล้ว เอาติ๊กออกแล้วพิมพ์เวลา เช่น 01.35 หรือ 0135</div>
 </div>
 
+<div class="card" id="cardChg"><h2 id="hChg">4. เปลี่ยนอากาศยาน (ถ้ามี)</h2>
+<label class="chk"><input type="checkbox" id="chgOn"> เปลี่ยนทะเบียนอากาศยานออก</label>
+<div class="grid" id="chgGrid">
+  <label class="full">ผู้โดยสารพักรอที่<input id="paxWait" class="up" placeholder="BUS GATE A8"></label>
+  <label>ทะเบียนอากาศยานใหม่<input id="reg2" class="up" placeholder="HS-PPF"></label>
+  <label>หลุมจอดอากาศยาน (ลำใหม่)<input id="bay3" class="up" placeholder="104L"></label>
+</div>
+<div class="hint">ติ๊กเมื่อ Return Taxi แล้วเปลี่ยนลำออก ระบบจะเพิ่มเป็นข้อแยก และเลื่อนเลขข้อถัดไปให้ • ช่องที่เว้นว่างจะไม่แสดง</div>
+</div>
+
 <div class="card" id="card45"><h2 id="h45">4–5. เที่ยวที่สอง</h2>
 <div class="grid">
   <label>AOBT (เที่ยวที่สอง)<input id="eobt" class="t" inputmode="numeric" placeholder="04.45"></label>
@@ -305,7 +315,13 @@ function build(){
   $("hasPaxMoreWrap").classList.toggle("hidden",!more);
   $("paxGrid").querySelectorAll("input").forEach(e=>e.disabled=!showPax);
   $("card45").classList.toggle("hidden",!more);
-  $("h45").textContent=(showPax?"4–5":"3–4")+". เที่ยวที่สอง";
+  const chg=more&&$("chgOn").checked, n0=showPax?4:3, nA=n0+(chg?1:0);
+  $("cardChg").classList.toggle("hidden",!more);
+  $("hChg").textContent=n0+". เปลี่ยนอากาศยาน (ถ้ามี)";
+  $("chgGrid").querySelectorAll("input").forEach(e=>e.disabled=!$("chgOn").checked);
+  $("h45").textContent=nA+"–"+(nA+1)+". เที่ยวที่สอง";
+  const bayNo=x=>x.replace(/^BAY\s*/i,"");
+  const chgLines=[V("paxWait")?"ผู้โดยสารพักรอที่ "+V("paxWait"):"",V("reg2")?"เปลี่ยนแปลงอากาศยานเป็น ทะเบียนอากาศยาน "+V("reg2"):"",V("bay3")?"หลุมจอดอากาศยาน BAY "+bayNo(V("bay3")):""].filter(Boolean);
   $("cardNext").classList.toggle("hidden",more);
   $("neobt").disabled=$("unk").checked;
   const nextItem=(showPax?"4":"3")+". "+($("unk").checked?"ยังไม่ทราบเวลาออกใหม่ที่แน่นอน":"เวลาที่คาดว่าจะออกใหม่ (EOBT) "+v("neobt")+" น.");
@@ -328,7 +344,8 @@ more?"รายงานข้อมูลเพิ่มเติม":"รา�
 "หลุมจอดอากาศยาน (ที่กลับเข้ามา) BAY "+bay2,
 "เวลาเข้าหลุมจอดฯ (AIBT) "+v("aibt")+" น.",
 ...(showPax?["","3. ผู้โดยสาร "+v("pax")+" คน","    ลูกเรือ "+v("crew")+" คน"]:[]),
-...(more?["",(showPax?"4":"3")+". เวลาอากาศยานออกจากหลุมจอดในเที่ยวที่สอง (AOBT) "+v("eobt")+" น.","",(showPax?"5":"4")+". เวลาที่ทำการบินขึ้นจริง (ATOT) "+v("atot")+" น."]
+...(chg&&chgLines.length?["",n0+". "+chgLines[0],...chgLines.slice(1)]:[]),
+...(more?["",(chg&&chgLines.length?nA:n0)+". เวลาอากาศยานออกจากหลุมจอดในเที่ยวที่สอง (AOBT) "+v("eobt")+" น.","",((chg&&chgLines.length?nA:n0)+1)+". เวลาที่ทำการบินขึ้นจริง (ATOT) "+v("atot")+" น."]
        :["",nextItem,"","รายละเอียดเพิ่มเติมจะแจ้งให้ทราบต่อไป"]),
 "",
 "จึงเรียนมาเพื่อทราบ",
@@ -339,10 +356,10 @@ v("name")||"XXXXXX",
   saveDraft();
 }
 // ไม่บันทึกวันที่/ช่วงเวลาในร่าง (คำนวณจากเวลาปัจจุบันทุกครั้ง)
-const DRAFT=["sobtDay","kind","type","reason","airline","flight","org","dst","sobt","orgName","dstName","reg","bay","aobt","bay2","aibt","pax","crew","neobt","eobt","atot"];
-function saveDraft(){const o={};DRAFT.forEach(i=>o[i]=$(i).value);o.paxUnk=$("paxUnk").checked;o.paxUnkMore=$("paxUnkMore").checked;o.unk=$("unk").checked;store.set("rt_draft",JSON.stringify(o))}
+const DRAFT=["sobtDay","kind","type","reason","airline","flight","org","dst","sobt","orgName","dstName","reg","bay","aobt","bay2","aibt","pax","crew","neobt","eobt","atot","paxWait","reg2","bay3"];
+function saveDraft(){const o={};DRAFT.forEach(i=>o[i]=$(i).value);o.chgOn=$("chgOn").checked;o.paxUnk=$("paxUnk").checked;o.paxUnkMore=$("paxUnkMore").checked;o.unk=$("unk").checked;store.set("rt_draft",JSON.stringify(o))}
 function migrateRoute(o){let r=String(o.route).trim();if(!r)return;const m=r.match(/^(.*?)\s*\(\s*([A-Za-z0-9]*)\s*-\s*([A-Za-z0-9]*)\s*\)\s*$/);if(m){r=m[1];if(o.org==null){$("org").value=m[2];$("dst").value=m[3]}}const p=r.split(/\s+-\s+/);$("orgName").value=p[0]||"";$("dstName").value=p.slice(1).join(" - ")}
-function loadDraft(){try{const o=JSON.parse(store.get("rt_draft")||"null");if(!o)return;DRAFT.forEach(i=>{if(o[i]!=null)$(i).value=o[i]});if(o.orgName==null&&o.route!=null)migrateRoute(o);$("paxUnk").checked=(o.paxUnk!=null)?!!o.paxUnk:o.hasPax!==true;$("paxUnkMore").checked=o.paxUnkMore!==false;$("unk").checked=o.unk!==false}catch(e){}}
+function loadDraft(){try{const o=JSON.parse(store.get("rt_draft")||"null");if(!o)return;DRAFT.forEach(i=>{if(o[i]!=null)$(i).value=o[i]});if(o.orgName==null&&o.route!=null)migrateRoute(o);$("paxUnk").checked=(o.paxUnk!=null)?!!o.paxUnk:o.hasPax!==true;$("paxUnkMore").checked=o.paxUnkMore!==false;$("unk").checked=o.unk!==false;$("chgOn").checked=o.chgOn===true}catch(e){}}
 function copyText(){
   const txt=$("out").textContent;
   const done=()=>{const t=$("toast");t.classList.add("show");setTimeout(()=>t.classList.remove("show"),1500)};
@@ -354,7 +371,7 @@ function fallback(txt,done){{const ta=document.createElement("textarea");ta.valu
 function clearFlight(){
   if(!confirm("ล้างข้อมูลเที่ยวบินทั้งหมด?"))return;
   $("orgName").value="BANGKOK";$("org").value="BKK";$("dstName").value="";$("dst").value="";
-  ["airline","flight","sobt","reg","bay","aobt","bay2","aibt","pax","crew","neobt","eobt","atot"].forEach(i=>$(i).value="");
+  ["airline","flight","sobt","reg","bay","aobt","bay2","aibt","pax","crew","neobt","eobt","atot","paxWait","reg2","bay3"].forEach(i=>$(i).value="");$("chgOn").checked=false;
   $("paxUnk").checked=true;$("paxUnkMore").checked=true;$("unk").checked=true;$("kind").value="initial";$("type").value="RETURN TAXI";$("reason").value="TECHNICAL PROBLEM";
   build();
 }
