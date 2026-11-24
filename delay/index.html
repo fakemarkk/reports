@@ -307,7 +307,10 @@ function build(){
   saveDraft();
 }
 // ไม่บันทึกชื่อผู้รายงานและผลัด และไม่บันทึกวันที่/ช่วงเวลา (คำนวณจากเวลาปัจจุบันทุกครั้ง — ส่งให้หน้า Word ผ่าน sessionStorage)
-function saveDraft(){store.set("delay_draft",JSON.stringify({flights:F.map(f=>{const o={};KEYS.forEach(k=>o[k]=f[k]==null?"":String(f[k]));return o})}))}
+function saveDraft(){let prev=null;try{prev=JSON.parse(store.get("delay_draft")||"null")}catch(e){}
+  const o={flights:F.map(f=>{const x={};KEYS.forEach(k=>x[k]=f[k]==null?"":String(f[k]));return x})};
+  if(prev&&(prev.sigPos==="after"||prev.sigPos==="bottom"))o.sigPos=prev.sigPos;
+  store.set("delay_draft",JSON.stringify(o))}
 function loadDraft(){try{const o=JSON.parse(store.get("delay_draft")||"null");if(!o)return;
   if(Array.isArray(o.flights)&&o.flights.length)F=o.flights.map(x=>{const f=D.newFlight(x&&x.dir);KEYS.forEach(k=>{if(x&&x[k]!=null)f[k]=String(x[k])});f.dir=f.dir==="dep"?"dep":"arr";return f})}catch(e){}}
 function toast(t){const e=$("toast");e.textContent=t;e.classList.add("show");setTimeout(()=>e.classList.remove("show"),1500)}
