@@ -229,13 +229,13 @@
 </div>
 
 <div class="card" id="cardChg"><h2 id="hChg">4. เปลี่ยนอากาศยาน (ถ้ามี)</h2>
-<label class="chk"><input type="checkbox" id="chgOn"> เปลี่ยนทะเบียนอากาศยานออก</label>
+<label class="chk"><input type="checkbox" id="noChg" checked> ไม่เปลี่ยนทะเบียนอากาศยาน</label>
 <div class="grid" id="chgGrid">
   <label class="full">ผู้โดยสารพักรอที่<input id="paxWait" class="up" placeholder="BUS GATE A8"></label>
   <label>ทะเบียนอากาศยานใหม่<input id="reg2" class="up" placeholder="HS-PPF"></label>
   <label>หลุมจอดอากาศยาน (ลำใหม่)<input id="bay3" class="up" placeholder="104L"></label>
 </div>
-<div class="hint">ติ๊กเมื่อ Return Taxi แล้วเปลี่ยนลำออก ระบบจะเพิ่มเป็นข้อแยก และเลื่อนเลขข้อถัดไปให้ • ช่องที่เว้นว่างจะไม่แสดง</div>
+<div class="hint">ถ้าเปลี่ยนลำออก เอาติ๊กออกแล้วกรอกช่องด้านล่าง ระบบจะเพิ่มเป็นข้อแยก และเลื่อนเลขข้อถัดไปให้ • ช่องที่เว้นว่างจะไม่แสดง</div>
 </div>
 
 <div class="card" id="card45"><h2 id="h45">4–5. เที่ยวที่สอง</h2>
@@ -315,10 +315,10 @@ function build(){
   $("hasPaxMoreWrap").classList.toggle("hidden",!more);
   $("paxGrid").querySelectorAll("input").forEach(e=>e.disabled=!showPax);
   $("card45").classList.toggle("hidden",!more);
-  const chg=more&&$("chgOn").checked, n0=showPax?4:3, nA=n0+(chg?1:0);
+  const chg=more&&!$("noChg").checked, n0=showPax?4:3, nA=n0+(chg?1:0);
   $("cardChg").classList.toggle("hidden",!more);
   $("hChg").textContent=n0+". เปลี่ยนอากาศยาน (ถ้ามี)";
-  $("chgGrid").querySelectorAll("input").forEach(e=>e.disabled=!$("chgOn").checked);
+  $("chgGrid").querySelectorAll("input").forEach(e=>e.disabled=$("noChg").checked);
   $("h45").textContent=nA+"–"+(nA+1)+". เที่ยวที่สอง";
   const bayNo=x=>x.replace(/^BAY\s*/i,"");
   const chgLines=[V("paxWait")?"ผู้โดยสารพักรอที่ "+V("paxWait"):"",V("reg2")?"เปลี่ยนแปลงอากาศยานเป็น ทะเบียนอากาศยาน "+V("reg2"):"",V("bay3")?"หลุมจอดอากาศยาน BAY "+bayNo(V("bay3")):""].filter(Boolean);
@@ -357,9 +357,9 @@ v("name")||"XXXXXX",
 }
 // ไม่บันทึกวันที่/ช่วงเวลาในร่าง (คำนวณจากเวลาปัจจุบันทุกครั้ง)
 const DRAFT=["sobtDay","kind","type","reason","airline","flight","org","dst","sobt","orgName","dstName","reg","bay","aobt","bay2","aibt","pax","crew","neobt","eobt","atot","paxWait","reg2","bay3"];
-function saveDraft(){const o={};DRAFT.forEach(i=>o[i]=$(i).value);o.chgOn=$("chgOn").checked;o.paxUnk=$("paxUnk").checked;o.paxUnkMore=$("paxUnkMore").checked;o.unk=$("unk").checked;store.set("rt_draft",JSON.stringify(o))}
+function saveDraft(){const o={};DRAFT.forEach(i=>o[i]=$(i).value);o.noChg=$("noChg").checked;o.chgOn=!$("noChg").checked;o.paxUnk=$("paxUnk").checked;o.paxUnkMore=$("paxUnkMore").checked;o.unk=$("unk").checked;store.set("rt_draft",JSON.stringify(o))}
 function migrateRoute(o){let r=String(o.route).trim();if(!r)return;const m=r.match(/^(.*?)\s*\(\s*([A-Za-z0-9]*)\s*-\s*([A-Za-z0-9]*)\s*\)\s*$/);if(m){r=m[1];if(o.org==null){$("org").value=m[2];$("dst").value=m[3]}}const p=r.split(/\s+-\s+/);$("orgName").value=p[0]||"";$("dstName").value=p.slice(1).join(" - ")}
-function loadDraft(){try{const o=JSON.parse(store.get("rt_draft")||"null");if(!o)return;DRAFT.forEach(i=>{if(o[i]!=null)$(i).value=o[i]});if(o.orgName==null&&o.route!=null)migrateRoute(o);$("paxUnk").checked=(o.paxUnk!=null)?!!o.paxUnk:o.hasPax!==true;$("paxUnkMore").checked=o.paxUnkMore!==false;$("unk").checked=o.unk!==false;$("chgOn").checked=o.chgOn===true}catch(e){}}
+function loadDraft(){try{const o=JSON.parse(store.get("rt_draft")||"null");if(!o)return;DRAFT.forEach(i=>{if(o[i]!=null)$(i).value=o[i]});if(o.orgName==null&&o.route!=null)migrateRoute(o);$("paxUnk").checked=(o.paxUnk!=null)?!!o.paxUnk:o.hasPax!==true;$("paxUnkMore").checked=o.paxUnkMore!==false;$("unk").checked=o.unk!==false;$("noChg").checked=(o.noChg!=null)?!!o.noChg:(o.chgOn!=null?!o.chgOn:true)}catch(e){}}
 function copyText(){
   const txt=$("out").textContent;
   const done=()=>{const t=$("toast");t.classList.add("show");setTimeout(()=>t.classList.remove("show"),1500)};
@@ -371,7 +371,7 @@ function fallback(txt,done){{const ta=document.createElement("textarea");ta.valu
 function clearFlight(){
   if(!confirm("ล้างข้อมูลเที่ยวบินทั้งหมด?"))return;
   $("orgName").value="BANGKOK";$("org").value="BKK";$("dstName").value="";$("dst").value="";
-  ["airline","flight","sobt","reg","bay","aobt","bay2","aibt","pax","crew","neobt","eobt","atot","paxWait","reg2","bay3"].forEach(i=>$(i).value="");$("chgOn").checked=false;
+  ["airline","flight","sobt","reg","bay","aobt","bay2","aibt","pax","crew","neobt","eobt","atot","paxWait","reg2","bay3"].forEach(i=>$(i).value="");$("noChg").checked=true;
   $("paxUnk").checked=true;$("paxUnkMore").checked=true;$("unk").checked=true;$("kind").value="initial";$("type").value="RETURN TAXI";$("reason").value="TECHNICAL PROBLEM";
   build();
 }
@@ -409,6 +409,7 @@ const AUTO={day:"08.00 - 17.00",night:"17.00 - 08.00",sk:"rt_shift",away:36e5,hi
   document.querySelectorAll("input,select").forEach(el=>{el.addEventListener("input",build);el.addEventListener("change",build)});
   $("unk").addEventListener("change",()=>{if(!$("unk").checked)$("neobt").focus()});
   ["paxUnk","paxUnkMore"].forEach(id=>$(id).addEventListener("change",()=>{if(!$(id).checked)$("paxGrid").querySelector("input").focus()}));
+  $("noChg").addEventListener("change",()=>{if(!$("noChg").checked)$("chgGrid").querySelector("input").focus()});
   build();
 })();
 </script>
