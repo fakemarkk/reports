@@ -127,7 +127,7 @@
   .pvbox{position:relative;overflow:hidden;border:1px solid #dde3ea;border-radius:6px;background:#fff}
   .pvscale{transform-origin:0 0;width:794px}
   /* หน้าจำลอง A4 @96dpi: 794×1123px ขอบเท่าแบบฟอร์มต้นฉบับ บน 630tw / ซ้าย 1440tw / ขวา 864tw / ล่าง 548tw (1px = 15tw) */
-  .a4{position:relative;display:flex;flex-direction:column;width:794px;min-height:1123px;background:#fff;color:#000;font-family:"TH SarabunPSK",sans-serif;font-weight:400;font-size:21.333px;line-height:24.13px;padding:42px 57.6px 36.5px 96px;-webkit-text-size-adjust:none;text-size-adjust:none}
+  .a4{position:relative;display:flex;flex-direction:column;width:794px;min-height:1123px;background:#fff;color:#000;font-family:"TH SarabunPSK",sans-serif;font-weight:400;font-size:21.333px;line-height:24.13px;padding:42px 57.6px 62px 96px;-webkit-text-size-adjust:none;text-size-adjust:none}
   .a4 p{margin:0;white-space:pre-wrap;word-break:break-word;position:relative}
   .a4 .top,.a4 .ttl{font-weight:700}
   .a4 .ttl{text-align:center}
@@ -145,7 +145,11 @@
      อยู่ขวาล่างสุดของหน้า: .a4/.a4-body เป็น flex column, .sigb ดันลงล่าง (margin-top:auto) ห่างเนื้อหาอย่างน้อย 382tw = 25.47px */
   .a4 .a4-body{flex:1 0 auto;display:flex;flex-direction:column}
   .a4 .sigb{margin-top:auto;padding-top:25.47px}
+  .a4 .sigb.after{margin-top:0;padding-top:50.94px} /* 2 บรรทัดว่าง 764tw */
   .a4 .sig,.a4 .pos,.a4 .date{text-align:center}
+  .sigpos{display:flex;flex-direction:column;gap:8px;margin:4px 0 8px}
+  .sigpos label{display:flex;flex-direction:row;align-items:center;gap:10px;font-size:16px;font-weight:500;color:var(--ink);min-height:44px;padding:8px 12px;background:var(--soft);border:1px solid var(--line);border-radius:10px;cursor:pointer;text-align:left}
+  .sigpos input[type=radio]{-webkit-appearance:auto;appearance:auto;width:20px;height:20px;margin:0;flex:0 0 20px;padding:0;border:0;border-radius:0;background:transparent;accent-color:var(--accent);color:var(--accent);-webkit-text-fill-color:initial;font-weight:400}
   .sheet .imgs img+img{margin-top:12px}
   .sheet{position:fixed;inset:0;background:rgba(43,40,70,.45);display:flex;align-items:flex-end;justify-content:center;z-index:20}
   .sheet .box{background:var(--card);width:100%;max-width:720px;max-height:92vh;overflow:auto;border-radius:16px 16px 0 0;padding:16px 14px calc(16px + env(safe-area-inset-bottom))}
@@ -235,15 +239,20 @@
   <label class="full">ตำแหน่ง<input id="recPos" autocomplete="off"></label>
   <label>วันที่ใต้ลายเซ็น<input type="date" id="sigDate" autocomplete="off"></label>
 </div>
+<div class="ulab">ตำแหน่งช่องลงชื่อ</div>
+<div class="sigpos" id="sigPosBox" role="radiogroup" aria-label="ตำแหน่งช่องลงชื่อ">
+  <label><input type="radio" name="sigPos" id="sigPosBottom" value="bottom" checked> ลงชื่อท้ายกระดาษ</label>
+  <label><input type="radio" name="sigPos" id="sigPosAfter" value="after"> ลงชื่อต่อจากไฟลต์สุดท้าย</label>
+</div>
 <div class="ulab">หน่วยงาน (หน.พนง.งานกะ)</div>
 <input type="hidden" id="unit" value="งพบ.สบบ.ฝปข.ทสภ.">
 <div class="seg useg" id="unitSeg"><button type="button" data-v="งพบ.สบบ.ฝปข.ทสภ." class="on">งพบ.<span>สบบ.ฝปข.ทสภ.</span></button><button type="button" data-v="งกบ.สบบ.ฝปข.ทสภ.">งกบ.<span>สบบ.ฝปข.ทสภ.</span></button><button type="button" data-v="งบจ.สบข.ฝปข.ทสภ.">งบจ.<span>สบข.ฝปข.ทสภ.</span></button></div>
-<div class="hint">ชื่อ ตำแหน่ง หน่วยงาน และวันที่/เวลาส่ง ไม่ถูกบันทึกเก็บไว้ในเครื่อง · วันที่ใต้ลายเซ็นจะตามวันที่ส่งจนกว่าจะแก้เอง</div>
+<div class="hint">ชื่อ ตำแหน่ง หน่วยงาน และวันที่/เวลาส่ง ไม่ถูกบันทึกเก็บไว้ในเครื่อง · วันที่ใต้ลายเซ็นจะตามวันที่ส่งจนกว่าจะแก้เอง · ตำแหน่งช่องลงชื่อจำค่าที่เลือกไว้</div>
 </div>
 
 <div class="card"><h2>ตัวอย่างเอกสาร</h2>
 <div class="pvbox" id="pvbox"><div class="pvscale" id="pvscale"><div class="a4" id="page"></div></div></div>
-<div class="hint">ไฟล์ Word: ถ้ามีเกิน 4 เที่ยวบิน จะขึ้นหน้า 2 โดยไม่ตัดกลางเที่ยวบิน · รูปภาพ: ถ้าไม่พอหน้าเดียว จะแยกเป็นหลายรูป (ไฟล์ _p1of2, _p2of2 …) ใส่เที่ยวบินให้เต็มแต่ละหน้า A4 หน้าแรกมีหัวเอกสาร หน้าสุดท้ายมีชื่อผู้รายงาน/ช่องลงชื่อขวาล่าง</div>
+<div class="hint">ไฟล์ Word: ถ้ามีเกิน 4 เที่ยวบิน จะขึ้นหน้า 2 โดยไม่ตัดกลางเที่ยวบิน · รูปภาพ: ถ้าไม่พอหน้าเดียว จะแยกเป็นหลายรูป (ไฟล์ _p1of2, _p2of2 …) ใส่เที่ยวบินให้เต็มแต่ละหน้า A4 หน้าแรกมีหัวเอกสาร หน้าสุดท้ายมีชื่อผู้รายงาน/ช่องลงชื่อตามตำแหน่งที่เลือก</div>
 </div>
 
 <div class="bar">
@@ -275,7 +284,19 @@ const UNITS=["งพบ.สบบ.ฝปข.ทสภ.", "งกบ.สบบ.�
 function unit(){const u=$("unit").value;return UNITS.includes(u)?u:UNITS[0]}
 function paintUnit(){document.querySelectorAll("#unitSeg button").forEach(b=>b.classList.toggle("on",b.dataset.v===unit()))}
 function initUnit(after,start){$("unit").value=UNITS.includes(start)?start:UNITS[0];paintUnit();document.querySelectorAll("#unitSeg button").forEach(b=>b.addEventListener("click",()=>{const old=unit();$("unit").value=b.dataset.v;paintUnit();after(old,unit())}))}
-const store={get(k){try{return localStorage.getItem(k)}catch(e){return null}}};
+const store={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,x){try{localStorage.setItem(k,x)}catch(e){}}};
+const SIGPOS_KEY="delay_word_sigPos";
+function sigPos(){return $("sigPosAfter")&&$("sigPosAfter").checked?"after":"bottom"}
+function loadSigPos(){
+  let v=store.get(SIGPOS_KEY);
+  try{const o=JSON.parse(store.get("delay_draft")||"null");if(o&&(o.sigPos==="after"||o.sigPos==="bottom"))v=o.sigPos}catch(e){}
+  return v==="after"?"after":"bottom";
+}
+function saveSigPos(v){
+  v=v==="after"?"after":"bottom";
+  store.set(SIGPOS_KEY,v);
+  try{const o=JSON.parse(store.get("delay_draft")||"null");if(o&&Array.isArray(o.flights)){o.sigPos=v;store.set("delay_draft",JSON.stringify(o))}}catch(e){}
+}
 let D=null, sigTouched=false;
 // ช่องในหน้านี้ที่ต้องมี (ไม่มีช่องไหนถูกบันทึกในเครื่อง)
 const REQ=[["smsDate","วันที่ส่ง"],["smsTime","เวลาที่ส่ง"],["recName","ชื่อผู้ลงชื่อ"],["recPos","ตำแหน่ง"],["sigDate","วันที่ใต้ลายเซ็น"]];
@@ -298,7 +319,7 @@ function pageHide(){if(hiddenAt===null)hiddenAt=Date.now()}
 function pageBack(){const t=hiddenAt;hiddenAt=null;if(t!==null&&Date.now()-t>36e5)autoDates()}
 function readDraft(){try{const o=JSON.parse(store.get("delay_draft")||"null");return o&&Array.isArray(o.flights)?withShift(o,"delay_word"):null}catch(e){return null}}
 function data(){return D||{d1:"",period:"17.00-08.00",flights:[]}}
-function w(){return {smsDate:$("smsDate").value,smsTime:$("smsTime").value,name:$("recName").value,pos:$("recPos").value,sigDate:$("sigDate").value}}
+function w(){return {smsDate:$("smsDate").value,smsTime:$("smsTime").value,name:$("recName").value,pos:$("recPos").value,sigDate:$("sigDate").value,sigPos:sigPos()}}
 function model(){return DL.model(data(),w())}
 // ---------- ตรวจช่องที่ยังว่าง (แสดงบนหน้าจอเท่านั้น) ----------
 // คืนค่า [{k, l, href?}] — href = ลิงก์กลับไปช่องในหน้ารายงาน
@@ -442,6 +463,10 @@ async function makeImage(){
   addEventListener("pageshow",e=>{if(e&&e.persisted)pageBack()});
   document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="hidden")pageHide();else pageBack()});
   $("sigDate").addEventListener("change",()=>{sigTouched=!!$("sigDate").value&&$("sigDate").value!==$("smsDate").value});
+  const sp=loadSigPos();
+  $("sigPosAfter").checked=sp==="after";
+  $("sigPosBottom").checked=sp!=="after";
+  document.querySelectorAll("input[name=sigPos]").forEach(el=>el.addEventListener("change",()=>{saveSigPos(sigPos());render()}));
   document.querySelectorAll("input").forEach(el=>{el.addEventListener("input",render);el.addEventListener("change",render)});
   $("barMsg").addEventListener("click",()=>{try{$("chkBox").scrollIntoView({block:"start",behavior:"smooth"})}catch(e){$("chkBox").scrollIntoView()}});
   $("btnDoc").addEventListener("click",makeDocx);
