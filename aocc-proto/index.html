@@ -183,9 +183,14 @@
   input.miss,select.miss,textarea.miss{border:2px solid var(--warn);background:var(--warn-bg)}
   .mh{font-size:12px;color:var(--warn-ink);font-weight:600}
   input,select,textarea,.chk{scroll-margin-top:76px;scroll-margin-bottom:120px}
-  .pron{display:flex;gap:8px;flex-wrap:wrap}
-  .pron label{flex-direction:row;align-items:center;gap:8px;font-size:15px;color:var(--ink);background:var(--soft);border:1px solid var(--line);border-radius:10px;padding:8px 12px;min-height:44px}
-  .pron input{width:18px;height:18px;margin:0;-webkit-appearance:auto;appearance:auto;accent-color:var(--accent);flex:0 0 18px}
+  .card h2.people-h{margin:14px 0 10px}
+  .card h2.people-h:first-child{margin-top:0}
+  .nrow{display:flex;flex-wrap:wrap;gap:8px;align-items:flex-end}
+  .nrow label{margin:0;min-width:0}
+  .nrow .f-pn{flex:0 0 118px;width:118px}
+  .nrow .f-title{flex:0 1 170px;min-width:148px}
+  .nrow .f-rank{flex:0 1 128px;min-width:108px}
+  .nrow .f-name{flex:1 1 180px;min-width:150px}
   .erow{display:grid;grid-template-columns:1fr 90px 36px;gap:8px;align-items:end;margin-bottom:8px}
   .erow .other{grid-column:1/-1;margin-top:-2px}
   .erow .del{height:46px;padding:0;background:var(--chip);color:var(--ink);flex:none}
@@ -203,7 +208,6 @@
 <h1>📝 รายงานประจำวัน AOCC SUP</h1>
 <div class="banner" role="status">🧪 ต้นแบบทดลอง — ให้เพื่อนร่วมงานลองใช้ก่อนขึ้นของจริง ข้อมูลที่กรอกจะไม่ปนกับหน้ารายงานจริง</div>
 
-
 <div class="card" id="cardShift"><h2>ช่วงเวลารายงาน</h2>
 <div class="stack">
   <label>วันที่เริ่มผลัด
@@ -218,36 +222,65 @@
 <div class="hint" id="dateShow"></div>
 </div>
 
-<div class="card" id="cardPeople"><h2>ผู้รายงาน (AOCC SUP)</h2>
-<div class="grid">
-  <label>คำนำหน้า
-    <select id="writerTitle"></select>
+<div class="card" id="cardPeople">
+<h2 class="people-h">ชื่อผู้รายงาน</h2>
+<div class="nrow">
+  <label class="f-pn">สรรพนาม
+    <select id="pronoun">
+      <option value="กระผม" selected>กระผม</option>
+      <option value="ดิฉัน">ดิฉัน</option>
+    </select>
   </label>
-  <label class="full">ชื่อ
+  <label class="f-title">คำนำหน้า / ยศ
+    <select id="writerTitle">
+      <option value="นาย">นาย</option>
+      <option value="นางสาว">นางสาว</option>
+      <option value="นาง">นาง</option>
+      <option value="other">ระบุยศหรืออื่นๆ</option>
+    </select>
+  </label>
+  <label class="f-rank hidden" id="writerRankWrap">ยศ / อื่นๆ
+    <input id="writerRank" list="rankList" placeholder="เช่น พ.อ.อ." autocomplete="off">
+  </label>
+  <label class="f-name">ชื่อ
     <input id="writerName" list="nameList" placeholder="ชื่อ-นามสกุล" autocomplete="off">
   </label>
 </div>
-<div class="ulab" style="margin-top:10px">สรรพนาม</div>
-<div class="pron" role="radiogroup" aria-label="สรรพนาม">
-  <label><input type="radio" name="pronoun" id="pnKrapom" value="กระผม"> กระผม</label>
-  <label><input type="radio" name="pronoun" id="pnDichan" value="ดิฉัน"> ดิฉัน</label>
-</div>
-<div class="hint">เลือกคำนำหน้าแล้วระบบจะเลือกสรรพนามให้อัตโนมัติ (นาย = กระผม, นาง/นางสาว = ดิฉัน) แก้เองได้</div>
-<div class="grid" style="margin-top:12px">
-  <label>คำนำหน้า (จาก)
-    <select id="fromTitle"></select>
+<h2 class="people-h">รับมอบหน้าที่จาก</h2>
+<div class="nrow">
+  <label class="f-title">คำนำหน้า / ยศ
+    <select id="fromTitle">
+      <option value="นาย">นาย</option>
+      <option value="นางสาว">นางสาว</option>
+      <option value="นาง">นาง</option>
+      <option value="other">ระบุยศหรืออื่นๆ</option>
+    </select>
   </label>
-  <label class="full">ได้รับมอบหน้าที่จาก
+  <label class="f-rank hidden" id="fromRankWrap">ยศ / อื่นๆ
+    <input id="fromRank" list="rankList" placeholder="เช่น พ.อ.อ." autocomplete="off">
+  </label>
+  <label class="f-name">ชื่อ
     <input id="fromName" list="nameList" placeholder="ชื่อ-นามสกุล ผู้มอบกะก่อนหน้า" autocomplete="off">
   </label>
-  <label>คำนำหน้า (ให้กับ)
-    <select id="toTitle"></select>
+</div>
+<h2 class="people-h">ส่งมอบหน้าที่ให้</h2>
+<div class="nrow">
+  <label class="f-title">คำนำหน้า / ยศ
+    <select id="toTitle">
+      <option value="นาย">นาย</option>
+      <option value="นางสาว">นางสาว</option>
+      <option value="นาง">นาง</option>
+      <option value="other">ระบุยศหรืออื่นๆ</option>
+    </select>
   </label>
-  <label class="full">มอบหน้าที่ให้กับ
+  <label class="f-rank hidden" id="toRankWrap">ยศ / อื่นๆ
+    <input id="toRank" list="rankList" placeholder="เช่น พ.อ.อ." autocomplete="off">
+  </label>
+  <label class="f-name">ชื่อ
     <input id="toName" list="nameList" placeholder="ชื่อ-นามสกุล ผู้รับกะถัดไป" autocomplete="off">
   </label>
 </div>
-<div class="hint">ชื่อที่พิมพ์ไว้จะจำในเครื่องนี้ และขึ้นให้เลือกครั้งถัดไป — ไม่แชร์ไปเครื่องอื่น</div>
+<div class="hint">ชื่อและยศที่พิมพ์ไว้จะจำในเครื่องนี้ และขึ้นให้เลือกครั้งถัดไป — ไม่แชร์ไปเครื่องอื่น · นาง/นางสาวจะเลือกสรรพนามเป็น ดิฉันให้อัตโนมัติ ถ้ายังไม่ได้แก้เอง</div>
 </div>
 
 <div class="card" id="cardItems"><h2>สรุปการปฏิบัติงาน ข้อ 1–3</h2>
@@ -277,7 +310,7 @@
 </div>
 
 <div class="card hidden" id="cardAg"><h2>รายงานให้หน่วยงานที่เกี่ยวข้องทราบ</h2>
-<div class="hint">ขึ้นเมื่อมีข้อ Delayed เกิน 3 ชั่วโมง จะพิมพ์ประโยคแจ้งผู้บริหาร ทอท. ทาง SMS ผ่านศูนย์ SCC และรายชื่อ 3 หน่วยงานนี้ต่อท้ายข้อ 4</div>
+<div class="hint">ขึ้นเมื่อมีข้อ Delayed เกิน 3 ชั่วโมง หรือ Technical Landing จะพิมพ์ประโยคแจ้งผู้บริหาร ทอท. ทาง SMS ผ่านศูนย์ SCC และรายชื่อ 3 หน่วยงานนี้ต่อท้ายข้อ 4</div>
 <div class="grid">
   <label>คำนำหน้า / ยศ (ฝปข. 06)<input id="agFpkTitle" list="titleList" value="นาย" autocomplete="off"></label>
   <label class="full">หน.พนง.เวร ฝปข.ทสภ. (06)<input id="agFpkName" list="nameList" placeholder="ชื่อ-นามสกุล" autocomplete="off"></label>
@@ -325,24 +358,51 @@
 </div>
 <datalist id="nameList"></datalist>
 <datalist id="titleList"></datalist>
+<datalist id="rankList"></datalist>
 <div class="toast" id="toast">บันทึกแล้ว</div>
 
-<script>window.AOCC_KEYS={draft:"aocc_proto_draft",names:"aocc_proto_names",phone:"aocc_proto_phone",shift:"aocc_proto_shift"};</script>
 <script src="aocc.js"></script>
+<script>window.AOCC_KEYS={draft:"aocc_proto_draft",names:"aocc_proto_names",phone:"aocc_proto_phone",shift:"aocc_proto_shift",titles:"aocc_proto_titles"};</script>
 <script>
 const A=window.AoccLib;
-const KEYS=window.AOCC_KEYS||{draft:"aocc_draft",names:"aocc_names",phone:"aocc_phone",shift:"aocc_shift"};
+const KEYS=Object.assign({draft:"aocc_draft",names:"aocc_names",phone:"aocc_phone",shift:"aocc_shift",titles:"aocc_titles"},window.AOCC_KEYS||{});
 const $=id=>document.getElementById(id);
 const store={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,x){try{localStorage.setItem(k,x)}catch(e){}},del(k){try{localStorage.removeItem(k)}catch(e){}}};
 const W=["อาทิตย์","จันทร์","อังคาร","พุธ","พฤหัสบดี","ศุกร์","เสาร์"];
 let events=[];
 let pronounAuto=true;
 
-function fillSelect(sel, val){
-  sel.innerHTML=A.TITLES.map(t=>'<option value="'+t+'">'+t+"</option>").join("");
-  sel.value=A.TITLES.indexOf(val)>=0?val:"นาย";
+const STD_TITLES=["นาย","นางสาว","นาง"];
+const TITLE_OTHER="other";
+const TITLE_ROWS=[
+  {sel:"writerTitle",rank:"writerRank",wrap:"writerRankWrap"},
+  {sel:"fromTitle",rank:"fromRank",wrap:"fromRankWrap"},
+  {sel:"toTitle",rank:"toRank",wrap:"toRankWrap"}
+];
+function effectiveTitle(selId, rankId){
+  const v=$(selId).value;
+  return v===TITLE_OTHER?A.s($(rankId).value):v;
 }
-["writerTitle","fromTitle","toTitle"].forEach(id=>fillSelect($(id),"นาย"));
+function setTitleUI(selId, rankId, wrapId, value){
+  const v=A.s(value);
+  if(!v || STD_TITLES.indexOf(v)>=0){
+    $(selId).value=v||"นาย";
+    $(rankId).value="";
+    $(wrapId).classList.add("hidden");
+  }else{
+    $(selId).value=TITLE_OTHER;
+    $(rankId).value=v;
+    $(wrapId).classList.remove("hidden");
+  }
+}
+function syncTitleRow(selId, wrapId){
+  const other=$(selId).value===TITLE_OTHER;
+  $(wrapId).classList.toggle("hidden", !other);
+  if(other){
+    const inp=$(wrapId).querySelector("input");
+    if(inp && !inp.value) setTimeout(function(){inp.focus()},0);
+  }
+}
 $("titleList").innerHTML=A.TITLES.map(t=>"<option value=\""+t+"\"></option>").join("");
 
 function loadNames(){
@@ -360,6 +420,24 @@ function rememberNames(extra){
 function paintNames(){
   $("nameList").innerHTML=loadNames().map(n=>"<option value=\""+n.replace(/"/g,"&quot;")+"\"></option>").join("");
 }
+function loadRanks(){
+  let arr=[];
+  try{arr=JSON.parse(store.get(KEYS.titles)||"[]")}catch(e){}
+  if(!Array.isArray(arr)) arr=[];
+  return arr.map(A.s).filter(Boolean);
+}
+function rememberRanks(extra){
+  const set=[];
+  loadRanks().concat(extra||[]).forEach(function(n){
+    n=A.s(n);
+    if(n && STD_TITLES.indexOf(n)<0 && set.indexOf(n)<0) set.push(n);
+  });
+  store.set(KEYS.titles,JSON.stringify(set));
+  paintRanks();
+}
+function paintRanks(){
+  $("rankList").innerHTML=loadRanks().map(n=>"<option value=\""+n.replace(/"/g,"&quot;")+"\"></option>").join("");
+}
 function loadPhone(){
   let p=Object.assign({},A.DEF_PHONE);
   try{const o=JSON.parse(store.get(KEYS.phone)||"null");if(o&&typeof o==="object")p=Object.assign(p,o)}catch(e){}
@@ -376,12 +454,10 @@ function savePhone(){
 function readPhone(){
   return {brand:$("phoneBrand").value,model:$("phoneModel").value,storage:$("phoneStorage").value,imei:$("phoneImei").value};
 }
-function currentPronoun(){return $("pnKrapom").checked?"กระผม":"ดิฉัน"}
+function currentPronoun(){return $("pronoun").value==="ดิฉัน"?"ดิฉัน":"กระผม"}
 function applyPronounFromTitle(){
   if(!pronounAuto)return;
-  const p=A.pronounOf($("writerTitle").value);
-  $("pnKrapom").checked=p==="กระผม";
-  $("pnDichan").checked=p==="ดิฉัน";
+  $("pronoun").value=A.pronounOf(effectiveTitle("writerTitle","writerRank"));
 }
 
 function evHTML(e,i){
@@ -410,10 +486,10 @@ function collect(){
   const evs=$("no4").checked?[]:events.slice();
   return {
     d1:$("d1").value, period:$("period").value,
-    writerTitle:$("writerTitle").value, writerName:$("writerName").value,
+    writerTitle:effectiveTitle("writerTitle","writerRank"), writerName:$("writerName").value,
     pronoun:currentPronoun(), pronounAuto:pronounAuto,
-    fromTitle:$("fromTitle").value, fromName:$("fromName").value,
-    toTitle:$("toTitle").value, toName:$("toName").value,
+    fromTitle:effectiveTitle("fromTitle","fromRank"), fromName:$("fromName").value,
+    toTitle:effectiveTitle("toTitle","toRank"), toName:$("toName").value,
     ev1:$("ev1").value, note1:$("note1").value,
     ev2:$("ev2").value, note2:$("note2").value,
     ev3:$("ev3").value, note3:$("note3").value,
@@ -446,7 +522,7 @@ function syncBoxes(){
   $("box4").classList.toggle("hidden",$("no4").checked);
   $("box5").classList.toggle("hidden",$("no5").checked);
   readEventsFromDom();
-  const showAg=!$("no4").checked&&A.hasDelay(events);
+  const showAg=!$("no4").checked&&A.hasAgency(events);
   $("cardAg").classList.toggle("hidden",!showAg);
   if(!$("no5").checked) fillEv5Dates(false);
 }
@@ -467,7 +543,11 @@ function paintMiss(){
   clearMiss();
   const miss=A.missingFields(model());
   miss.forEach(function(m){
-    let el=$(m.k);
+    let k=m.k;
+    if(k==="writerTitle"&&$("writerTitle").value===TITLE_OTHER) k="writerRank";
+    if(k==="fromTitle"&&$("fromTitle").value===TITLE_OTHER) k="fromRank";
+    if(k==="toTitle"&&$("toTitle").value===TITLE_OTHER) k="toRank";
+    let el=$(k);
     if(!el&&/^evCount/.test(m.k)){
       const i=+m.k.replace("evCount","");
       el=$("events").querySelectorAll(".erow")[i]&&$("events").querySelectorAll(".erow")[i].querySelector('[data-k="count"]');
@@ -495,6 +575,7 @@ function saveDraft(){
   store.set(KEYS.draft,JSON.stringify(o));
   savePhone();
   rememberNames([o.writerName,o.fromName,o.toName,o.agFpkName,o.agFtoName,o.agSccName,o.ev5Name]);
+  rememberRanks([o.writerTitle,o.fromTitle,o.toTitle]);
 }
 function loadDraft(){
   let o=null;
@@ -502,15 +583,14 @@ function loadDraft(){
   if(!o)return false;
   const set=(id,v)=>{if(v!=null&&$(id))$(id).value=v};
   set("d1",o.d1); set("period",o.period);
-  if(o.writerTitle)fillSelect($("writerTitle"),o.writerTitle);
+  setTitleUI("writerTitle","writerRank","writerRankWrap",o.writerTitle);
   set("writerName",o.writerName);
-  if(o.fromTitle)fillSelect($("fromTitle"),o.fromTitle);
+  setTitleUI("fromTitle","fromRank","fromRankWrap",o.fromTitle);
   set("fromName",o.fromName);
-  if(o.toTitle)fillSelect($("toTitle"),o.toTitle);
+  setTitleUI("toTitle","toRank","toRankWrap",o.toTitle);
   set("toName",o.toName);
   pronounAuto=o.pronounAuto!==false;
-  if(o.pronoun==="ดิฉัน"){$("pnDichan").checked=true;$("pnKrapom").checked=false}
-  else{$("pnKrapom").checked=true;$("pnDichan").checked=false}
+  $("pronoun").value=o.pronoun==="ดิฉัน"?"ดิฉัน":"กระผม";
   if(pronounAuto)applyPronounFromTitle();
   set("ev1",o.ev1);set("note1",o.note1);
   set("ev2",o.ev2);set("note2",o.note2);
@@ -557,9 +637,10 @@ function build(){
 }
 
 function resetForm(){
-  fillSelect($("writerTitle"),"นาย");$("writerName").value="";
-  fillSelect($("fromTitle"),"นาย");$("fromName").value="";
-  fillSelect($("toTitle"),"นาย");$("toName").value="";
+  setTitleUI("writerTitle","writerRank","writerRankWrap","นาย");$("writerName").value="";
+  setTitleUI("fromTitle","fromRank","fromRankWrap","นาย");$("fromName").value="";
+  setTitleUI("toTitle","toRank","toRankWrap","นาย");$("toName").value="";
+  $("pronoun").value="กระผม";
   pronounAuto=true;applyPronounFromTitle();
   $("ev1").value="เรียบร้อย";$("note1").value="-";
   $("ev2").value="เรียบร้อย";$("note2").value="-";
@@ -580,8 +661,18 @@ function resetForm(){
   try{sessionStorage.removeItem(AUTO.sk)}catch(e){}
 }
 
-$("writerTitle").addEventListener("change",()=>{pronounAuto=true;applyPronounFromTitle();build()});
-["pnKrapom","pnDichan"].forEach(id=>$(id).addEventListener("change",()=>{pronounAuto=false;build()}));
+TITLE_ROWS.forEach(function(row){
+  $(row.sel).addEventListener("change",function(){
+    syncTitleRow(row.sel,row.wrap);
+    if(row.sel==="writerTitle"){pronounAuto=true;applyPronounFromTitle()}
+    build();
+  });
+  $(row.rank).addEventListener("input",function(){
+    if(row.sel==="writerTitle" && pronounAuto) applyPronounFromTitle();
+    build();
+  });
+});
+$("pronoun").addEventListener("change",()=>{pronounAuto=false;build()});
 document.querySelectorAll("#periodSeg button").forEach(b=>b.addEventListener("click",()=>{
   $("period").value=b.dataset.v;
   if(!$("no5").checked)fillEv5Dates(true);
@@ -625,6 +716,7 @@ $("btnClear").addEventListener("click",()=>{
   build();
 });
 paintNames();
+paintRanks();
 loadPhone();
 const had=loadDraft();
 if(!had||!$("d1").value) AUTO.set();
@@ -636,10 +728,12 @@ document.querySelectorAll(".datebox input").forEach(function(i){i.addEventListen
 </script>
 <div id="offlineBadge" role="status" aria-live="polite" hidden style="position:fixed;top:calc(env(safe-area-inset-top,0px) + 4px);right:6px;z-index:60;font:600 11px/1.6 system-ui,sans-serif;padding:1px 8px;border-radius:10px;background:var(--warn-bg,#fff3e6);color:var(--warn-ink,#b4470f);border:1px solid var(--warn-line,#f1c08a);opacity:.92;pointer-events:none">● ออฟไลน์</div>
 <style>#swUpdate[hidden],#offlineBadge[hidden]{display:none!important}</style>
+<script>/* ป้ายออฟไลน์เท่านั้น ไม่ลงทะเบียน service worker */
+(function(){var b=document.getElementById("offlineBadge");if(!b)return;function u(){b.hidden=navigator.onLine!==false}u();addEventListener("online",u);addEventListener("offline",u)})();</script>
 
 <script src="../lib/pako.min.js"></script>
 <script src="../lib/qrcode.min.js"></script>
-<script src="lib/handoff.js"></script>
+<script src="../lib/handoff.js"></script>
 <script>
 (function(){
   if(!window.ReportsHandoff)return;
@@ -675,7 +769,5 @@ document.querySelectorAll(".datebox input").forEach(function(i){i.addEventListen
   });
 })();
 </script>
-<script>/* ป้ายออฟไลน์เท่านั้น ไม่ลงทะเบียน service worker */
-(function(){var b=document.getElementById("offlineBadge");if(!b)return;function u(){b.hidden=navigator.onLine!==false}u();addEventListener("online",u);addEventListener("offline",u)})();</script>
 </body>
 </html>
