@@ -805,11 +805,10 @@
       '<pageMargins left="0.21" right="0" top="0.27" bottom="0.17" header="0.3" footer="0.21"/>');
     sheet = sheet.replace(/<headerFooter[\s\S]*?<\/headerFooter>/g, "");
     // Fit sheet to 1 page tall so spacer+codes stay on page 1 at the bottom
-    if (/<sheetPr[\s\S]*?\/>/.test(sheet) || /<sheetPr[\s\S]*?<\/sheetPr>/.test(sheet)) {
-      sheet = sheet.replace(/<sheetPr[\s\S]*?(?:\/>|<\/sheetPr>)/, '<sheetPr><pageSetUpPr fitToPage="1"/></sheetPr>');
-    } else {
-      sheet = sheet.replace(/<sheetData/, '<sheetPr><pageSetUpPr fitToPage="1"/></sheetPr><sheetData');
-    }
+    // sheetPr must be the first child of <worksheet> (OOXML schema). Inserting it
+    // before <sheetData> (after cols) makes Excel repair sheet1.xml ("Line 2, column 0").
+    sheet = sheet.replace(/<sheetPr[\s\S]*?(?:\/>|<\/sheetPr>)/, "");
+    sheet = sheet.replace(/<worksheet([^>]*)>/, '<worksheet$1><sheetPr><pageSetUpPr fitToPage="1"/></sheetPr>');
     sheet = sheet.replace(/<pageSetup[^/]*\/>/,
       '<pageSetup paperSize="9" fitToWidth="1" fitToHeight="1" orientation="portrait" r:id="rId1"/>');
     return sheet;
