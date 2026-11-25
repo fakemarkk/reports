@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8"><meta name="robots" content="noindex, nofollow, noarchive">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script>/* theme: saved choice (localStorage "theme") or system setting — set before paint */(function(){var d=document.documentElement,m=window.matchMedia&&matchMedia("(prefers-color-scheme: dark)");function s(){try{var t=localStorage.getItem("theme");return t==="light"||t==="dark"?t:""}catch(e){return ""}}function a(){d.dataset.theme=s()||(m&&m.matches?"dark":"light")}a();if(m){if(m.addEventListener)m.addEventListener("change",a);else if(m.addListener)m.addListener(a)}addEventListener("storage",a);addEventListener("pageshow",a)})();</script>
+<title>ต้นแบบทดลอง · รายงานประจำวัน AOCC SUP</title>
+<link rel="manifest" href="../manifest.webmanifest">
+<meta name="theme-color" content="#f6f4fa" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#1c2030" media="(prefers-color-scheme: dark)">
+<link rel="icon" type="image/png" sizes="192x192" href="../icon-192.png">
+<link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="รายงาน ฝปข.">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<style>
+:root{
+  /* 🎨 Pastel calm theme — ปรับสีทั้งหมดได้ที่นี่ */
+  --bg:#f6f4fa;          /* พื้นหลังหน้า: ลาเวนเดอร์อ่อนมาก */
+  --card:#ffffff;        /* การ์ด/ช่องกรอก */
+  --soft:#f9f8fc;        /* พื้นอ่อนในกล่อง */
+  --ink:#2b2f45;         /* ตัวอักษรหลัก */
+  --muted:#575c6e;       /* ป้ายช่องกรอก */
+  --muted2:#5e6376;      /* คำอธิบาย/hint */
+  --faint:#a9acbd;       /* ไอคอนลูกศร/disabled */
+  --accent:#3e5f94;      /* หัวข้อ/ลิงก์: น้ำเงินหม่น */
+  --accent-soft:#e7edf8; /* พื้นปุ่มรอง */
+  --accent-line:#b4c6e6;
+  --btn:#cddcf3;         /* ปุ่มหลัก: ฟ้าพาสเทล */
+  --btn-ink:#1f3a66;
+  --seg-bg:#ece9f4;      /* พื้นปุ่มเลือก */
+  --chip:#eeecf4;
+  --line:#e4e2ee;        /* เส้นขอบอ่อน */
+  --field-line:#d4d2e3;  /* ขอบช่องกรอก */
+  --disabled-ink:#a1a5b4;
+  --line-green:#15834a;  /* ปุ่มคัดลอกไปไลน์ (เขียวไลน์โทนนุ่ม) */
+  --warn:#ec9a3c; --warn-bg:#fff3e6; --warn-line:#f1c08a; --warn-ink:#b4470f; --warn-text:#7a4210;
+  --ok-bg:#eaf7ef; --ok-line:#8fd3a8; --ok-ink:#1d5e33;
+  --err-bg:#fdeef0; --err-line:#f2c4c8; --err-ink:#b3261e;
+  --shadow-c:rgba(72,62,120,.10);
+  --radius:16px;
+}
+:root{
+  /* 🎨 หน้าด้านใน: เข้มขึ้นอีกนิดให้อ่านง่าย (หน้าแรกใช้ค่าด้านบน) */
+  --bg:#e9e5f3;          /* พื้นหลังลาเวนเดอร์ชัดขึ้น การ์ดขาวลอยเด่น */
+  --soft:#f6f4fb;
+  --ink:#1f2236;
+  --muted:#41465a;       /* ป้ายช่องกรอก เข้มขึ้น */
+  --muted2:#53586c;
+  --faint:#8f92a8;
+  --accent:#2c4a7e;      /* หัวข้อการ์ด เข้มขึ้น */
+  --accent-soft:#dde6f6;
+  --accent-line:#8faad8;
+  --btn:#bfd2f2; --btn-ink:#16305a;
+  --seg-bg:#e1ddef;
+  --seg-on:#c5d7f5; --seg-on-ink:#16305a; --seg-on-line:#8faad8;
+  --chip:#e3e0ee;
+  --line:#bdb8d3;        /* ขอบการ์ด */
+  --field-line:#a9a4c4;  /* ขอบช่องกรอก */
+  --placeholder:#9c9cb2;
+  --disabled-ink:#8f93a5;
+  --shadow-c:rgba(58,48,110,.14);
+}
+
+  *{box-sizing:border-box}
+  body{font-family:system-ui,"Sarabun","Noto Sans Thai",sans-serif;background:var(--bg);margin:0;padding:12px;color:var(--ink)}
+  .wrap{max-width:720px;margin:auto;padding-bottom:90px}
+  h1{font-size:20px;margin:6px 0 12px}
+  .card{background:var(--card);border-radius:12px;padding:14px;margin-bottom:12px;box-shadow:0 1px 3px var(--shadow-c)}
+  .card h2{font-size:15px;margin:0 0 10px;color:var(--accent)}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+  label{display:flex;flex-direction:column;font-size:13px;color:var(--muted);gap:4px}
+  input,select,textarea{font-size:16px;padding:9px;border:1px solid var(--field-line);border-radius:8px;font-family:inherit;width:100%}
+  input:focus,select:focus{outline:2px solid var(--accent);border-color:var(--accent)}
+  .up{text-transform:uppercase}
+  .rrow{grid-column:1/-1;display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--muted)}
+  .rrow small{color:var(--muted2);font-size:12px}
+  .rflex{display:flex;gap:8px}
+  .rflex input{flex:1 1 auto;min-width:0}
+  .rflex input.code{flex:0 0 84px;width:84px;text-align:center}
+  input,select{-webkit-appearance:none;appearance:none;background:var(--card);height:46px;color:var(--ink)}
+  select{background:var(--card) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23555' stroke-width='2' fill='none'/%3E%3C/svg%3E") no-repeat right 12px center;padding-right:32px}
+  .datebox{position:relative;height:52px;border:1px solid var(--field-line);border-radius:10px;display:flex;align-items:center;gap:10px;padding:0 14px;background:var(--card);font-size:18px;font-weight:600}
+  .datebox small{font-weight:400;color:var(--muted2);font-size:14px}
+  .datebox input{position:absolute;inset:0;opacity:0;width:100%;height:100%;border:0;cursor:pointer}
+  .datebox{cursor:pointer}
+  .seg{display:flex;background:var(--seg-bg);border-radius:10px;padding:4px;gap:4px}
+  .seg button{flex:1;white-space:nowrap;font-size:15px;padding:10px 6px;border-radius:8px;background:transparent;color:var(--muted);line-height:1.3}
+  .seg button.on{background:var(--card);color:var(--accent);font-weight:600;box-shadow:0 1px 3px rgba(72,62,120,.16)}
+  .seg button span{display:block;font-size:13px;font-weight:400;color:var(--muted2)}
+  .stack{display:flex;flex-direction:column;gap:10px}
+  .topbar{position:sticky;top:0;z-index:5;background:var(--bg);margin:-12px -12px 4px;padding:10px 12px}
+  .back{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 18px;border-radius:22px;background:var(--card);color:var(--accent);font-size:17px;font-weight:600;text-decoration:none;box-shadow:0 1px 3px var(--shadow-c)}
+  .back:active{background:var(--accent-soft)}
+  .chk{flex-direction:row;align-items:center;gap:12px;font-size:16px;color:var(--ink);background:var(--soft);border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin-bottom:10px;min-height:50px}
+  .chk input{-webkit-appearance:auto;appearance:auto;width:24px;height:24px;margin:0;flex:0 0 24px;accent-color:var(--accent)}
+  .hidden{display:none!important}
+  input:disabled{background:var(--chip);color:var(--disabled-ink);border-color:var(--line);-webkit-text-fill-color:var(--disabled-ink);opacity:1;cursor:not-allowed}
+  input:disabled::placeholder{color:transparent;-webkit-text-fill-color:transparent}
+  pre{white-space:pre-wrap;background:var(--soft);border:1px solid var(--line);border-radius:8px;padding:12px;font-family:inherit;font-size:15px;margin:0}
+  .bar{position:sticky;bottom:0;display:flex;gap:8px;padding:10px 0;background:var(--bg)}
+  button{flex:1;font-size:17px;padding:13px;border:0;border-radius:10px;cursor:pointer;font-family:inherit}
+  .copy{background:var(--line-green);color:var(--card);font-weight:600}
+  .clear{background:var(--line);color:var(--ink);flex:0 0 120px}
+  .toast{position:fixed;left:50%;top:20px;transform:translateX(-50%);background:var(--ink);color:var(--card);padding:10px 18px;border-radius:20px;opacity:0;transition:.3s;pointer-events:none}
+  .toast.show{opacity:1}
+  .ulab{font-size:13px;color:var(--muted);margin:12px 0 4px}
+  .useg button{font-size:17px;font-weight:600;padding:10px 4px;min-height:52px}
+  .useg button span{font-size:12px}
+  .hint{font-size:12px;color:var(--muted2);margin-top:6px}
+  textarea{min-height:76px;resize:vertical;line-height:1.4}
+  textarea:focus{outline:2px solid var(--accent);border-color:var(--accent)}
+  .full{grid-column:1/-1}
+  .sub{font-size:13px;color:var(--muted);margin:12px 0 6px}
+  .fcard h2{display:flex;align-items:center;justify-content:space-between;gap:8px}
+  .del{flex:0 0 auto;font-size:14px;padding:8px 12px;background:var(--err-bg);color:var(--err-ink);font-weight:600}
+  .del:disabled{background:var(--chip);color:var(--faint);cursor:not-allowed}
+  .fcard .seg{margin-bottom:10px}
+  .offseg button{font-size:13px;padding:8px 4px}
+  .dres{grid-column:1/-1;border-radius:10px;padding:10px 12px;font-size:16px;background:var(--ok-bg);color:var(--ok-ink);border:1px solid var(--ok-line)}
+  .dres b{font-size:18px}
+  .dres.warn{background:var(--warn-bg);color:var(--warn-ink);border-color:var(--warn-line)}
+  .dres.err{background:var(--err-bg);color:var(--err-ink);border-color:var(--err-line)}
+  .dres.wait{background:var(--soft);color:var(--muted2);border-color:var(--line)}
+  .dres small{display:block;font-size:13px;margin-top:2px}
+  .add{width:100%;font-size:18px;padding:16px;background:var(--card);color:var(--accent);font-weight:700;border:2px dashed var(--accent-line);margin-bottom:12px}
+  .add:active{background:var(--accent-soft)}
+  .word{width:100%;background:var(--accent);color:var(--card);font-weight:600;margin:0 0 12px}
+  .offl{font-size:13px;color:var(--muted);margin:2px 0 4px}
+
+  /* ---- pastel theme: softer shapes & buttons (visual only) ---- */
+  .card{border-radius:var(--radius);border:1px solid var(--line);box-shadow:0 2px 10px var(--shadow-c)}
+  .card h2{color:var(--accent)}
+  .seg{border-radius:12px}
+  .seg button.on{background:var(--card);color:var(--accent);box-shadow:0 1px 4px rgba(72,62,120,.16)}
+  .back{border:1px solid var(--line)}
+  button{border-radius:12px}
+  .copy,.share{background:var(--line-green);color:#fff;box-shadow:0 2px 8px rgba(21,131,74,.28)}
+  .doc,.dl{background:var(--btn);color:var(--btn-ink);border:1px solid var(--accent-line)}
+  .img,.wordbtn{background:var(--card);color:var(--accent);border:2px solid var(--accent-line)}
+  .clear,.close{background:var(--chip);color:var(--ink)}
+  .toast{background:#3a3f58}
+  input:focus,select:focus,textarea:focus{outline:2px solid var(--accent-line);border-color:var(--accent)}
+
+  /* ---- inner pages: more defined ---- */
+  .seg{border:1px solid var(--line)}
+  .seg button.on{background:var(--seg-on);color:var(--seg-on-ink);box-shadow:inset 0 0 0 1px var(--seg-on-line),0 1px 3px rgba(58,48,110,.18)}
+  .seg button.on span{color:var(--seg-on-ink)}
+  input,select,textarea,.datebox{border-color:var(--field-line)}
+  input,select,textarea{color:var(--ink);-webkit-text-fill-color:var(--ink);font-weight:500}
+  input::placeholder,textarea::placeholder{color:var(--placeholder);-webkit-text-fill-color:var(--placeholder);font-weight:400}
+  .back,.img,.wordbtn{border-color:var(--accent-line)}
+
+/* ===== 🌙 Dark mode (soft): เปลี่ยนเฉพาะตัวแปรสี เมื่อ html[data-theme="dark"] (ตามเครื่อง หรือเลือกจากปุ่มในหน้าแรก) ===== */
+  html[data-theme="dark"]{
+    color-scheme:dark;
+    --bg:#1c2030; --card:#262b3d; --soft:#2c3246;
+    --ink:#e6e8f0; --muted:#c5c9d8; --muted2:#aab0c4; --faint:#80869c;
+    --accent:#a9c4f2; --accent-soft:#33405e; --accent-line:#6580b3;
+    --btn:#a9c4f2; --btn-ink:#14233f;
+    --seg-bg:#1f2435; --seg-on:#3f5888; --seg-on-ink:#eef3ff; --seg-on-line:#7f9bd0;
+    --chip:#363c53;
+    --line:#3e4560; --field-line:#5a6180;
+    --placeholder:#7f859c; --disabled-ink:#727890;
+    --line-green:#15834a;
+    --warn:#f0a75a; --warn-bg:#3a2c1e; --warn-line:#a87238; --warn-ink:#ffc08a; --warn-text:#f7d6ae;
+    --ok-bg:#1f3529; --ok-line:#4f8f69; --ok-ink:#a8e4bf;
+    --err-bg:#3d2228; --err-line:#8d4a52; --err-ink:#ffadb5;
+    --shadow-c:rgba(0,0,0,.35);
+  }
+  html[data-theme="dark"] .toast{background:#e6e8f0;color:#1c2030}
+  html[data-theme="dark"] h1 small{color:var(--muted2)!important}
+  html[data-theme="dark"] .copy,html[data-theme="dark"] .share{box-shadow:0 2px 10px rgba(0,0,0,.4)}
+  html[data-theme="dark"] select{background-color:var(--card)}
+  /* เอกสาร A4 และรูปที่ export ต้องขาว-ดำเสมอ */
+  html[data-theme="dark"] .pvbox,html[data-theme="dark"] .a4{color-scheme:light;background:#fff;color:#000}
+
+  label.chk{display:flex;flex-direction:row;align-items:center;gap:12px;font-size:16px;color:var(--ink);background:var(--soft);border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin-bottom:10px;min-height:50px}
+  label.chk input{-webkit-appearance:auto;appearance:auto;width:24px;height:24px;margin:0;flex:0 0 24px;accent-color:var(--accent)}
+  .hidden{display:none!important}
+  .word{width:100%;background:var(--accent);color:var(--card);font-weight:600;margin:0 0 12px}
+  input.miss,select.miss,textarea.miss{border:2px solid var(--warn);background:var(--warn-bg)}
+  .mh{font-size:12px;color:var(--warn-ink);font-weight:600}
+  input,select,textarea,.chk{scroll-margin-top:76px;scroll-margin-bottom:120px}
+  .pron{display:flex;gap:8px;flex-wrap:wrap}
+  .pron label{flex-direction:row;align-items:center;gap:8px;font-size:15px;color:var(--ink);background:var(--soft);border:1px solid var(--line);border-radius:10px;padding:8px 12px;min-height:44px}
+  .pron input{width:18px;height:18px;margin:0;-webkit-appearance:auto;appearance:auto;accent-color:var(--accent);flex:0 0 18px}
+  .erow{display:grid;grid-template-columns:1fr 90px 36px;gap:8px;align-items:end;margin-bottom:8px}
+  .erow .other{grid-column:1/-1;margin-top:-2px}
+  .erow .del{height:46px;padding:0;background:var(--chip);color:var(--ink);flex:none}
+  .add{width:100%;background:var(--accent-soft);color:var(--accent);font-weight:600;margin:6px 0 0;border:1px dashed var(--accent-line)}
+  .items{display:flex;flex-direction:column;gap:8px}
+  .itemrow{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .itemrow .lab{font-size:13px;color:var(--muted);grid-column:1/-1;margin-bottom:-4px}
+  .banner{background:var(--warn-bg);border:1px solid var(--warn-line);color:var(--warn-ink);border-radius:12px;padding:10px 12px;margin-bottom:12px;font-size:14px;font-weight:600}
+
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="topbar"><a class="back" href="../">‹ หน้าแรก</a></div>
+<h1>📝 รายงานประจำวัน AOCC SUP</h1>
+<div class="banner" role="status">🧪 ต้นแบบทดลอง — ให้เพื่อนร่วมงานลองใช้ก่อนขึ้นของจริง ข้อมูลที่กรอกจะไม่ปนกับหน้ารายงานจริง</div>
+
+
+<div class="card" id="cardShift"><h2>ช่วงเวลารายงาน</h2>
+<div class="stack">
+  <label>วันที่เริ่มผลัด
+    <div class="datebox">📅 <span id="dateLabel"></span><small id="dateSub"></small><input type="date" id="d1" autocomplete="off"></div>
+  </label>
+  <input type="hidden" id="period" value="17.00-08.00" autocomplete="off">
+  <div class="seg" id="periodSeg">
+    <button type="button" data-v="08.00-17.00">☀️ กะกลางวัน<span>08.00 - 17.00</span></button>
+    <button type="button" data-v="17.00-08.00">🌙 กะกลางคืน<span>17.00 - 08.00</span></button>
+  </div>
+</div>
+<div class="hint" id="dateShow"></div>
+</div>
+
+<div class="card" id="cardPeople"><h2>ผู้รายงาน (AOCC SUP)</h2>
+<div class="grid">
+  <label>คำนำหน้า
+    <select id="writerTitle"></select>
+  </label>
+  <label class="full">ชื่อ
+    <input id="writerName" list="nameList" placeholder="ชื่อ-นามสกุล" autocomplete="off">
+  </label>
+</div>
+<div class="ulab" style="margin-top:10px">สรรพนาม</div>
+<div class="pron" role="radiogroup" aria-label="สรรพนาม">
+  <label><input type="radio" name="pronoun" id="pnKrapom" value="กระผม"> กระผม</label>
+  <label><input type="radio" name="pronoun" id="pnDichan" value="ดิฉัน"> ดิฉัน</label>
+</div>
+<div class="hint">เลือกคำนำหน้าแล้วระบบจะเลือกสรรพนามให้อัตโนมัติ (นาย = กระผม, นาง/นางสาว = ดิฉัน) แก้เองได้</div>
+<div class="grid" style="margin-top:12px">
+  <label>คำนำหน้า (จาก)
+    <select id="fromTitle"></select>
+  </label>
+  <label class="full">ได้รับมอบหน้าที่จาก
+    <input id="fromName" list="nameList" placeholder="ชื่อ-นามสกุล ผู้มอบกะก่อนหน้า" autocomplete="off">
+  </label>
+  <label>คำนำหน้า (ให้กับ)
+    <select id="toTitle"></select>
+  </label>
+  <label class="full">มอบหน้าที่ให้กับ
+    <input id="toName" list="nameList" placeholder="ชื่อ-นามสกุล ผู้รับกะถัดไป" autocomplete="off">
+  </label>
+</div>
+<div class="hint">ชื่อที่พิมพ์ไว้จะจำในเครื่องนี้ และขึ้นให้เลือกครั้งถัดไป — ไม่แชร์ไปเครื่องอื่น</div>
+</div>
+
+<div class="card" id="cardItems"><h2>สรุปการปฏิบัติงาน ข้อ 1–3</h2>
+<div class="items">
+  <div class="itemrow"><div class="lab">1. การปฏิบัติงานของ งพบ.สบบ.ฝปข.</div>
+    <label>เหตุการณ์<input id="ev1" value="เรียบร้อย" autocomplete="off"></label>
+    <label>หมายเหตุ<input id="note1" value="-" autocomplete="off"></label>
+  </div>
+  <div class="itemrow"><div class="lab">2. การปฏิบัติงานของ งกบ.สบบ.ฝปข.</div>
+    <label>เหตุการณ์<input id="ev2" value="เรียบร้อย" autocomplete="off"></label>
+    <label>หมายเหตุ<input id="note2" value="-" autocomplete="off"></label>
+  </div>
+  <div class="itemrow"><div class="lab">3. การปฏิบัติงานของ งบจ.สบข.ฝปข.</div>
+    <label>เหตุการณ์<input id="ev3" value="เรียบร้อย" autocomplete="off"></label>
+    <label>หมายเหตุ<input id="note3" value="-" autocomplete="off"></label>
+  </div>
+</div>
+</div>
+
+<div class="card" id="card4"><h2>4. งานที่ผู้บังคับบัญชามอบหมายและสั่งการ</h2>
+<label class="chk"><input type="checkbox" id="no4" checked> ไม่มีงานที่ผู้บังคับบัญชามอบหมายและสั่งการ</label>
+<div class="hint" id="hint4">ถ้ามีรายการ เอาติ๊กออกแล้วเพิ่มเที่ยวบินด้านล่าง ระบบจะเรียงข้อ 4.1, 4.2, … ตามลำดับที่เพิ่ม และพิมพ์ “(ตามเอกสารแนบ)” ให้</div>
+<div id="box4" class="hidden">
+  <div id="events"></div>
+  <button type="button" class="add" id="addEv">＋ เพิ่มรายการ</button>
+</div>
+</div>
+
+<div class="card hidden" id="cardAg"><h2>รายงานให้หน่วยงานที่เกี่ยวข้องทราบ</h2>
+<div class="hint">ขึ้นเมื่อมีข้อ Delayed เกิน 3 ชั่วโมง จะพิมพ์ประโยคแจ้งผู้บริหาร ทอท. ทาง SMS ผ่านศูนย์ SCC และรายชื่อ 3 หน่วยงานนี้ต่อท้ายข้อ 4</div>
+<div class="grid">
+  <label>คำนำหน้า / ยศ (ฝปข. 06)<input id="agFpkTitle" list="titleList" value="นาย" autocomplete="off"></label>
+  <label class="full">หน.พนง.เวร ฝปข.ทสภ. (06)<input id="agFpkName" list="nameList" placeholder="ชื่อ-นามสกุล" autocomplete="off"></label>
+  <label>คำนำหน้า / ยศ (ฝทอ. 07)<input id="agFtoTitle" list="titleList" value="นาย" autocomplete="off"></label>
+  <label class="full">หน.พนง.กะ ฝทอ.ทสภ. (07)<input id="agFtoName" list="nameList" placeholder="ชื่อ-นามสกุล" autocomplete="off"></label>
+  <label>คำนำหน้า / ยศ (SCC)<input id="agSccTitle" list="titleList" placeholder="เช่น นาย หรือ พ.อ.อ." autocomplete="off"></label>
+  <label class="full">พนง.ศูนย์สุวรรณภูมิ (SCC)<input id="agSccName" list="nameList" placeholder="ชื่อ-นามสกุล" autocomplete="off"></label>
+</div>
+</div>
+
+<div class="card" id="card5"><h2>5. รายการอนุมัติ / อื่นๆ</h2>
+<label class="chk"><input type="checkbox" id="no5" checked> ไม่มีรายการอนุมัติ/อื่นๆ</label>
+<div class="hint">ถ้ามีรายการ เอาติ๊กออกแล้วกรอกด้านล่าง ค่าวันเวลาเริ่มต้นเป็นตามผลัด สามารถแก้ได้</div>
+<div id="box5" class="hidden">
+  <div class="grid">
+    <label>คำนำหน้า / ยศ<input id="ev5Title" list="titleList" value="นาย" autocomplete="off"></label>
+    <label class="full">รายงาน หน.เวร ฝปข.ทสภ. (06)<input id="ev5Name" list="nameList" placeholder="ชื่อ-นามสกุล" autocomplete="off"></label>
+    <label>ตั้งแต่วันที่<input type="date" id="ev5FromDate" autocomplete="off"></label>
+    <label>เวลา<input id="ev5FromTime" inputmode="decimal" placeholder="17.00" autocomplete="off"></label>
+    <label>ถึงวันที่<input type="date" id="ev5ToDate" autocomplete="off"></label>
+    <label>เวลา<input id="ev5ToTime" inputmode="decimal" placeholder="08.00" autocomplete="off"></label>
+    <label class="full">ทดสอบเครื่องยนต์กำลังสูง ณ<input id="hiWhere" value="ทางขับ สาย K" autocomplete="off"></label>
+    <label>จำนวน (ลำ)<input id="hiCount" value="-" placeholder="-" autocomplete="off"></label>
+    <label class="full">ทดสอบเครื่องยนต์รอบเดินเบา ณ<input id="loWhere" value="หลุมจอดฯ" autocomplete="off"></label>
+    <label>จำนวน (ลำ)<input id="loCount" placeholder="เช่น 3" autocomplete="off"></label>
+    <label class="full">รายการอนุมัติอื่น (ถ้ามี)<textarea id="ev5Other" placeholder="ถ้าไม่มีให้เว้นว่าง"></textarea></label>
+  </div>
+</div>
+</div>
+
+<div class="card" id="cardPhone"><h2>โทรศัพท์เวร</h2>
+<div class="grid">
+  <label>ยี่ห้อ<input id="phoneBrand" autocomplete="off"></label>
+  <label>รุ่น<input id="phoneModel" autocomplete="off"></label>
+  <label>ความจุ<input id="phoneStorage" autocomplete="off"></label>
+  <label class="full">หมายเลขเครื่อง (IMEI)<input id="phoneImei" autocomplete="off"></label>
+</div>
+<div class="hint">เป็นโทรศัพท์เวรร่วมของศูนย์ เปลี่ยนน้อย แก้ไขแล้วระบบจำค่าใหม่ไว้ในเครื่องนี้ และกดล้างข้อมูลจะไม่ลบค่านี้</div>
+</div>
+
+<button type="button" class="word" id="goWord">📄 สร้างไฟล์ Word</button>
+<div class="bar">
+  <button class="clear" type="button" id="btnClear">ล้างข้อมูล</button>
+</div>
+</div>
+<datalist id="nameList"></datalist>
+<datalist id="titleList"></datalist>
+<div class="toast" id="toast">บันทึกแล้ว</div>
+
+<script>window.AOCC_KEYS={draft:"aocc_proto_draft",names:"aocc_proto_names",phone:"aocc_proto_phone",shift:"aocc_proto_shift"};</script>
+<script src="aocc.js"></script>
+<script>
+const A=window.AoccLib;
+const KEYS=window.AOCC_KEYS||{draft:"aocc_draft",names:"aocc_names",phone:"aocc_phone",shift:"aocc_shift"};
+const $=id=>document.getElementById(id);
+const store={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,x){try{localStorage.setItem(k,x)}catch(e){}},del(k){try{localStorage.removeItem(k)}catch(e){}}};
+const W=["อาทิตย์","จันทร์","อังคาร","พุธ","พฤหัสบดี","ศุกร์","เสาร์"];
+let events=[];
+let pronounAuto=true;
+
+function fillSelect(sel, val){
+  sel.innerHTML=A.TITLES.map(t=>'<option value="'+t+'">'+t+"</option>").join("");
+  sel.value=A.TITLES.indexOf(val)>=0?val:"นาย";
+}
+["writerTitle","fromTitle","toTitle"].forEach(id=>fillSelect($(id),"นาย"));
+$("titleList").innerHTML=A.TITLES.map(t=>"<option value=\""+t+"\"></option>").join("");
+
+function loadNames(){
+  let arr=[];
+  try{arr=JSON.parse(store.get(KEYS.names)||"[]")}catch(e){}
+  if(!Array.isArray(arr)) arr=[];
+  return arr.map(A.s).filter(Boolean);
+}
+function rememberNames(extra){
+  const set=[];
+  loadNames().concat(extra||[]).forEach(function(n){n=A.s(n);if(n&&set.indexOf(n)<0)set.push(n)});
+  store.set(KEYS.names,JSON.stringify(set));
+  paintNames();
+}
+function paintNames(){
+  $("nameList").innerHTML=loadNames().map(n=>"<option value=\""+n.replace(/"/g,"&quot;")+"\"></option>").join("");
+}
+function loadPhone(){
+  let p=Object.assign({},A.DEF_PHONE);
+  try{const o=JSON.parse(store.get(KEYS.phone)||"null");if(o&&typeof o==="object")p=Object.assign(p,o)}catch(e){}
+  $("phoneBrand").value=p.brand||A.DEF_PHONE.brand;
+  $("phoneModel").value=p.model||A.DEF_PHONE.model;
+  $("phoneStorage").value=p.storage||"";
+  $("phoneImei").value=p.imei||A.DEF_PHONE.imei;
+}
+function savePhone(){
+  const p={brand:A.s($("phoneBrand").value),model:A.s($("phoneModel").value),storage:A.s($("phoneStorage").value),imei:A.s($("phoneImei").value)};
+  store.set(KEYS.phone,JSON.stringify(p));
+  return p;
+}
+function readPhone(){
+  return {brand:$("phoneBrand").value,model:$("phoneModel").value,storage:$("phoneStorage").value,imei:$("phoneImei").value};
+}
+function currentPronoun(){return $("pnKrapom").checked?"กระผม":"ดิฉัน"}
+function applyPronounFromTitle(){
+  if(!pronounAuto)return;
+  const p=A.pronounOf($("writerTitle").value);
+  $("pnKrapom").checked=p==="กระผม";
+  $("pnDichan").checked=p==="ดิฉัน";
+}
+
+function evHTML(e,i){
+  const typ=e.type||"divert";
+  const opts=A.EVENT_TYPES.map(t=>'<option value="'+t.id+'"'+(t.id===typ?" selected":"")+">"+t.label+"</option>").join("");
+  const otherWrap=typ==="other"?"":" hidden";
+  return '<div class="erow" data-i="'+i+'">'
+    +'<label>ประเภท<select data-k="type">'+opts+"</select></label>"
+    +'<label>จำนวน<input data-k="count" inputmode="numeric" placeholder="1" value="'+(e.count||"").replace(/"/g,"&quot;")+'"></label>'
+    +'<button type="button" class="del" data-del="'+i+'" aria-label="ลบรายการ">✕</button>'
+    +'<label class="other'+otherWrap+'">รายละเอียด อื่นๆ<input data-k="other" placeholder="ระบุรายการ" value="'+(e.other||"").replace(/"/g,"&quot;")+'"></label>'
+    +"</div>";
+}
+function paintEvents(){
+  $("events").innerHTML=events.map(evHTML).join("");
+}
+function readEventsFromDom(){
+  events=Array.prototype.map.call($("events").querySelectorAll(".erow"),function(row){
+    const get=k=>(row.querySelector('[data-k="'+k+'"]')||{}).value||"";
+    return {type:get("type")||"divert",count:get("count"),other:get("other")};
+  });
+}
+
+function collect(){
+  readEventsFromDom();
+  const evs=$("no4").checked?[]:events.slice();
+  return {
+    d1:$("d1").value, period:$("period").value,
+    writerTitle:$("writerTitle").value, writerName:$("writerName").value,
+    pronoun:currentPronoun(), pronounAuto:pronounAuto,
+    fromTitle:$("fromTitle").value, fromName:$("fromName").value,
+    toTitle:$("toTitle").value, toName:$("toName").value,
+    ev1:$("ev1").value, note1:$("note1").value,
+    ev2:$("ev2").value, note2:$("note2").value,
+    ev3:$("ev3").value, note3:$("note3").value,
+    no4:$("no4").checked, events:evs,
+    agFpkTitle:$("agFpkTitle").value, agFpkName:$("agFpkName").value,
+    agFtoTitle:$("agFtoTitle").value, agFtoName:$("agFtoName").value,
+    agSccTitle:$("agSccTitle").value, agSccName:$("agSccName").value,
+    no5:$("no5").checked,
+    ev5Title:$("ev5Title").value, ev5Name:$("ev5Name").value,
+    ev5FromDate:$("ev5FromDate").value, ev5FromTime:$("ev5FromTime").value,
+    ev5ToDate:$("ev5ToDate").value, ev5ToTime:$("ev5ToTime").value,
+    hiWhere:$("hiWhere").value, hiCount:$("hiCount").value,
+    loWhere:$("loWhere").value, loCount:$("loCount").value,
+    ev5Other:$("ev5Other").value,
+    phone:readPhone()
+  };
+}
+function model(){return A.modelFromDraft(collect())}
+
+function fillEv5Dates(force){
+  const S=A.shiftInfo($("d1").value,$("period").value);
+  if(!S.a)return;
+  if(force||!$("ev5FromDate").value) $("ev5FromDate").value=A.iso(S.a);
+  if(force||!$("ev5FromTime").value) $("ev5FromTime").value=S.startT;
+  if(force||!$("ev5ToDate").value) $("ev5ToDate").value=A.iso(S.b);
+  if(force||!$("ev5ToTime").value) $("ev5ToTime").value=S.endT;
+}
+
+function syncBoxes(){
+  $("box4").classList.toggle("hidden",$("no4").checked);
+  $("box5").classList.toggle("hidden",$("no5").checked);
+  readEventsFromDom();
+  const showAg=!$("no4").checked&&A.hasDelay(events);
+  $("cardAg").classList.toggle("hidden",!showAg);
+  if(!$("no5").checked) fillEv5Dates(false);
+}
+
+function paintDate(){
+  const S=A.shiftInfo($("d1").value,$("period").value);
+  document.querySelectorAll("#periodSeg button").forEach(b=>b.classList.toggle("on",b.dataset.v===$("period").value));
+  $("dateShow").textContent=S.a?("จะแสดงในรายงานเป็น: "+(S.night?S.start+" เวลา "+S.startT+" น. ถึง "+S.end+" เวลา "+S.endT+" น.":S.start+" เวลา "+S.startT+"–"+S.endT+" น.")):"";
+  if(S.a){$("dateLabel").textContent=A.th(S.a);$("dateSub").textContent="วัน"+W[S.a.getDay()]}
+  else{$("dateLabel").textContent="แตะเพื่อเลือกวันที่";$("dateSub").textContent=""}
+}
+
+function clearMiss(){
+  document.querySelectorAll(".miss").forEach(el=>el.classList.remove("miss"));
+  document.querySelectorAll(".mh").forEach(el=>el.remove());
+}
+function paintMiss(){
+  clearMiss();
+  const miss=A.missingFields(model());
+  miss.forEach(function(m){
+    let el=$(m.k);
+    if(!el&&/^evCount/.test(m.k)){
+      const i=+m.k.replace("evCount","");
+      el=$("events").querySelectorAll(".erow")[i]&&$("events").querySelectorAll(".erow")[i].querySelector('[data-k="count"]');
+    }
+    if(!el&&/^evOther/.test(m.k)){
+      const i=+m.k.replace("evOther","");
+      el=$("events").querySelectorAll(".erow")[i]&&$("events").querySelectorAll(".erow")[i].querySelector('[data-k="other"]');
+    }
+    if(!el&&m.k==="events") el=$("addEv");
+    if(!el&&m.k==="phoneBrand") el=$("phoneBrand");
+    if(!el&&m.k==="phoneModel") el=$("phoneModel");
+    if(!el&&m.k==="phoneImei") el=$("phoneImei");
+    if(!el)return;
+    el.classList.add("miss");
+    if(el.tagName!=="BUTTON"){
+      let hn=el.parentNode&&el.parentNode.querySelector(".mh");
+      if(!hn){hn=document.createElement("span");hn.className="mh";hn.textContent="⚠️ ยังไม่ได้กรอก";el.after(hn)}
+    }
+  });
+  return miss;
+}
+
+function saveDraft(){
+  const o=collect();
+  store.set(KEYS.draft,JSON.stringify(o));
+  savePhone();
+  rememberNames([o.writerName,o.fromName,o.toName,o.agFpkName,o.agFtoName,o.agSccName,o.ev5Name]);
+}
+function loadDraft(){
+  let o=null;
+  try{o=JSON.parse(store.get(KEYS.draft)||"null")}catch(e){return false}
+  if(!o)return false;
+  const set=(id,v)=>{if(v!=null&&$(id))$(id).value=v};
+  set("d1",o.d1); set("period",o.period);
+  if(o.writerTitle)fillSelect($("writerTitle"),o.writerTitle);
+  set("writerName",o.writerName);
+  if(o.fromTitle)fillSelect($("fromTitle"),o.fromTitle);
+  set("fromName",o.fromName);
+  if(o.toTitle)fillSelect($("toTitle"),o.toTitle);
+  set("toName",o.toName);
+  pronounAuto=o.pronounAuto!==false;
+  if(o.pronoun==="ดิฉัน"){$("pnDichan").checked=true;$("pnKrapom").checked=false}
+  else{$("pnKrapom").checked=true;$("pnDichan").checked=false}
+  if(pronounAuto)applyPronounFromTitle();
+  set("ev1",o.ev1);set("note1",o.note1);
+  set("ev2",o.ev2);set("note2",o.note2);
+  set("ev3",o.ev3);set("note3",o.note3);
+  $("no4").checked=o.no4!==false;
+  $("no5").checked=o.no5!==false;
+  events=$("no4").checked?[]:(o.events||[]).map(function(e){return {type:e.type||"divert",count:e.count||"",other:e.other||""}});
+  paintEvents();
+  set("agFpkTitle",o.agFpkTitle);set("agFpkName",o.agFpkName);
+  set("agFtoTitle",o.agFtoTitle);set("agFtoName",o.agFtoName);
+  set("agSccTitle",o.agSccTitle);set("agSccName",o.agSccName);
+  set("ev5Title",o.ev5Title);set("ev5Name",o.ev5Name);
+  set("ev5FromDate",o.ev5FromDate);set("ev5FromTime",o.ev5FromTime);
+  set("ev5ToDate",o.ev5ToDate);set("ev5ToTime",o.ev5ToTime);
+  set("hiWhere",o.hiWhere);set("hiCount",o.hiCount);
+  set("loWhere",o.loWhere);set("loCount",o.loCount);
+  set("ev5Other",o.ev5Other);
+  return true;
+}
+
+function shiftNow(t){const b=new Date((t==null?Date.now():t)+7*36e5),h=b.getUTCHours();if(h<8)b.setUTCDate(b.getUTCDate()-1);return {d1:b.getUTCFullYear()+"-"+String(b.getUTCMonth()+1).padStart(2,"0")+"-"+String(b.getUTCDate()).padStart(2,"0"),day:h>=8&&h<17}}
+const AUTO={day:"08.00-17.00",night:"17.00-08.00",sk:KEYS.shift,away:36e5,hiddenAt:null,
+  key(){const s=shiftNow();return s.d1+(s.day?"D":"N")},
+  set(){const s=shiftNow(),p=s.day?this.day:this.night;$("d1").value=s.d1;$("period").value=p;return true},
+  read(){try{return JSON.parse(sessionStorage.getItem(this.sk)||"null")}catch(e){return null}},
+  touch(){setTimeout(()=>{try{sessionStorage.setItem(this.sk,JSON.stringify({k:this.key(),d1:$("d1").value,period:$("period").value}))}catch(e){}},0)},
+  manual(){const m=this.read();if(m&&m.k===this.key()&&(m.period===this.day||m.period===this.night))return m;try{sessionStorage.removeItem(this.sk)}catch(e){}return null},
+  apply(){const m=this.manual();if(m){$("d1").value=m.d1;$("period").value=m.period}else if(!$("d1").value)this.set()},
+  hide(){if(this.hiddenAt===null)this.hiddenAt=Date.now()},
+  back(){const t=this.hiddenAt;this.hiddenAt=null;if(t===null||Date.now()-t<=this.away)return;const a=$("d1").value,b=$("period").value;this.apply();if($("d1").value!==a||$("period").value!==b)build()},
+  init(){this.apply();
+    ["input","change"].forEach(e=>$("d1").addEventListener(e,()=>this.touch()));
+    document.querySelectorAll("#periodSeg button").forEach(b=>b.addEventListener("click",()=>this.touch()));
+    addEventListener("pagehide",()=>this.hide());
+    addEventListener("pageshow",e=>{if(e&&e.persisted)this.back()});
+    document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="hidden")this.hide();else this.back()})}
+};
+
+function build(){
+  syncBoxes();
+  paintDate();
+  saveDraft();
+  paintMiss();
+}
+
+function resetForm(){
+  fillSelect($("writerTitle"),"นาย");$("writerName").value="";
+  fillSelect($("fromTitle"),"นาย");$("fromName").value="";
+  fillSelect($("toTitle"),"นาย");$("toName").value="";
+  pronounAuto=true;applyPronounFromTitle();
+  $("ev1").value="เรียบร้อย";$("note1").value="-";
+  $("ev2").value="เรียบร้อย";$("note2").value="-";
+  $("ev3").value="เรียบร้อย";$("note3").value="-";
+  $("no4").checked=true;$("no5").checked=true;
+  events=[];paintEvents();
+  $("agFpkTitle").value="นาย";$("agFpkName").value="";
+  $("agFtoTitle").value="นาย";$("agFtoName").value="";
+  $("agSccTitle").value="";$("agSccName").value="";
+  $("ev5Title").value="นาย";$("ev5Name").value="";
+  $("ev5FromDate").value="";$("ev5FromTime").value="";
+  $("ev5ToDate").value="";$("ev5ToTime").value="";
+  $("hiWhere").value="ทางขับ สาย K";$("hiCount").value="-";
+  $("loWhere").value="หลุมจอดฯ";$("loCount").value="";
+  $("ev5Other").value="";
+  loadPhone();
+  AUTO.set();
+  try{sessionStorage.removeItem(AUTO.sk)}catch(e){}
+}
+
+$("writerTitle").addEventListener("change",()=>{pronounAuto=true;applyPronounFromTitle();build()});
+["pnKrapom","pnDichan"].forEach(id=>$(id).addEventListener("change",()=>{pronounAuto=false;build()}));
+document.querySelectorAll("#periodSeg button").forEach(b=>b.addEventListener("click",()=>{
+  $("period").value=b.dataset.v;
+  if(!$("no5").checked)fillEv5Dates(true);
+  build();
+}));
+$("d1").addEventListener("change",()=>{if(!$("no5").checked)fillEv5Dates(true);build()});
+$("no4").addEventListener("change",()=>{
+  if(!$("no4").checked&&!events.length){events=[{type:"divert",count:"",other:""}];paintEvents()}
+  build();
+});
+$("no5").addEventListener("change",()=>{if(!$("no5").checked)fillEv5Dates(true);build()});
+$("addEv").addEventListener("click",()=>{readEventsFromDom();events.push({type:"divert",count:"",other:""});paintEvents();build()});
+$("events").addEventListener("click",e=>{
+  const btn=e.target.closest("[data-del]");
+  if(!btn)return;
+  readEventsFromDom();
+  events.splice(+btn.getAttribute("data-del"),1);
+  paintEvents();build();
+});
+$("events").addEventListener("change",e=>{
+  if(e.target&&e.target.getAttribute("data-k")==="type"){
+    readEventsFromDom();paintEvents();
+  }
+  build();
+});
+$("events").addEventListener("input",()=>{saveDraft()});
+["phoneBrand","phoneModel","phoneStorage","phoneImei"].forEach(id=>$(id).addEventListener("input",()=>{savePhone();saveDraft()}));
+document.querySelector(".wrap").addEventListener("input",e=>{
+  if(e.target&&e.target.id&&e.target.id!=="events") saveDraft();
+});
+$("goWord").addEventListener("click",()=>{
+  saveDraft();
+  const miss=paintMiss();
+  if(miss.length&&!confirm("ยังขาดข้อมูล "+miss.length+" ช่อง ต้องการไปหน้า Word ต่อหรือไม่?"))return;
+  location.href="word/";
+});
+$("btnClear").addEventListener("click",()=>{
+  if(!confirm("ล้างข้อมูลในฟอร์มนี้? รายชื่อที่เคยพิมพ์และค่าโทรศัพท์เวรจะยังอยู่"))return;
+  store.del(KEYS.draft);
+  resetForm();
+  build();
+});
+paintNames();
+loadPhone();
+const had=loadDraft();
+if(!had||!$("d1").value) AUTO.set();
+if(!$("no4").checked) paintEvents();
+AUTO.init();
+applyPronounFromTitle();
+build();
+document.querySelectorAll(".datebox input").forEach(function(i){i.addEventListener("click",function(){try{if(i.showPicker)i.showPicker()}catch(e){}})});
+</script>
+<div id="offlineBadge" role="status" aria-live="polite" hidden style="position:fixed;top:calc(env(safe-area-inset-top,0px) + 4px);right:6px;z-index:60;font:600 11px/1.6 system-ui,sans-serif;padding:1px 8px;border-radius:10px;background:var(--warn-bg,#fff3e6);color:var(--warn-ink,#b4470f);border:1px solid var(--warn-line,#f1c08a);opacity:.92;pointer-events:none">● ออฟไลน์</div>
+<style>#swUpdate[hidden],#offlineBadge[hidden]{display:none!important}</style>
+
+<script src="../lib/pako.min.js"></script>
+<script src="../lib/qrcode.min.js"></script>
+<script src="lib/handoff.js"></script>
+<script>
+(function(){
+  if(!window.ReportsHandoff)return;
+  function getState(){
+    try{if(typeof saveDraft==="function")saveDraft()}catch(e){}
+    var draft=null; try{draft=JSON.parse(localStorage.getItem(KEYS.draft)||"null")}catch(e){}
+    return {
+      draft:draft,
+      shift:{d1:($("d1")||{}).value||"",period:($("period")||{}).value||""}
+    };
+  }
+  function isEmpty(){
+    try{
+      var o=JSON.parse(localStorage.getItem(KEYS.draft)||"null");
+      if(!o)return true;
+      return !o.writerName&&!o.fromName&&!o.toName&&(o.no4!==false)&&(o.no5!==false);
+    }catch(e){return true}
+  }
+  function applyState(p){
+    if(p.draft) localStorage.setItem(KEYS.draft,JSON.stringify(p.draft));
+    try{if(typeof loadDraft==="function")loadDraft()}catch(e){}
+    if(p.shift){
+      if(p.shift.d1) $("d1").value=p.shift.d1;
+      if(p.shift.period) $("period").value=p.shift.period;
+      try{if(AUTO&&AUTO.touch)AUTO.touch()}catch(e){}
+    }
+    try{if(typeof build==="function")build()}catch(e){}
+  }
+  window.__handoff=ReportsHandoff.mount({
+    prefix:"AOCC",
+    saveBefore:function(){try{saveDraft()}catch(e){}},
+    getState:getState, applyState:applyState, isEmpty:isEmpty
+  });
+})();
+</script>
+<script>/* ป้ายออฟไลน์เท่านั้น ไม่ลงทะเบียน service worker */
+(function(){var b=document.getElementById("offlineBadge");if(!b)return;function u(){b.hidden=navigator.onLine!==false}u();addEventListener("online",u);addEventListener("offline",u)})();</script>
+</body>
+</html>
