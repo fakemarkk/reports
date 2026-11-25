@@ -190,11 +190,15 @@ function fileBase(m){
   return "AOCC_SUP_" + (S.a ? iso(S.a).replace(/-/g,"") : "draft") + (S.night ? "_N" : "_D");
 }
 
+function imeiText(imei){
+  // Keep IMEI digit groups together (3534 5615 809 8167 → NBSP between groups)
+  return s(imei).replace(/ /g, "\u00A0");
+}
 function phoneText(p){
   p = p || DEF_PHONE;
   let t = "ยี่ห้อ " + s(p.brand) + " รุ่น " + s(p.model);
   if (s(p.storage)) t += "  " + s(p.storage);
-  t += " หมายเลขเครื่อง IMEI : " + s(p.imei);
+  t += " หมายเลขเครื่อง IMEI : " + imeiText(p.imei);
   return t;
 }
 
@@ -316,7 +320,7 @@ function page1Body(m){
     + '<p class="spacer">&nbsp;</p>'
     + tableHTML(m)
     + '<p class="spacer">&nbsp;</p>'
-    + '<p class="body first">'+closingHTML(m)+"</p>"
+    + '<p class="body first close">'+closingHTML(m)+"</p>"
     + '<p class="body first close-end">จึงเรียนมาเพื่อทราบ</p>'
     + '<div class="sigs"><div class="sig send">................................................................ผู้ส่ง</div>'
     + '<div class="sig recv">................................................................ผู้รับ</div></div>';
