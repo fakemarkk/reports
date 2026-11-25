@@ -114,11 +114,12 @@ function lines(m,pg){
   const fl=pg?m.flights.slice(pg.a,pg.b):m.flights;
   if(first){
   L.push({k:"ttl",t:"แบบฟอร์มการจัดส่งข้อมูลให้ผู้บริหาร ทอท."},{k:"ttl",t:"ผ่านระบบโทรศัพท์มือถือ (SMS)"});
-  L.push({k:"to",t:"ถึง  ศูนย์รักษาความปลอดภัย ทสภ. (SCC)"});
+  // ค่าหลังป้าย ถึง/วันที่/จาก/เรื่อง จัดคอลัมน์ด้วยแท็บ (ตำแหน่ง HD_TAB) ไม่ใช้ช่องว่าง
+  L.push({k:"to",t:["ถึง","ศูนย์รักษาความปลอดภัย ทสภ. (SCC)"]});
   // บรรทัดบน = วันที่/เวลาที่ส่งรายงาน (วันเดียว) · บรรทัดเรื่อง = ช่วงวันที่ของผลัด
-  L.push({k:"hd",t:"วันที่ "+or(m.smsDate,14)+"  เวลา "+or(m.smsTime,8)+" น."});
-  L.push({k:"hd",t:"จาก ศูนย์ควบคุมปฏิบัติการเขตการบิน AOCC (โทร. 24103)"});
-  L.push({k:"hd",t:"เรื่อง แจ้งข้อมูลเที่ยวบินล่าช้า  วันที่ "+or(m.range,12)+"  ช่วงเวลา "+m.p[0]+" - "+m.p[1]+" น."});
+  L.push({k:"hd",t:["วันที่",or(m.smsDate,14)+"  เวลา "+or(m.smsTime,8)+" น."]});
+  L.push({k:"hd",t:["จาก","ศูนย์ควบคุมปฏิบัติการเขตการบิน AOCC (โทร. 24103)"]});
+  L.push({k:"hd",t:["เรื่อง","แจ้งข้อมูลเที่ยวบินล่าช้า  วันที่ "+or(m.range,12)+"  ช่วงเวลา "+m.p[0]+" - "+m.p[1]+" น."]});
   L.push({k:"dash",t:"มีเที่ยวบินล่าช้ามากกว่า 3 ชั่วโมง จำนวน "+m.count+" เที่ยวบิน ดังนี้"});
   }
   fl.forEach((f,i)=>{
@@ -135,6 +136,8 @@ const WA=[216, 147, 208, 403, 361, 585, 423, 120, 190, 190, 285, 411, 162, 216, 
 function textW(t){let w=0;for(const ch of String(t)){const c=ch.codePointAt(0);
   w+=c>=0x20&&c<=0x7e?WA[c-0x20]:c===0xa0?216:c>=0xe01&&c<=0xe5b?WT[c-0xe01]:c===0x200b?0:c===0x2013?360:450}
   return w*16/1000*20} // twips ที่ 16pt
+// แท็บหัวเอกสาร: เลยป้ายที่กว้างสุด "เรื่อง" (385.92tw) ไปอีกประมาณ 1 ช่องว่าง → 480tw (32px)
+const HD_TAB=480;
 // บล็อกลงชื่อ (แบบ C): อยู่ฝั่งขวา จัดกึ่งกลางทุกบรรทัด ถ้าข้อความยาวบล็อกจะขยายไปทางซ้าย
 const SIG_TW=9602, SIG_L=3810, SIG_PAD=360;
 function sigLeft(m){const L=lines(m).filter(x=>x.k==="sig"||x.k==="pos"||x.k==="date");
@@ -143,7 +146,7 @@ function sigLeft(m){const L=lines(m).filter(x=>x.k==="sig"||x.k==="pos"||x.k==="
 // ระยะย่อหน้า (twips): before/after, ind = เยื้องซ้าย, hang = เยื้องลอย
 // gap ก่อน/หลังบรรทัด "- มีเที่ยวบิน..." = 1 บรรทัด 16pt (360tw), ระหว่างเที่ยวบิน = 1 บรรทัดว่าง (382tw)
 function spec(k,sigL,inline){return ({
-  top:{after:160,bold:true}, ttl:{after:160,bold:true,jc:"center"}, to:{after:160}, hd:{after:20},
+  top:{after:160,bold:true}, ttl:{after:160,bold:true,jc:"center"}, to:{after:20,tab:HD_TAB}, hd:{after:20,tab:HD_TAB},
   dash:{before:360,after:20,ind:900},
   fl1:{before:360,after:20,ind:1650,hang:240,keep:true}, fl:{before:382,after:20,ind:1650,hang:240,keep:true},
   sub:{after:20,ind:1900,keep:true}, subl:{after:20,ind:1900},
@@ -163,7 +166,8 @@ function run(t,b){return '<w:r>'+rPr(b)+'<w:t xml:space="preserve">'+xmlEsc(t)+'
 function para(x,sigL,inline){
   const o=spec(x.k,sigL,inline);
   let p='<w:pPr>'+(o.keep||x.keep?'<w:keepNext/>':'')+'<w:keepLines/>'+(o.frame?framePr(sigL):'')+'<w:spacing w:before="'+(o.before||0)+'" w:after="'+(o.after||0)+'" w:line="240" w:lineRule="auto"/>'
-    +'<w:ind w:left="'+(o.ind||0)+'" w:right="0"'+(o.hang?' w:hanging="'+o.hang+'"':'')+'/><w:jc w:val="'+(o.jc||"left")+'"/>'+rPr(o.bold)+'</w:pPr>';
+    +'<w:ind w:left="'+(o.ind||0)+'" w:right="0"'+(o.hang?' w:hanging="'+o.hang+'"':'')+'/><w:jc w:val="'+(o.jc||"left")+'"/>'
+    +(o.tab?'<w:tabs><w:tab w:val="left" w:pos="'+o.tab+'"/></w:tabs>':'')+rPr(o.bold)+'</w:pPr>';
   if(Array.isArray(x.t)) p+=run(x.t[0],o.bold)+'<w:r>'+rPr(o.bold)+'<w:tab/></w:r>'+run(x.t[1],o.bold);
   else if(x.t) p+=run(x.t,o.bold);
   return '<w:p>'+p+'</w:p>';
@@ -185,7 +189,9 @@ function fileBase(d){const S=shift(d);return "Delay_"+(S.b?iso(S.b).replace(/-/g
 function h(t){return String(t).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")}
 function pageHTML(m,pg){
   const L=sigLeft(m)/15,isSig=x=>x.k==="sig"||x.k==="pos"||x.k==="date";
-  const p=x=>{const t=Array.isArray(x.t)?'<span class="no">'+h(x.t[0])+'</span>'+h(x.t[1]):(x.t?h(x.t):NB);
+  const p=x=>{let t;
+    if(Array.isArray(x.t)) t=(x.k==="to"||x.k==="hd")?'<span class="lab">'+h(x.t[0])+'</span>'+h(x.t[1]):'<span class="no">'+h(x.t[0])+'</span>'+h(x.t[1]);
+    else t=x.t?h(x.t):NB;
     return '<p class="'+x.k+'">'+t+'</p>'};
   const all=lines(m,pg);
   // บล็อกลงชื่อแยกเป็น .sigb เยื้องซ้ายเท่า sigL ของไฟล์ Word
