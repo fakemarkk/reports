@@ -61,11 +61,34 @@ function fullName(title, name){
   if (name.indexOf(title) === 0) return name;
   return title + name;
 }
-function pronounName(pronoun, title, name){
+function glueName(title, name){
   const fn = fullName(title, name);
+  return fn ? fn.replace(/ /g, "\u00A0") : "";
+}
+/* Keep a Thai/Latin unit from wrapping mid-string in Word (NBSP for spaces, U+2060 between graphemes). Preview uses CSS nowrap instead. */
+const TH_MARK = "[\u0300-\u036f\u0E31\u0E34-\u0E3A\u0E47-\u0E4E]";
+function unbreakWord(s){
+  s = String(s == null ? "" : s).replace(/ /g, "\u00A0");
+  if (!s) return s;
+  const re = new RegExp("(?:\u00A0|[^\u00A0\u0300-\u036f\u0E31\u0E34-\u0E3A\u0E47-\u0E4E]" + TH_MARK + "*)", "g");
+  const parts = s.match(re);
+  if (!parts) return s;
+  let out = parts[0];
+  for (let i = 1; i < parts.length; i++){
+    if (parts[i] !== "\u00A0" && parts[i-1] !== "\u00A0") out += "\u2060";
+    out += parts[i];
+  }
+  return out;
+}
+function glueNameXml(title, name){
+  return unbreakWord(glueName(title, name));
+}
+function pronounName(pronoun, title, name){
+  const fn = glueName(title, name);
   const p = s(pronoun);
   if (!p) return fn;
   // ต้นฉบับขึ้นต้นว่า "ดิฉัน …" — เว้นวรรคหลังสรรพนามเสมอ (กระผม นายทดสอบ / กระผม พ.อ.อ.สมชาย)
+  // ชื่อ (คำนำหน้า+ชื่อ+นามสกุล) ติดกันด้วย NBSP ไม่ตัดกลางชื่อ
   return fn ? p + " " + fn : p;
 }
 function eventType(id){
@@ -175,25 +198,35 @@ function phoneText(p){
   return t;
 }
 
-function openingLead(m){
-  const S = shiftInfo(m.d1, m.period);
-  const who = pronounName(m.pronoun || pronounOf(m.writerTitle), m.writerTitle, m.writerName) || "........";
-  return "ด้วยเมื่อวันที่ " + (S.start || "........") + " เวลา " + S.startT + " น. " + who + " ได้รับมอบหน้าที่      ";
+function nameForXml(title, name){
+  return glueNameXml(title, name) || "........";
 }
-function openingFrom(m){
-  return "จาก " + (fullName(m.fromTitle, m.fromName) || "........") + " ระหว่างปฏิบัติหน้าที่มีเหตุการณ์ควรเรียนให้ทราบดังนี้";
+function openingLead(m, xml){
+  const S = shiftInfo(m.d1, m.period);
+  const who = xml
+    ? (function(){
+        const p = s(m.pronoun || pronounOf(m.writerTitle));
+        const fn = glueNameXml(m.writerTitle, m.writerName);
+        return fn ? (p ? p + " " + fn : fn) : (p || "........");
+      })()
+    : (pronounName(m.pronoun || pronounOf(m.writerTitle), m.writerTitle, m.writerName) || "........");
+  return "ด้วยเมื่อวันที่ " + (S.start || "........") + " เวลา " + S.startT + " น. " + who + " ได้รับมอบหน้าที่";
+}
+function openingFrom(m, xml){
+  const nm = xml ? nameForXml(m.fromTitle, m.fromName) : (glueName(m.fromTitle, m.fromName) || "........");
+  return "จาก " + nm + " ระหว่างปฏิบัติหน้าที่มีเหตุการณ์ควรเรียนให้ทราบดังนี้";
 }
 function openingText(m){
-  return openingLead(m).replace(/\s+$/,"") + " " + POS_TH + " " + openingFrom(m);
+  return openingLead(m, true).replace(/\s+$/,"") + " " + POS_TH + " " + openingFrom(m, true);
 }
 function closingLead(m){
   const S = shiftInfo(m.d1, m.period);
   const pn = m.pronoun || pronounOf(m.writerTitle);
-  return "ครั้นเมื่อวันที่ " + (S.end || "........") + " เวลา " + S.endT + " น. " + pn + "ได้มอบหน้าที่ หน.พนง.งานกะศูนย์ปฏิบัติการ ";
+  return "ครั้นเมื่อวันที่ " + (S.end || "........") + " เวลา " + S.endT + " น. " + pn + "ได้มอบหน้าที่ " + POS_TH + " ";
 }
 function closingMid(m){
-  return "AIRSIDE OPERATION CONTROL CENTER (AOCC) และเครื่องโทรศัพท์เคลื่อนที่ " + phoneText(m.phone)
-    + " พร้อมอุปกรณ์ชาร์ตแบตฯ ให้กับ " + (fullName(m.toTitle, m.toName) || "........");
+  return "และเครื่องโทรศัพท์เคลื่อนที่ " + phoneText(m.phone)
+    + " พร้อมอุปกรณ์ชาร์ตแบตฯ ให้กับ " + nameForXml(m.toTitle, m.toName);
 }
 function closingText(m){
   return closingLead(m) + closingMid(m) + " เพื่ออยู่ปฏิบัติหน้าที่ต่อไป";
@@ -222,27 +255,16 @@ function footerHTML(){
 }
 function tableHTML(m){
   function cell(cls, html){ return "<td class='"+cls+"'>"+html+"</td>"; }
+  function bodyRow(n, label, ev, note){
+    return "<tr>"+cell("n",esc(n))+cell("c",esc(label))+cell("c",esc(ev))+cell("c",esc(note))+"</tr>";
+  }
   let h = '<table class="rep"><colgroup><col class="c1"><col class="c2"><col class="c3"><col class="c4"></colgroup>';
   h += "<thead><tr><th>ลำดับ</th><th>รายการ</th><th>เหตุการณ์</th><th>หมายเหตุ</th></tr></thead><tbody>";
-  // Official sample merges items 1–2 in one tall row (gap above 1.), then 3, 4, 5, and a blank last row. No lines between body rows.
-  h += "<tr class='r12'>"
-    + cell("n", "<span class='gap'></span>1.<span class='mid'></span>2.")
-    + cell("c", "<span class='gap'></span>"+esc(ITEM_LABELS[0])+"<span class='mid'></span>"+esc(ITEM_LABELS[1]))
-    + cell("c", "<span class='gap'></span>"+esc(itemEvent(m,1))+"<span class='mid'></span>"+esc(itemEvent(m,2)))
-    + cell("c", "<span class='gap'></span>"+esc(itemNote(m,1))+"<span class='mid'></span>"+esc(itemNote(m,2)))
-    + "</tr>";
-  h += "<tr class='r3'>"
-    + cell("n","3.")+cell("c",esc(ITEM_LABELS[2]))+cell("c",esc(itemEvent(m,3)))+cell("c",esc(itemNote(m,3)))
-    + "</tr>";
-  h += "<tr class='r4'>"
-    + cell("n","4.")+cell("c","งานที่ผู้บังคับบัญชามอบหมายและสั่งการ")
-    + cell("c", m.no4?"ไม่มี":"มี")+cell("c", m.no4?"-":"รายละเอียดด้านหลัง")
-    + "</tr>";
-  h += "<tr class='r5'>"
-    + cell("n","5.")+cell("c","รายการอนุมัติ/อื่นๆ")
-    + cell("c", m.no5?"ไม่มี":"มี")+cell("c", m.no5?"-":"รายละเอียดด้านหลัง")
-    + "</tr>";
-  h += "<tr class='rblank'><td></td><td></td><td></td><td></td></tr>";
+  h += bodyRow("1.", ITEM_LABELS[0], itemEvent(m,1), itemNote(m,1));
+  h += bodyRow("2.", ITEM_LABELS[1], itemEvent(m,2), itemNote(m,2));
+  h += bodyRow("3.", ITEM_LABELS[2], itemEvent(m,3), itemNote(m,3));
+  h += bodyRow("4.", "งานที่ผู้บังคับบัญชามอบหมายและสั่งการ", m.no4?"ไม่มี":"มี", m.no4?"-":"รายละเอียดด้านหลัง");
+  h += bodyRow("5.", "รายการอนุมัติ/อื่นๆ", m.no5?"ไม่มี":"มี", m.no5?"-":"รายละเอียดด้านหลัง");
   return h + "</tbody></table>";
 }
 function page2HTML(m){
@@ -263,21 +285,39 @@ function page2HTML(m){
   }
   return h;
 }
+function nameSpan(title, name){
+  const t = glueName(title, name) || "........";
+  return '<span class="nm">'+esc(t)+"</span>";
+}
+function openingHTML(m){
+  const S = shiftInfo(m.d1, m.period);
+  const p = s(m.pronoun || pronounOf(m.writerTitle));
+  return "ด้วยเมื่อวันที่ " + esc(S.start || "........") + " เวลา " + esc(S.startT) + " น. "
+    + esc(p) + " " + nameSpan(m.writerTitle, m.writerName)
+    + " ได้รับมอบหน้าที่ " + esc(POS_TH)
+    + " จาก " + nameSpan(m.fromTitle, m.fromName)
+    + " ระหว่างปฏิบัติหน้าที่มีเหตุการณ์ควรเรียนให้ทราบดังนี้";
+}
+function closingHTML(m){
+  const S = shiftInfo(m.d1, m.period);
+  const pn = s(m.pronoun || pronounOf(m.writerTitle));
+  return "ครั้นเมื่อวันที่ " + esc(S.end || "........") + " เวลา " + esc(S.endT) + " น. "
+    + esc(pn) + "ได้มอบหน้าที่ " + esc(POS_TH) + " และเครื่องโทรศัพท์เคลื่อนที่ "
+    + esc(phoneText(m.phone)) + " พร้อมอุปกรณ์ชาร์ตแบตฯ ให้กับ "
+    + nameSpan(m.toTitle, m.toName)
+    + " เพื่ออยู่ปฏิบัติหน้าที่ต่อไป";
+}
 function page1Body(m){
   return '<p class="org">ฝ่ายปฏิบัติการเขตการบิน</p>'
     + '<p class="subj"><b>เรื่อง</b>   รายงานประจำวัน</p>'
     + '<p class="subj"><b>เรียน</b>   ผอก.ฝปข.</p>'
     + '<p class="spacer">&nbsp;</p>'
-    + '<p class="body first">'+esc(openingLead(m))+"</p>"
-    + '<p class="body pos">'+esc(POS_TH)+" </p>"
-    + '<p class="body from">'+esc(openingFrom(m))+"</p>"
+    + '<p class="body first">'+openingHTML(m)+"</p>"
     + '<p class="spacer">&nbsp;</p>'
     + tableHTML(m)
     + '<p class="spacer">&nbsp;</p>'
-    + '<p class="body first">'+esc(closingLead(m))+"</p>"
-    + '<p class="body">'+esc(closingMid(m))+"</p>"
-    + '<p class="body">เพื่ออยู่ปฏิบัติหน้าที่ต่อไป</p>'
-    + '<p class="body first">จึงเรียนมาเพื่อทราบ</p>'
+    + '<p class="body first">'+closingHTML(m)+"</p>"
+    + '<p class="body first close-end">จึงเรียนมาเพื่อทราบ</p>'
     + '<div class="sigs"><div class="sig send">................................................................ผู้ส่ง</div>'
     + '<div class="sig recv">................................................................ผู้รับ</div></div>';
 }
@@ -294,6 +334,9 @@ const RNS = "http://schemas.openxmlformats.org/officeDocument/2006/relationships
 function xesc(t){ return String(t==null?"":t).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
 function rFonts(){
   return "<w:rFonts w:ascii=\"TH Sarabun New\" w:hAnsi=\"TH Sarabun New\" w:cs=\"TH Sarabun New\"/>";
+}
+function pageBreakP(){
+  return "<w:p><w:pPr><w:spacing w:before=\"0\" w:after=\"0\" w:line=\"240\" w:lineRule=\"auto\"/></w:pPr><w:r>"+rFonts()+"<w:br w:type=\"page\"/></w:r></w:p>";
 }
 function rPr(bold){
   return "<w:rPr>"+rFonts()+(bold?"<w:b/><w:bCs/>":"")+"<w:sz w:val=\"32\"/><w:szCs w:val=\"32\"/></w:rPr>";
@@ -363,12 +406,12 @@ function tr(cells, h){
 }
 
 const COLS = [648, 3780, 1800, 2610];
-const ROW_H = {head:743, body:520};
+const ROW_H = {head:743, body:925};
 function tableXml(m){
   const rows = [];
   function dataRow(num, label, ev, note){
     return tr([
-      tc(num, {w:COLS[0], jc:"center"}),
+      tc(num, {w:COLS[0], jc:"center", ind:{left:"-108", right:"-108"}}),
       tc(label, {w:COLS[1], jc:"center"}),
       tc(ev, {w:COLS[2], jc:"center"}),
       tc(note, {w:COLS[3], jc:"center"})
@@ -390,7 +433,7 @@ function tableXml(m){
     + "<w:left w:val=\"single\" w:sz=\"4\" w:space=\"0\" w:color=\"auto\"/>"
     + "<w:bottom w:val=\"single\" w:sz=\"4\" w:space=\"0\" w:color=\"auto\"/>"
     + "<w:right w:val=\"single\" w:sz=\"4\" w:space=\"0\" w:color=\"auto\"/>"
-    + "<w:insideH w:val=\"single\" w:sz=\"4\" w:space=\"0\" w:color=\"auto\"/>"
+    + "<w:insideH w:val=\"nil\" w:sz=\"0\" w:space=\"0\" w:color=\"auto\"/>"
     + "<w:insideV w:val=\"single\" w:sz=\"4\" w:space=\"0\" w:color=\"auto\"/>"
     + "</w:tblBorders>"
     + "<w:tblLook w:val=\"01E0\" w:firstRow=\"1\" w:lastRow=\"1\" w:firstColumn=\"1\" w:lastColumn=\"1\" w:noHBand=\"0\" w:noVBand=\"0\"/>"
@@ -407,10 +450,8 @@ function fillTpl(xml, map){
 }
 function page1Map(m){
   return {
-    "{{OPENING}}": openingLead(m),
-    "{{FROM_LINE}}": openingFrom(m),
-    "{{CLOSE_LEAD}}": closingLead(m),
-    "{{CLOSE_MID}}": closingMid(m),
+    "{{OPENING}}": openingText(m),
+    "{{CLOSE}}": closingText(m),
     "{{EV1}}": itemEvent(m,1), "{{EV2}}": itemEvent(m,2), "{{EV3}}": itemEvent(m,3),
     "{{NOTE1}}": itemNote(m,1), "{{NOTE2}}": itemNote(m,2), "{{NOTE3}}": itemNote(m,3),
     "{{HAS4}}": m.no4 ? "ไม่มี" : "มี",
@@ -447,7 +488,7 @@ function page2Xml(m, P){
 function bodyXml(m){
   const P = ooxmlParts();
   let xml = fillTpl(P["page1.xml"], page1Map(m));
-  if (needPage2(m)) xml += page2Xml(m, P);
+  if (needPage2(m)) xml += pageBreakP() + page2Xml(m, P);
   xml += P["sect.xml"];
   return xml;
 }
@@ -554,7 +595,7 @@ root.AoccLib = {
   M:M, MIME:MIME, DOC_CODE:DOC_CODE, DOC_REV:DOC_REV, POS_TH:POS_TH, ATTACH:ATTACH,
   TITLES:TITLES, DEF_PHONE:DEF_PHONE, ITEM_LABELS:ITEM_LABELS, EVENT_TYPES:EVENT_TYPES, AGENCY:AGENCY,
   s:s, th:th, iso:iso, parseISO:parseISO, addDays:addDays, shiftInfo:shiftInfo,
-  pronounOf:pronounOf, isStdTitle:isStdTitle, fullName:fullName, pronounName:pronounName, eventType:eventType, eventLine:eventLine,
+  pronounOf:pronounOf, isStdTitle:isStdTitle, fullName:fullName, glueName:glueName, pronounName:pronounName, eventType:eventType, eventLine:eventLine,
   hasDelay:hasDelay, hasAgency:hasAgency, defaultModel:defaultModel, modelFromDraft:modelFromDraft,
   missingFields:missingFields, fileBase:fileBase, needPage2:needPage2,
   openingText:openingText, closingText:closingText, openingLead:openingLead, openingFrom:openingFrom,
