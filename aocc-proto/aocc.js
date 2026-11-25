@@ -251,7 +251,7 @@ function ev5Lines(m){
 function needPage2(m){ return !m.no4 || !m.no5; }
 
 /* ========== HTML preview (A4 @96dpi, margins match the official memo) ========== */
-/* 1440/15=96 top, 836/15≈55.73 right, 993/15=66.2 bottom, 1800/15=120 left */
+/* 1440/15=96 top, 836/15≈55.73 right, 993/15=66.2 bottom, 1440/15=96 left (2.54cm / 1 in) */
 function esc(t){ return String(t==null?"":t).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
 
 function footerHTML(){
@@ -409,7 +409,7 @@ function tr(cells, h){
   return "<w:tr><w:trPr><w:trHeight w:val=\""+h+"\"/></w:trPr>"+cells.join("")+"</w:tr>";
 }
 
-const COLS = [648, 3780, 1800, 2610];
+const COLS = [706, 4119, 1961, 2844];
 const ROW_H = {head:743, body:925};
 function tableXml(m){
   const rows = [];
@@ -432,7 +432,7 @@ function tableXml(m){
   rows.push(dataRow("3.", ITEM_LABELS[2], itemEvent(m,3), itemNote(m,3)));
   rows.push(dataRow("4.", "งานที่ผู้บังคับบัญชามอบหมายและสั่งการ", m.no4?"ไม่มี":"มี", m.no4?"-":"รายละเอียดด้านหลัง"));
   rows.push(dataRow("5.", "รายการอนุมัติ/อื่นๆ", m.no5?"ไม่มี":"มี", m.no5?"-":"รายละเอียดด้านหลัง"));
-  return "<w:tbl><w:tblPr><w:tblW w:w=\"8838\" w:type=\"dxa\"/><w:tblBorders>"
+  return "<w:tbl><w:tblPr><w:tblW w:w=\"9630\" w:type=\"dxa\"/><w:tblBorders>"
     + "<w:top w:val=\"single\" w:sz=\"4\" w:space=\"0\" w:color=\"auto\"/>"
     + "<w:left w:val=\"single\" w:sz=\"4\" w:space=\"0\" w:color=\"auto\"/>"
     + "<w:bottom w:val=\"single\" w:sz=\"4\" w:space=\"0\" w:color=\"auto\"/>"
