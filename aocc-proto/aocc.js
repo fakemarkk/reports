@@ -105,12 +105,7 @@ function defaultModel(){
     agFpkTitle:"นาย", agFpkName:"",
     agFtoTitle:"นาย", agFtoName:"",
     agSccTitle:"", agSccName:"",
-    no5:true,
-    ev5Title:"นาย", ev5Name:"",
-    ev5FromDate:"", ev5FromTime:"", ev5ToDate:"", ev5ToTime:"",
-    hiWhere:"ทางขับ สาย K", hiCount:"-",
-    loWhere:"หลุมจอดฯ", loCount:"",
-    ev5Other:"",
+    no5:true, ev5Text:"",
     phone: Object.assign({}, DEF_PHONE)
   };
 }
@@ -158,9 +153,7 @@ function missingFields(m){
     }
   }
   if (!m.no5) {
-    need(s(m.ev5Name), "ev5Name", "ชื่อ หน.เวร ฝปข.ทสภ. (06) ข้อ 5");
-    need(!!parseISO(m.ev5FromDate) && s(m.ev5FromTime), "ev5FromTime", "วันเวลาเริ่มต้นข้อ 5");
-    need(!!parseISO(m.ev5ToDate) && s(m.ev5ToTime), "ev5ToTime", "วันเวลาสิ้นสุดข้อ 5");
+    need(s(m.ev5Text), "ev5Text", "รายการอนุมัติ/อื่นๆ ข้อ 5");
   }
   return out;
 }
@@ -211,10 +204,12 @@ function ev4Lines(m){
   if (m.no4) return [];
   return (m.events||[]).map(function(e,i){ return eventLine(e, "4."+(i+1)); });
 }
-function ev5DatePhrase(m){
-  const fd = parseISO(m.ev5FromDate), td = parseISO(m.ev5ToDate);
-  return "วันที่ " + (fd?th(fd):"........") + " เวลา " + (s(m.ev5FromTime)||"......") + " น."
-    + " ถึงวันที่ " + (td?th(td):"........") + " เวลา " + (s(m.ev5ToTime)||"......") + " น.";
+function ev5Lines(m){
+  const raw = String(m && m.ev5Text != null ? m.ev5Text : "").replace(/\r\n/g,"\n").replace(/\r/g,"\n");
+  if (!raw.trim()) return [];
+  const lines = raw.split("\n");
+  if (lines.length && lines[lines.length-1]==="") lines.pop();
+  return lines;
 }
 function needPage2(m){ return !m.no4 || !m.no5; }
 
@@ -263,15 +258,8 @@ function page2HTML(m){
     }
   }
   if (!m.no5) {
-    h += '<p class="h">รายงานข้อ 5</p>';
-    h += '<p class="ind">ได้รายงาน หน.เวร ฝปข.ทสภ. (06) '+esc(fullName(m.ev5Title, m.ev5Name))
-      + " เกี่ยวกับข้อมูลอากาศยาน ขออนุญาตทำการทดสอบเครื่องยนต์ " + esc(ev5DatePhrase(m)) + " ดังนี้</p>";
-    h += '<p class="ind">- อากาศยานขออนุญาตทำการทดสอบเครื่องยนต์กำลังสูง ณ '+esc(s(m.hiWhere)||"ทางขับ สาย K")
-      + " จำนวน " + esc(s(m.hiCount)||"-") + " ลำ</p>";
-    h += '<p class="ind">- อากาศยานขออนุญาตทำการทดสอบเครื่องยนต์รอบเดินเบา ณ '+esc(s(m.loWhere)||"หลุมจอดฯ")
-      + " จำนวน " + esc(s(m.loCount)||"-") + " ลำ</p>";
-    if (s(m.ev5Other)) h += '<p class="ind">'+esc(s(m.ev5Other))+"</p>";
-    h += '<p class="att">'+esc(ATTACH)+"</p>";
+    h += '<p class="h">5. รายการอนุมัติ/อื่นๆ</p>';
+    ev5Lines(m).forEach(function(line){ h += '<p class="ind">'+(line?esc(line):"&nbsp;")+"</p>"; });
   }
   return h;
 }
@@ -451,17 +439,7 @@ function page2Xml(m, P){
   }
   if (!m.no5) {
     xml += P["p2_ev5_head.xml"];
-    xml += p2line("p2_ev5_body.xml",
-      "ได้รายงาน หน.เวร ฝปข.ทสภ. (06) "+fullName(m.ev5Title, m.ev5Name)
-      + " เกี่ยวกับข้อมูลอากาศยาน ขออนุญาตทำการทดสอบเครื่องยนต์ " + ev5DatePhrase(m) + " ดังนี้", P);
-    xml += p2line("p2_ev5_hi.xml",
-      "- อากาศยานขออนุญาตทำการทดสอบเครื่องยนต์กำลังสูง ณ " + (s(m.hiWhere)||"ทางขับ สาย K")
-      + " จำนวน " + (s(m.hiCount)||"-") + " ลำ", P);
-    xml += p2line("p2_ev5_lo.xml",
-      "- อากาศยานขออนุญาตทำการทดสอบเครื่องยนต์รอบเดินเบา ณ " + (s(m.loWhere)||"หลุมจอดฯ")
-      + " จำนวน " + (s(m.loCount)||"-") + " ลำ", P);
-    if (s(m.ev5Other)) xml += p2line("p2_ev5_lo.xml", s(m.ev5Other), P);
-    xml += P["p2_ev5_attach.xml"];
+    ev5Lines(m).forEach(function(line){ xml += p2line("p2_ev5_body.xml", line, P); });
   }
   xml += P["p2_tail.xml"];
   return xml;
@@ -580,6 +558,6 @@ root.AoccLib = {
   hasDelay:hasDelay, hasAgency:hasAgency, defaultModel:defaultModel, modelFromDraft:modelFromDraft,
   missingFields:missingFields, fileBase:fileBase, needPage2:needPage2,
   openingText:openingText, closingText:closingText, openingLead:openingLead, openingFrom:openingFrom,
-  ev4Lines:ev4Lines, pageHTML:pageHTML, documentXml:documentXml, footerXml:footerXml, buildDocx:buildDocx
+  ev4Lines:ev4Lines, ev5Lines:ev5Lines, pageHTML:pageHTML, documentXml:documentXml, footerXml:footerXml, buildDocx:buildDocx
 };
 })(typeof window !== "undefined" ? window : this);

@@ -110,6 +110,7 @@
   .useg button span{font-size:12px}
   .hint{font-size:12px;color:var(--muted2);margin-top:6px}
   textarea{min-height:76px;resize:vertical;line-height:1.4}
+  #ev5Text{min-height:140px}
   textarea:focus{outline:2px solid var(--accent);border-color:var(--accent)}
   .full{grid-column:1/-1}
   .sub{font-size:13px;color:var(--muted);margin:12px 0 6px}
@@ -181,19 +182,28 @@
   .hidden{display:none!important}
   .word{width:100%;background:var(--accent);color:var(--card);font-weight:600;margin:0 0 12px}
   input.miss,select.miss,textarea.miss{border:2px solid var(--warn);background:var(--warn-bg)}
-  .mh{font-size:12px;color:var(--warn-ink);font-weight:600}
+  .mh,.mh-slot{font-size:12px;color:var(--warn-ink);font-weight:600;line-height:1.35;min-height:1.35em;display:block}
+  .mh-slot:empty{visibility:hidden}
   input,select,textarea,.chk{scroll-margin-top:76px;scroll-margin-bottom:120px}
   .card h2.people-h{margin:14px 0 10px}
   .card h2.people-h:first-child{margin-top:0}
-  .nrow{display:flex;flex-wrap:wrap;gap:8px;align-items:flex-end}
-  .nrow label{margin:0;min-width:0}
+  .nrow{display:flex;flex-wrap:wrap;gap:8px;align-items:flex-start}
+  .nrow > label{margin:0;min-width:0}
   .nrow .f-pn{flex:0 0 118px;width:118px}
   .nrow .f-title{flex:0 1 170px;min-width:148px}
   .nrow .f-rank{flex:0 1 128px;min-width:108px}
   .nrow .f-name{flex:1 1 180px;min-width:150px}
-  .erow{display:grid;grid-template-columns:1fr 90px 36px;gap:8px;align-items:end;margin-bottom:8px}
-  .erow .other{grid-column:1/-1;margin-top:-2px}
-  .erow .del{height:46px;padding:0;background:var(--chip);color:var(--ink);flex:none}
+  #events{margin-top:10px}
+  .erow{display:grid;grid-template-columns:minmax(0,1fr) 90px 46px;gap:8px;align-items:start;margin-bottom:10px}
+  .erow > label,.erow .del-wrap,.nrow > label{margin:0;min-width:0;display:flex;flex-direction:column;gap:4px;line-height:1.3}
+  .erow .lab-spacer{font-size:13px;line-height:1.3;visibility:hidden;user-select:none}
+  .erow .other{grid-column:1/-1;margin-top:0}
+  .erow .del{height:46px;width:46px;padding:0;background:var(--chip);color:var(--ink);flex:none;border-radius:8px}
+  @media (max-width:600px){
+    .nrow .f-pn{flex:1 1 calc(50% - 4px);width:auto}
+    .nrow .f-title,.nrow .f-rank{flex:1 1 calc(50% - 4px);min-width:0}
+    .nrow .f-name{flex:1 1 100%;min-width:0;width:100%}
+  }
   .add{width:100%;background:var(--accent-soft);color:var(--accent);font-weight:600;margin:6px 0 0;border:1px dashed var(--accent-line)}
   .items{display:flex;flex-direction:column;gap:8px}
   .itemrow{display:grid;grid-template-columns:1fr 1fr;gap:8px}
@@ -230,6 +240,7 @@
       <option value="กระผม" selected>กระผม</option>
       <option value="ดิฉัน">ดิฉัน</option>
     </select>
+    <span class="mh mh-slot" aria-live="polite"></span>
   </label>
   <label class="f-title">คำนำหน้า / ยศ
     <select id="writerTitle">
@@ -238,12 +249,15 @@
       <option value="นาง">นาง</option>
       <option value="other">ระบุยศหรืออื่นๆ</option>
     </select>
+    <span class="mh mh-slot" aria-live="polite"></span>
   </label>
   <label class="f-rank hidden" id="writerRankWrap">ยศ / อื่นๆ
     <input id="writerRank" list="rankList" placeholder="เช่น พ.อ.อ." autocomplete="off">
+    <span class="mh mh-slot" aria-live="polite"></span>
   </label>
   <label class="f-name">ชื่อ
     <input id="writerName" list="nameList" placeholder="ชื่อ-นามสกุล" autocomplete="off">
+    <span class="mh mh-slot" aria-live="polite"></span>
   </label>
 </div>
 <h2 class="people-h">รับมอบหน้าที่จาก</h2>
@@ -255,12 +269,15 @@
       <option value="นาง">นาง</option>
       <option value="other">ระบุยศหรืออื่นๆ</option>
     </select>
+    <span class="mh mh-slot" aria-live="polite"></span>
   </label>
   <label class="f-rank hidden" id="fromRankWrap">ยศ / อื่นๆ
     <input id="fromRank" list="rankList" placeholder="เช่น พ.อ.อ." autocomplete="off">
+    <span class="mh mh-slot" aria-live="polite"></span>
   </label>
   <label class="f-name">ชื่อ
     <input id="fromName" list="nameList" placeholder="ชื่อ-นามสกุล ผู้มอบกะก่อนหน้า" autocomplete="off">
+    <span class="mh mh-slot" aria-live="polite"></span>
   </label>
 </div>
 <h2 class="people-h">ส่งมอบหน้าที่ให้</h2>
@@ -272,12 +289,15 @@
       <option value="นาง">นาง</option>
       <option value="other">ระบุยศหรืออื่นๆ</option>
     </select>
+    <span class="mh mh-slot" aria-live="polite"></span>
   </label>
   <label class="f-rank hidden" id="toRankWrap">ยศ / อื่นๆ
     <input id="toRank" list="rankList" placeholder="เช่น พ.อ.อ." autocomplete="off">
+    <span class="mh mh-slot" aria-live="polite"></span>
   </label>
   <label class="f-name">ชื่อ
     <input id="toName" list="nameList" placeholder="ชื่อ-นามสกุล ผู้รับกะถัดไป" autocomplete="off">
+    <span class="mh mh-slot" aria-live="polite"></span>
   </label>
 </div>
 <div class="hint">ชื่อและยศที่พิมพ์ไว้จะจำในเครื่องนี้ และขึ้นให้เลือกครั้งถัดไป — ไม่แชร์ไปเครื่องอื่น · นาง/นางสาวจะเลือกสรรพนามเป็น ดิฉันให้อัตโนมัติ ถ้ายังไม่ได้แก้เอง</div>
@@ -323,21 +343,12 @@
 
 <div class="card" id="card5"><h2>5. รายการอนุมัติ / อื่นๆ</h2>
 <label class="chk"><input type="checkbox" id="no5" checked> ไม่มีรายการอนุมัติ/อื่นๆ</label>
-<div class="hint">ถ้ามีรายการ เอาติ๊กออกแล้วกรอกด้านล่าง ค่าวันเวลาเริ่มต้นเป็นตามผลัด สามารถแก้ได้</div>
+<div class="hint">ถ้ามีรายการ เอาติ๊กออกแล้วพิมพ์ด้านล่าง ข้อความจะไปปรากฏในรายงานตามบรรทัดที่พิมพ์</div>
 <div id="box5" class="hidden">
-  <div class="grid">
-    <label>คำนำหน้า / ยศ<input id="ev5Title" list="titleList" value="นาย" autocomplete="off"></label>
-    <label class="full">รายงาน หน.เวร ฝปข.ทสภ. (06)<input id="ev5Name" list="nameList" placeholder="ชื่อ-นามสกุล" autocomplete="off"></label>
-    <label>ตั้งแต่วันที่<input type="date" id="ev5FromDate" autocomplete="off"></label>
-    <label>เวลา<input id="ev5FromTime" inputmode="decimal" placeholder="17.00" autocomplete="off"></label>
-    <label>ถึงวันที่<input type="date" id="ev5ToDate" autocomplete="off"></label>
-    <label>เวลา<input id="ev5ToTime" inputmode="decimal" placeholder="08.00" autocomplete="off"></label>
-    <label class="full">ทดสอบเครื่องยนต์กำลังสูง ณ<input id="hiWhere" value="ทางขับ สาย K" autocomplete="off"></label>
-    <label>จำนวน (ลำ)<input id="hiCount" value="-" placeholder="-" autocomplete="off"></label>
-    <label class="full">ทดสอบเครื่องยนต์รอบเดินเบา ณ<input id="loWhere" value="หลุมจอดฯ" autocomplete="off"></label>
-    <label>จำนวน (ลำ)<input id="loCount" placeholder="เช่น 3" autocomplete="off"></label>
-    <label class="full">รายการอนุมัติอื่น (ถ้ามี)<textarea id="ev5Other" placeholder="ถ้าไม่มีให้เว้นว่าง"></textarea></label>
-  </div>
+  <label class="full">รายการอนุมัติ/อื่นๆ
+    <textarea id="ev5Text" rows="6" placeholder="พิมพ์รายการที่ต้องการเรียนให้ทราบ" autocomplete="off"></textarea>
+    <span class="mh mh-slot" aria-live="polite"></span>
+  </label>
 </div>
 </div>
 
@@ -464,11 +475,12 @@ function evHTML(e,i){
   const typ=e.type||"divert";
   const opts=A.EVENT_TYPES.map(t=>'<option value="'+t.id+'"'+(t.id===typ?" selected":"")+">"+t.label+"</option>").join("");
   const otherWrap=typ==="other"?"":" hidden";
+  const cnt=(e.count==null||String(e.count).trim()==="")?"1":String(e.count);
   return '<div class="erow" data-i="'+i+'">'
-    +'<label>ประเภท<select data-k="type">'+opts+"</select></label>"
-    +'<label>จำนวน<input data-k="count" inputmode="numeric" placeholder="1" value="'+(e.count||"").replace(/"/g,"&quot;")+'"></label>'
-    +'<button type="button" class="del" data-del="'+i+'" aria-label="ลบรายการ">✕</button>'
-    +'<label class="other'+otherWrap+'">รายละเอียด อื่นๆ<input data-k="other" placeholder="ระบุรายการ" value="'+(e.other||"").replace(/"/g,"&quot;")+'"></label>'
+    +'<label>ประเภท<select data-k="type">'+opts+'</select><span class="mh mh-slot" aria-live="polite"></span></label>'
+    +'<label>จำนวน<input data-k="count" inputmode="numeric" value="'+cnt.replace(/"/g,"&quot;")+'"><span class="mh mh-slot" aria-live="polite"></span></label>'
+    +'<div class="del-wrap"><span class="lab-spacer" aria-hidden="true">&nbsp;</span><button type="button" class="del" data-del="'+i+'" aria-label="ลบรายการ">✕</button><span class="mh mh-slot"></span></div>'
+    +'<label class="other'+otherWrap+'">รายละเอียด อื่นๆ<input data-k="other" placeholder="ระบุรายการ" value="'+(e.other||"").replace(/"/g,"&quot;")+'"><span class="mh mh-slot" aria-live="polite"></span></label>'
     +"</div>";
 }
 function paintEvents(){
@@ -497,26 +509,11 @@ function collect(){
     agFpkTitle:$("agFpkTitle").value, agFpkName:$("agFpkName").value,
     agFtoTitle:$("agFtoTitle").value, agFtoName:$("agFtoName").value,
     agSccTitle:$("agSccTitle").value, agSccName:$("agSccName").value,
-    no5:$("no5").checked,
-    ev5Title:$("ev5Title").value, ev5Name:$("ev5Name").value,
-    ev5FromDate:$("ev5FromDate").value, ev5FromTime:$("ev5FromTime").value,
-    ev5ToDate:$("ev5ToDate").value, ev5ToTime:$("ev5ToTime").value,
-    hiWhere:$("hiWhere").value, hiCount:$("hiCount").value,
-    loWhere:$("loWhere").value, loCount:$("loCount").value,
-    ev5Other:$("ev5Other").value,
+    no5:$("no5").checked, ev5Text:$("ev5Text").value,
     phone:readPhone()
   };
 }
 function model(){return A.modelFromDraft(collect())}
-
-function fillEv5Dates(force){
-  const S=A.shiftInfo($("d1").value,$("period").value);
-  if(!S.a)return;
-  if(force||!$("ev5FromDate").value) $("ev5FromDate").value=A.iso(S.a);
-  if(force||!$("ev5FromTime").value) $("ev5FromTime").value=S.startT;
-  if(force||!$("ev5ToDate").value) $("ev5ToDate").value=A.iso(S.b);
-  if(force||!$("ev5ToTime").value) $("ev5ToTime").value=S.endT;
-}
 
 function syncBoxes(){
   $("box4").classList.toggle("hidden",$("no4").checked);
@@ -524,7 +521,6 @@ function syncBoxes(){
   readEventsFromDom();
   const showAg=!$("no4").checked&&A.hasAgency(events);
   $("cardAg").classList.toggle("hidden",!showAg);
-  if(!$("no5").checked) fillEv5Dates(false);
 }
 
 function paintDate(){
@@ -537,7 +533,10 @@ function paintDate(){
 
 function clearMiss(){
   document.querySelectorAll(".miss").forEach(el=>el.classList.remove("miss"));
-  document.querySelectorAll(".mh").forEach(el=>el.remove());
+  document.querySelectorAll(".mh").forEach(function(el){
+    if(el.classList.contains("mh-slot")) el.textContent="";
+    else el.remove();
+  });
 }
 function paintMiss(){
   clearMiss();
@@ -563,8 +562,13 @@ function paintMiss(){
     if(!el)return;
     el.classList.add("miss");
     if(el.tagName!=="BUTTON"){
-      let hn=el.parentNode&&el.parentNode.querySelector(".mh");
-      if(!hn){hn=document.createElement("span");hn.className="mh";hn.textContent="⚠️ ยังไม่ได้กรอก";el.after(hn)}
+      const lab=el.closest("label")||el.parentNode;
+      let hn=lab&&lab.querySelector(".mh-slot");
+      if(hn) hn.textContent="⚠️ ยังไม่ได้กรอก";
+      else if(lab){
+        hn=document.createElement("span");hn.className="mh";hn.textContent="⚠️ ยังไม่ได้กรอก";
+        el.after(hn);
+      }
     }
   });
   return miss;
@@ -574,7 +578,7 @@ function saveDraft(){
   const o=collect();
   store.set(KEYS.draft,JSON.stringify(o));
   savePhone();
-  rememberNames([o.writerName,o.fromName,o.toName,o.agFpkName,o.agFtoName,o.agSccName,o.ev5Name]);
+  rememberNames([o.writerName,o.fromName,o.toName,o.agFpkName,o.agFtoName,o.agSccName]);
   rememberRanks([o.writerTitle,o.fromTitle,o.toTitle]);
 }
 function loadDraft(){
@@ -602,12 +606,7 @@ function loadDraft(){
   set("agFpkTitle",o.agFpkTitle);set("agFpkName",o.agFpkName);
   set("agFtoTitle",o.agFtoTitle);set("agFtoName",o.agFtoName);
   set("agSccTitle",o.agSccTitle);set("agSccName",o.agSccName);
-  set("ev5Title",o.ev5Title);set("ev5Name",o.ev5Name);
-  set("ev5FromDate",o.ev5FromDate);set("ev5FromTime",o.ev5FromTime);
-  set("ev5ToDate",o.ev5ToDate);set("ev5ToTime",o.ev5ToTime);
-  set("hiWhere",o.hiWhere);set("hiCount",o.hiCount);
-  set("loWhere",o.loWhere);set("loCount",o.loCount);
-  set("ev5Other",o.ev5Other);
+  set("ev5Text",o.ev5Text);
   return true;
 }
 
@@ -650,12 +649,7 @@ function resetForm(){
   $("agFpkTitle").value="นาย";$("agFpkName").value="";
   $("agFtoTitle").value="นาย";$("agFtoName").value="";
   $("agSccTitle").value="";$("agSccName").value="";
-  $("ev5Title").value="นาย";$("ev5Name").value="";
-  $("ev5FromDate").value="";$("ev5FromTime").value="";
-  $("ev5ToDate").value="";$("ev5ToTime").value="";
-  $("hiWhere").value="ทางขับ สาย K";$("hiCount").value="-";
-  $("loWhere").value="หลุมจอดฯ";$("loCount").value="";
-  $("ev5Other").value="";
+  $("ev5Text").value="";
   loadPhone();
   AUTO.set();
   try{sessionStorage.removeItem(AUTO.sk)}catch(e){}
@@ -675,16 +669,15 @@ TITLE_ROWS.forEach(function(row){
 $("pronoun").addEventListener("change",()=>{pronounAuto=false;build()});
 document.querySelectorAll("#periodSeg button").forEach(b=>b.addEventListener("click",()=>{
   $("period").value=b.dataset.v;
-  if(!$("no5").checked)fillEv5Dates(true);
   build();
 }));
-$("d1").addEventListener("change",()=>{if(!$("no5").checked)fillEv5Dates(true);build()});
+$("d1").addEventListener("change",()=>{build()});
 $("no4").addEventListener("change",()=>{
-  if(!$("no4").checked&&!events.length){events=[{type:"divert",count:"",other:""}];paintEvents()}
+  if(!$("no4").checked&&!events.length){events=[{type:"divert",count:"1",other:""}];paintEvents()}
   build();
 });
-$("no5").addEventListener("change",()=>{if(!$("no5").checked)fillEv5Dates(true);build()});
-$("addEv").addEventListener("click",()=>{readEventsFromDom();events.push({type:"divert",count:"",other:""});paintEvents();build()});
+$("no5").addEventListener("change",()=>{build()});
+$("addEv").addEventListener("click",()=>{readEventsFromDom();events.push({type:"divert",count:"1",other:""});paintEvents();build()});
 $("events").addEventListener("click",e=>{
   const btn=e.target.closest("[data-del]");
   if(!btn)return;
