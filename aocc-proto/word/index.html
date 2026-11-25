@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8"><meta name="robots" content="noindex, nofollow, noarchive">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script>/* theme: saved choice (localStorage "theme") or system setting — set before paint */(function(){var d=document.documentElement,m=window.matchMedia&&matchMedia("(prefers-color-scheme: dark)");function s(){try{var t=localStorage.getItem("theme");return t==="light"||t==="dark"?t:""}catch(e){return ""}}function a(){d.dataset.theme=s()||(m&&m.matches?"dark":"light")}a();if(m){if(m.addEventListener)m.addEventListener("change",a);else if(m.addListener)m.addListener(a)}addEventListener("storage",a);addEventListener("pageshow",a)})();</script>
+<title>ต้นแบบทดลอง · ไฟล์ Word · รายงานประจำวัน AOCC SUP</title>
+<link rel="manifest" href="../../manifest.webmanifest">
+<meta name="theme-color" content="#f6f4fa" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#1c2030" media="(prefers-color-scheme: dark)">
+<link rel="icon" type="image/png" sizes="192x192" href="../../icon-192.png">
+<link rel="apple-touch-icon" href="../../apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="รายงาน ฝปข.">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<style>
+:root{
+  /* 🎨 Pastel calm theme — ปรับสีทั้งหมดได้ที่นี่ */
+  --bg:#f6f4fa;          /* พื้นหลังหน้า: ลาเวนเดอร์อ่อนมาก */
+  --card:#ffffff;        /* การ์ด/ช่องกรอก */
+  --soft:#f9f8fc;        /* พื้นอ่อนในกล่อง */
+  --ink:#2b2f45;         /* ตัวอักษรหลัก */
+  --muted:#575c6e;       /* ป้ายช่องกรอก */
+  --muted2:#5e6376;      /* คำอธิบาย/hint */
+  --faint:#a9acbd;       /* ไอคอนลูกศร/disabled */
+  --accent:#3e5f94;      /* หัวข้อ/ลิงก์: น้ำเงินหม่น */
+  --accent-soft:#e7edf8; /* พื้นปุ่มรอง */
+  --accent-line:#b4c6e6;
+  --btn:#cddcf3;         /* ปุ่มหลัก: ฟ้าพาสเทล */
+  --btn-ink:#1f3a66;
+  --seg-bg:#ece9f4;      /* พื้นปุ่มเลือก */
+  --chip:#eeecf4;
+  --line:#e4e2ee;        /* เส้นขอบอ่อน */
+  --field-line:#d4d2e3;  /* ขอบช่องกรอก */
+  --disabled-ink:#a1a5b4;
+  --line-green:#15834a;  /* ปุ่มคัดลอกไปไลน์ (เขียวไลน์โทนนุ่ม) */
+  --warn:#ec9a3c; --warn-bg:#fff3e6; --warn-line:#f1c08a; --warn-ink:#b4470f; --warn-text:#7a4210;
+  --ok-bg:#eaf7ef; --ok-line:#8fd3a8; --ok-ink:#1d5e33;
+  --err-bg:#fdeef0; --err-line:#f2c4c8; --err-ink:#b3261e;
+  --shadow-c:rgba(72,62,120,.10);
+  --radius:16px;
+}
+:root{
+  /* 🎨 หน้าด้านใน: เข้มขึ้นอีกนิดให้อ่านง่าย (หน้าแรกใช้ค่าด้านบน) */
+  --bg:#e9e5f3;          /* พื้นหลังลาเวนเดอร์ชัดขึ้น การ์ดขาวลอยเด่น */
+  --soft:#f6f4fb;
+  --ink:#1f2236;
+  --muted:#41465a;       /* ป้ายช่องกรอก เข้มขึ้น */
+  --muted2:#53586c;
+  --faint:#8f92a8;
+  --accent:#2c4a7e;      /* หัวข้อการ์ด เข้มขึ้น */
+  --accent-soft:#dde6f6;
+  --accent-line:#8faad8;
+  --btn:#bfd2f2; --btn-ink:#16305a;
+  --seg-bg:#e1ddef;
+  --seg-on:#c5d7f5; --seg-on-ink:#16305a; --seg-on-line:#8faad8;
+  --chip:#e3e0ee;
+  --line:#bdb8d3;        /* ขอบการ์ด */
+  --field-line:#a9a4c4;  /* ขอบช่องกรอก */
+  --placeholder:#9c9cb2;
+  --disabled-ink:#8f93a5;
+  --shadow-c:rgba(58,48,110,.14);
+}
+
+  *{box-sizing:border-box}
+  body{font-family:system-ui,"Sarabun","Noto Sans Thai",sans-serif;background:var(--bg);margin:0;padding:12px;color:var(--ink)}
+  .wrap{max-width:720px;margin:auto}
+  h1{font-size:20px;margin:6px 0 12px}
+  .card{background:var(--card);border-radius:12px;padding:14px;margin-bottom:12px;box-shadow:0 1px 3px var(--shadow-c)}
+  .card h2{font-size:15px;margin:0 0 10px;color:var(--accent)}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+  label{display:flex;flex-direction:column;font-size:13px;color:var(--muted);gap:4px}
+  input,select,textarea{font-size:16px;padding:9px;border:1px solid var(--field-line);border-radius:8px;font-family:inherit;width:100%}
+  input:focus,select:focus{outline:2px solid var(--accent);border-color:var(--accent)}
+  .up{text-transform:uppercase}
+  .rrow{grid-column:1/-1;display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--muted)}
+  .rrow small{color:var(--muted2);font-size:12px}
+  .rflex{display:flex;gap:8px}
+  .rflex input{flex:1 1 auto;min-width:0}
+  .rflex input.code{flex:0 0 84px;width:84px;text-align:center}
+  input,select{-webkit-appearance:none;appearance:none;background:var(--card);height:46px;color:var(--ink)}
+  select{background:var(--card) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23555' stroke-width='2' fill='none'/%3E%3C/svg%3E") no-repeat right 12px center;padding-right:32px}
+  .datebox{position:relative;height:52px;border:1px solid var(--field-line);border-radius:10px;display:flex;align-items:center;gap:10px;padding:0 14px;background:var(--card);font-size:18px;font-weight:600}
+  .datebox small{font-weight:400;color:var(--muted2);font-size:14px}
+  .datebox input{position:absolute;inset:0;opacity:0;width:100%;height:100%;border:0;cursor:pointer}
+  .datebox{cursor:pointer}
+  .seg{display:flex;background:var(--seg-bg);border-radius:10px;padding:4px;gap:4px}
+  .seg button{flex:1;white-space:nowrap;font-size:15px;padding:10px 6px;border-radius:8px;background:transparent;color:var(--muted);line-height:1.3}
+  .seg button.on{background:var(--card);color:var(--accent);font-weight:600;box-shadow:0 1px 3px rgba(72,62,120,.16)}
+  .seg button span{display:block;font-size:13px;font-weight:400;color:var(--muted2)}
+  .stack{display:flex;flex-direction:column;gap:10px}
+  .topbar{position:sticky;top:0;z-index:5;background:var(--bg);margin:-12px -12px 4px;padding:10px 12px}
+  .back{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 18px;border-radius:22px;background:var(--card);color:var(--accent);font-size:17px;font-weight:600;text-decoration:none;box-shadow:0 1px 3px var(--shadow-c)}
+  .back:active{background:var(--accent-soft)}
+  .chk{flex-direction:row;align-items:center;gap:12px;font-size:16px;color:var(--ink);background:var(--soft);border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin-bottom:10px;min-height:50px}
+  .chk input{-webkit-appearance:auto;appearance:auto;width:24px;height:24px;margin:0;flex:0 0 24px;accent-color:var(--accent)}
+  .hidden{display:none!important}
+  input:disabled{background:var(--chip);color:var(--disabled-ink);border-color:var(--line);-webkit-text-fill-color:var(--disabled-ink);opacity:1;cursor:not-allowed}
+  input:disabled::placeholder{color:transparent;-webkit-text-fill-color:transparent}
+  pre{white-space:pre-wrap;background:var(--soft);border:1px solid var(--line);border-radius:8px;padding:12px;font-family:inherit;font-size:15px;margin:0}
+  .bar{position:sticky;bottom:0;display:flex;gap:8px;padding:10px 0;background:var(--bg)}
+  button{flex:1;font-size:17px;padding:13px;border:0;border-radius:10px;cursor:pointer;font-family:inherit}
+  .copy{background:var(--line-green);color:var(--card);font-weight:600}
+  .clear{background:var(--line);color:var(--ink);flex:0 0 120px}
+  .toast{position:fixed;left:50%;top:20px;transform:translateX(-50%);background:var(--ink);color:var(--card);padding:10px 18px;border-radius:20px;opacity:0;transition:.3s;pointer-events:none}
+  .toast.show{opacity:1}
+  .ulab{font-size:13px;color:var(--muted);margin:12px 0 4px}
+  .useg button{font-size:17px;font-weight:600;padding:10px 4px;min-height:52px}
+  .useg button span{font-size:12px}
+  .hint{font-size:12px;color:var(--muted2);margin-top:6px}
+  textarea{min-height:76px;resize:vertical;line-height:1.4}
+  textarea:focus{outline:2px solid var(--accent);border-color:var(--accent)}
+  .full{grid-column:1/-1}
+  .sub{font-size:13px;color:var(--muted);margin:12px 0 6px}
+  .fcard h2{display:flex;align-items:center;justify-content:space-between;gap:8px}
+  .del{flex:0 0 auto;font-size:14px;padding:8px 12px;background:var(--err-bg);color:var(--err-ink);font-weight:600}
+  .del:disabled{background:var(--chip);color:var(--faint);cursor:not-allowed}
+  .fcard .seg{margin-bottom:10px}
+  .offseg button{font-size:13px;padding:8px 4px}
+  .dres{grid-column:1/-1;border-radius:10px;padding:10px 12px;font-size:16px;background:var(--ok-bg);color:var(--ok-ink);border:1px solid var(--ok-line)}
+  .dres b{font-size:18px}
+  .dres.warn{background:var(--warn-bg);color:var(--warn-ink);border-color:var(--warn-line)}
+  .dres.err{background:var(--err-bg);color:var(--err-ink);border-color:var(--err-line)}
+  .dres.wait{background:var(--soft);color:var(--muted2);border-color:var(--line)}
+  .dres small{display:block;font-size:13px;margin-top:2px}
+  .add{width:100%;font-size:18px;padding:16px;background:var(--card);color:var(--accent);font-weight:700;border:2px dashed var(--accent-line);margin-bottom:12px}
+  .add:active{background:var(--accent-soft)}
+  .word{width:100%;background:var(--accent);color:var(--card);font-weight:600;margin:0 0 12px}
+  .offl{font-size:13px;color:var(--muted);margin:2px 0 4px}
+
+  /* ---- pastel theme: softer shapes & buttons (visual only) ---- */
+  .card{border-radius:var(--radius);border:1px solid var(--line);box-shadow:0 2px 10px var(--shadow-c)}
+  .card h2{color:var(--accent)}
+  .seg{border-radius:12px}
+  .seg button.on{background:var(--card);color:var(--accent);box-shadow:0 1px 4px rgba(72,62,120,.16)}
+  .back{border:1px solid var(--line)}
+  button{border-radius:12px}
+  .copy,.share{background:var(--line-green);color:#fff;box-shadow:0 2px 8px rgba(21,131,74,.28)}
+  .doc,.dl{background:var(--btn);color:var(--btn-ink);border:1px solid var(--accent-line)}
+  .img,.wordbtn{background:var(--card);color:var(--accent);border:2px solid var(--accent-line)}
+  .clear,.close{background:var(--chip);color:var(--ink)}
+  .toast{background:#3a3f58}
+  input:focus,select:focus,textarea:focus{outline:2px solid var(--accent-line);border-color:var(--accent)}
+
+  /* ---- inner pages: more defined ---- */
+  .seg{border:1px solid var(--line)}
+  .seg button.on{background:var(--seg-on);color:var(--seg-on-ink);box-shadow:inset 0 0 0 1px var(--seg-on-line),0 1px 3px rgba(58,48,110,.18)}
+  .seg button.on span{color:var(--seg-on-ink)}
+  input,select,textarea,.datebox{border-color:var(--field-line)}
+  input,select,textarea{color:var(--ink);-webkit-text-fill-color:var(--ink);font-weight:500}
+  input::placeholder,textarea::placeholder{color:var(--placeholder);-webkit-text-fill-color:var(--placeholder);font-weight:400}
+  .back,.img,.wordbtn{border-color:var(--accent-line)}
+
+/* ===== 🌙 Dark mode (soft): เปลี่ยนเฉพาะตัวแปรสี เมื่อ html[data-theme="dark"] (ตามเครื่อง หรือเลือกจากปุ่มในหน้าแรก) ===== */
+  html[data-theme="dark"]{
+    color-scheme:dark;
+    --bg:#1c2030; --card:#262b3d; --soft:#2c3246;
+    --ink:#e6e8f0; --muted:#c5c9d8; --muted2:#aab0c4; --faint:#80869c;
+    --accent:#a9c4f2; --accent-soft:#33405e; --accent-line:#6580b3;
+    --btn:#a9c4f2; --btn-ink:#14233f;
+    --seg-bg:#1f2435; --seg-on:#3f5888; --seg-on-ink:#eef3ff; --seg-on-line:#7f9bd0;
+    --chip:#363c53;
+    --line:#3e4560; --field-line:#5a6180;
+    --placeholder:#7f859c; --disabled-ink:#727890;
+    --line-green:#15834a;
+    --warn:#f0a75a; --warn-bg:#3a2c1e; --warn-line:#a87238; --warn-ink:#ffc08a; --warn-text:#f7d6ae;
+    --ok-bg:#1f3529; --ok-line:#4f8f69; --ok-ink:#a8e4bf;
+    --err-bg:#3d2228; --err-line:#8d4a52; --err-ink:#ffadb5;
+    --shadow-c:rgba(0,0,0,.35);
+  }
+  html[data-theme="dark"] .toast{background:#e6e8f0;color:#1c2030}
+  html[data-theme="dark"] h1 small{color:var(--muted2)!important}
+  html[data-theme="dark"] .copy,html[data-theme="dark"] .share{box-shadow:0 2px 10px rgba(0,0,0,.4)}
+  html[data-theme="dark"] select{background-color:var(--card)}
+  /* เอกสาร A4 และรูปที่ export ต้องขาว-ดำเสมอ */
+  html[data-theme="dark"] .pvbox,html[data-theme="dark"] .a4{color-scheme:light;background:#fff;color:#000}
+
+  label.chk{display:flex;flex-direction:row;align-items:center;gap:12px;font-size:16px;color:var(--ink);background:var(--soft);border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin-bottom:10px;min-height:50px}
+  label.chk input{-webkit-appearance:auto;appearance:auto;width:24px;height:24px;margin:0;flex:0 0 24px;accent-color:var(--accent)}
+  .hidden{display:none!important}
+  .word{width:100%;background:var(--accent);color:var(--card);font-weight:600;margin:0 0 12px}
+  input.miss,select.miss,textarea.miss{border:2px solid var(--warn);background:var(--warn-bg)}
+  .mh{font-size:12px;color:var(--warn-ink);font-weight:600}
+  input,select,textarea,.chk{scroll-margin-top:76px;scroll-margin-bottom:120px}
+  .pron{display:flex;gap:8px;flex-wrap:wrap}
+  .pron label{flex-direction:row;align-items:center;gap:8px;font-size:15px;color:var(--ink);background:var(--soft);border:1px solid var(--line);border-radius:10px;padding:8px 12px;min-height:44px}
+  .pron input{width:18px;height:18px;margin:0;-webkit-appearance:auto;appearance:auto;accent-color:var(--accent);flex:0 0 18px}
+  .erow{display:grid;grid-template-columns:1fr 90px 36px;gap:8px;align-items:end;margin-bottom:8px}
+  .erow .other{grid-column:1/-1;margin-top:-2px}
+  .erow .del{height:46px;padding:0;background:var(--chip);color:var(--ink);flex:none}
+  .add{width:100%;background:var(--accent-soft);color:var(--accent);font-weight:600;margin:6px 0 0;border:1px dashed var(--accent-line)}
+  .items{display:flex;flex-direction:column;gap:8px}
+  .itemrow{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .itemrow .lab{font-size:13px;color:var(--muted);grid-column:1/-1;margin-bottom:-4px}
+  .banner{background:var(--warn-bg);border:1px solid var(--warn-line);color:var(--warn-ink);border-radius:12px;padding:10px 12px;margin-bottom:12px;font-size:14px;font-weight:600}
+
+
+  @font-face{font-family:"TH SarabunPSK";font-weight:400;font-style:normal;font-display:block;src:url("../../delay/word/fonts/THSarabunPSK.ttf") format("truetype")}
+  @font-face{font-family:"TH SarabunPSK";font-weight:700;font-style:normal;font-display:block;src:url("../../return-flight/word/fonts/THSarabunPSK-Bold.ttf") format("truetype")}
+  .doc{background:var(--accent);color:var(--card);font-weight:600;width:100%;margin:0 0 8px}
+  .bar{position:sticky;bottom:0;display:flex;flex-wrap:wrap;gap:8px;padding:10px 0;background:var(--bg);z-index:4}
+  .chkbox{border-radius:12px;padding:12px 14px;margin-bottom:12px;font-size:15px;background:var(--ok-bg);border:2px solid var(--ok-line);color:var(--ok-ink);font-weight:600}
+  .chkbox.bad{background:var(--warn-bg);border-color:var(--warn);color:var(--warn-text);font-weight:500}
+  .chkbox.hidden{display:none}
+  .chkbox ul{margin:6px 0 0;padding-left:20px;font-weight:400}
+  .chkbox a{color:var(--warn-ink)}
+  .pvbox{position:relative;overflow:hidden;border:1px solid #dde3ea;border-radius:6px;background:#e8e8e8;margin-top:8px}
+  .pvscale{transform-origin:0 0;width:794px}
+  .a4{position:relative;box-sizing:border-box;display:flex;flex-direction:column;width:794px;min-height:1123px;background:#fff;color:#000;
+      font-family:"TH Sarabun New","TH SarabunPSK","Sarabun",sans-serif;font-weight:400;font-size:21.333px;line-height:1.2;
+      padding:96px 55.73px 88px 120px;-webkit-text-size-adjust:none;text-size-adjust:none;margin:0 0 16px}
+  .a4:last-child{margin-bottom:0}
+  .a4 p{margin:0 0 0.3em;word-break:break-word}
+  .a4 .org{text-align:center;font-weight:700;margin:0 0 8px}
+  .a4 .subj{margin:0 0 2px}
+  .a4 .body{text-align:justify}
+  .a4 .indent{text-indent:75.6px}
+  .a4 table.rep{width:100%;border-collapse:collapse;table-layout:fixed;margin:10px 0 14px;font-size:21.333px}
+  .a4 table.rep th,.a4 table.rep td{border:1px solid #000;padding:4px 6px;vertical-align:middle}
+  .a4 table.rep th{font-weight:700;text-align:center}
+  .a4 table.rep col.c1{width:7.3%}
+  .a4 table.rep col.c2{width:42.8%}
+  .a4 table.rep col.c3{width:20.4%}
+  .a4 table.rep col.c4{width:29.5%}
+  .a4 table.rep td.n{width:7.3%;text-align:left}
+  .a4 table.rep td.c{text-align:center}
+  .a4 table.rep tr.spacer td{height:18px}
+  .a4 .h{font-weight:700;margin:8px 0 4px;text-indent:48px}
+  .a4 .ind{text-indent:48px}
+  .a4 .att{text-align:right;text-indent:0}
+  .a4 .sigs{margin-top:28px;text-align:right}
+  .a4 .sig{margin:0 0 18px}
+  .a4-foot{position:absolute;right:55.73px;bottom:20px;text-align:right;line-height:1.2}
+  .a4-foot .code{font-weight:700}
+  html[data-theme="dark"] .pvbox,html[data-theme="dark"] .a4{color-scheme:light;background:#e8e8e8}
+  html[data-theme="dark"] .a4{background:#fff;color:#000}
+
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="topbar"><a class="back" href="../">‹ กลับไปรายงาน</a></div>
+<h1>📄 รายงานประจำวัน AOCC SUP</h1>
+<div class="banner" role="status">🧪 ต้นแบบทดลอง — ให้เพื่อนร่วมงานลองใช้ก่อนขึ้นของจริง ข้อมูลที่กรอกจะไม่ปนกับหน้ารายงานจริง</div>
+
+<div class="card warn hidden" id="noDraft">ยังไม่มีข้อมูลจากหน้ารายงาน กรุณากด “‹ กลับไปรายงาน” แล้วกรอกข้อมูลก่อน</div>
+<div class="chkbox hidden" id="chkBox" role="status" aria-live="polite"></div>
+<div class="card"><h2>ตัวอย่างเอกสาร</h2>
+<div class="pvbox" id="pvbox"><div class="pvscale" id="pvscale"></div></div>
+<div class="hint">พรีวิวนี้จำลองหน้า A4 ให้ดูคร่าว ๆ ไฟล์ Word จะใช้ฟอนต์ TH Sarabun New ตามแบบฟอร์มจริง และมีรหัสเอกสาร VTBS-RP-AOD-002 ที่ท้ายกระดาษทุกหน้า</div>
+</div>
+<div class="bar">
+  <button class="doc" id="btnDoc" type="button">📄 ดาวน์โหลดไฟล์ Word</button>
+</div>
+</div>
+<div class="toast" id="toast"></div>
+<script>window.AOCC_KEYS={draft:"aocc_proto_draft",names:"aocc_proto_names",phone:"aocc_proto_phone",shift:"aocc_proto_shift"};</script>
+<script src="../aocc.js"></script>
+<script src="../../return-flight/word/lib/jszip.min.js"></script>
+<script>
+const A=window.AoccLib;
+const KEYS=window.AOCC_KEYS||{draft:"aocc_draft",names:"aocc_names",phone:"aocc_phone",shift:"aocc_shift"};
+const $=id=>document.getElementById(id);
+function loadModel(){
+  let o=null;
+  try{o=JSON.parse(localStorage.getItem(KEYS.draft)||"null")}catch(e){}
+  return A.modelFromDraft(o);
+}
+function toast(t){const e=$("toast");e.textContent=t;e.classList.add("show");setTimeout(()=>e.classList.remove("show"),2200)}
+function download(blob,name){const u=URL.createObjectURL(blob),a=document.createElement("a");a.href=u;a.download=name;a.rel="noopener";document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),60000)}
+function fitPreview(){
+  const box=$("pvbox"),scale=$("pvscale");
+  if(!box||!scale)return;
+  const pages=scale.querySelectorAll(".a4");
+  let h=0;
+  pages.forEach(function(p,i){h+=p.offsetHeight+(i?16:0)});
+  const w=box.clientWidth||794,s=w/794;
+  scale.style.transform="scale("+s+")";
+  box.style.height=Math.ceil((h||1123)*s)+"px";
+}
+function paintChk(m){
+  const miss=A.missingFields(m),box=$("chkBox");
+  if(!miss.length){box.className="chkbox";box.textContent="ข้อมูลครบแล้ว พร้อมสร้างไฟล์ Word";return}
+  box.className="chkbox bad";
+  box.innerHTML="⚠️ ยังขาดข้อมูล "+miss.length+" ช่อง<ul>"+miss.map(function(x){
+    return '<li><a href="../#'+x.k+'">'+x.label+'</a></li>';
+  }).join("")+"</ul>";
+}
+function render(){
+  const m=loadModel();
+  const empty=!m.writerName&&!m.fromName&&!m.toName&&m.no4&&m.no5;
+  $("noDraft").classList.toggle("hidden",!empty);
+  $("pvscale").innerHTML=A.pageHTML(m);
+  // add colgroup for widths if table exists
+  $("pvscale").querySelectorAll("table.rep").forEach(function(t){
+    if(t.querySelector("colgroup"))return;
+    const cg=document.createElement("colgroup");
+    ["c1","c2","c3","c4"].forEach(function(c){const col=document.createElement("col");col.className=c;cg.appendChild(col)});
+    t.insertBefore(cg,t.firstChild);
+  });
+  paintChk(m);
+  fitPreview();
+}
+async function makeDoc(){
+  const m=loadModel();
+  const miss=A.missingFields(m);
+  if(miss.length&&!confirm("ยังขาดข้อมูล "+miss.length+" ช่อง ต้องการสร้างไฟล์ต่อหรือไม่?"))return;
+  if(typeof JSZip==="undefined"){toast("โหลดไลบรารีไฟล์ไม่สำเร็จ");return}
+  const blob=await A.buildDocx(JSZip,m,"blob");
+  const name=A.fileBase(m)+".docx";
+  download(blob,name);
+  toast("ดาวน์โหลด "+name+" แล้ว ✓");
+}
+$("btnDoc").addEventListener("click",function(){makeDoc().catch(function(e){console.error(e);toast("สร้างไฟล์ไม่สำเร็จ")})});
+addEventListener("resize",fitPreview);
+render();
+</script>
+<div id="offlineBadge" role="status" aria-live="polite" hidden style="position:fixed;top:calc(env(safe-area-inset-top,0px) + 4px);right:6px;z-index:60;font:600 11px/1.6 system-ui,sans-serif;padding:1px 8px;border-radius:10px;background:var(--warn-bg,#fff3e6);color:var(--warn-ink,#b4470f);border:1px solid var(--warn-line,#f1c08a);opacity:.92;pointer-events:none">● ออฟไลน์</div>
+<style>#swUpdate[hidden],#offlineBadge[hidden]{display:none!important}</style>
+
+
+<script>/* ป้ายออฟไลน์เท่านั้น ไม่ลงทะเบียน service worker */
+(function(){var b=document.getElementById("offlineBadge");if(!b)return;function u(){b.hidden=navigator.onLine!==false}u();addEventListener("online",u);addEventListener("offline",u)})();</script>
+</body>
+</html>
